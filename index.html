@@ -5,6 +5,18 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Semantic Domain-to-Code Compiler</title>
   <meta name="description" content="Transform a domain topic into a governed semantic blueprint, executable DSL, simulation, and multi-target code generation." />
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "Semantic Domain-to-Code Compiler",
+    "applicationCategory": "DeveloperTool",
+    "description": "Converts a domain topic into a KnowledgeMap, contracts, executable DSL, simulation, and deterministic multi-target code generation.",
+    "operatingSystem": "Cross-platform",
+    "softwareVersion": "0.9.0",
+    "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}
+  }
+  </script>
   <style>
     :root {
       --bg: #0f1115;
@@ -21,7 +33,8 @@
       --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
     }
     * { box-sizing: border-box; }
-    body { margin:0; font-family: var(--font-stack); color: var(--text); background: var(--bg); -webkit-font-smoothing: antialiased; }
+  body { margin:0; font-family: var(--font-stack); color: var(--text); background: var(--bg); -webkit-font-smoothing: antialiased; transition: background .35s, color .35s; }
+  body.theme-light { --bg:#f5f7fb; --panel:#ffffff; --panel-alt:#e9eef4; --text:#1f242b; --muted:#5a6a7c; --accent:#1d63d8; --accent-glow:#0d55c8; --danger:#c1224b; --ok:#0a8c5f; --warning:#d98200; }
     a { color: var(--accent); text-decoration: none; }
     a:hover { text-decoration: underline; }
     header { padding: 3.5rem 1.5rem 2rem; text-align: center; background: linear-gradient(145deg,#10131a,#1a2330 55%,#12161d); position: relative; overflow: hidden; }
@@ -34,8 +47,9 @@
     .btn:hover { transform: translateY(-2px); box-shadow:0 6px 28px -6px rgba(91,155,255,.6); }
     nav { position:sticky; top:0; background: rgba(15,17,21,0.85); backdrop-filter: blur(12px); border-bottom:1px solid #222a33; z-index:40; }
     nav ul { margin:0; padding:.5rem 1rem; display:flex; gap:1rem; flex-wrap:wrap; list-style:none; font-size:.9rem; }
-    nav a { padding:.5rem .75rem; border-radius:.4rem; display:inline-block; }
-    nav a:hover { background: var(--panel-alt); }
+  nav a { padding:.5rem .75rem; border-radius:.4rem; display:inline-block; position:relative; }
+  nav a.active { background: var(--panel-alt); color: var(--accent-glow); }
+  nav a:hover { background: var(--panel-alt); }
     main { max-width: 1240px; margin: 0 auto; padding: 2.5rem 1.25rem 5rem; line-height:1.55; }
     section { margin-bottom: 4.5rem; }
     h2 { margin:0 0 1.25rem; font-size: clamp(1.6rem,3vw,2.15rem); }
@@ -72,10 +86,17 @@
     .split { display:grid; gap:2rem; }
     @media (min-width:1000px){ .split { grid-template-columns: 1fr 1fr; align-items:start; } }
     .highlight { background: linear-gradient(90deg,rgba(91,155,255,.15),rgba(58,219,166,.12)); padding:.25rem .55rem; border-radius:.4rem; }
+  .theme-toggle-wrap { position:absolute; right:1rem; top:1rem; display:flex; gap:.6rem; }
+  .theme-toggle-btn { background:var(--panel-alt); color:var(--text); border:1px solid #2a3642; padding:.55rem .85rem; border-radius:.6rem; cursor:pointer; font-size:.7rem; letter-spacing:.5px; }
+  .cta-row.margin-top { margin-top:1.25rem; }
+  .note-muted { margin-top:1.5rem; font-size:.85rem; color:var(--muted); }
   </style>
 </head>
 <body>
   <header>
+    <div class="theme-toggle-wrap">
+      <button id="themeToggle" class="theme-toggle-btn" aria-label="Toggle theme">LIGHT</button>
+    </div>
     <h1>Semantic Domain‑to‑Code Compiler</h1>
     <p class="tagline">From a single topic input to a 10‑level semantic KnowledgeMap, canonical contracts, an executable DSL, simulation, and deterministic multi‑target code generation. <span class="highlight">Compile once. Regenerate forever.</span></p>
     <div class="cta-row">
@@ -109,10 +130,51 @@
     </ul>
   </nav>
   <main>
+    <section id="quick-start">
+      <h2>Quick Start<a class="anchor-link" href="#quick-start">§</a></h2>
+      <p>Illustrative CLI (roadmap) showing lifecycle actions from topic capture to multi-target emission.</p>
+      <pre><code># Initialize a new semantic project
+sdcc init predictive-maintenance
+
+# Explore domain to depth 10 and extract contracts
+sdcc explore "Predictive Maintenance Platform for Industrial Pumps" --depth 10
+
+# Synthesize spec & first DSL draft
+sdcc synthesize --out plan.xml
+
+# Simulate behavior before code generation
+sdcc simulate plan.xml --trace --speed=fast
+
+# Transpile into multiple targets
+sdcc transpile plan.xml --targets ts,dart,csharp,html --out ./generated
+
+# Enrich & partial regenerate after domain update
+sdcc enrich add-node EnergyUsage --parent PumpOperations
+sdcc regenerate plan.xml --partial
+
+# Lint & (future) test harness
+sdcc lint plan.xml
+sdcc test plan.xml
+</code></pre>
+      <p class="muted">Commands are conceptual—actual interface will evolve.</p>
+    </section>
     <section id="pipeline">
       <h2>End‑to‑End Pipeline<a class="anchor-link" href="#pipeline">§</a></h2>
       <div class="pipeline" aria-label="Pipeline Diagram"><pre>Topic → KnowledgeMap(10) → Enrich+Autofix → Contracts → Spec → DSL(S‑IR) → Visual Edit → Simulate → Multi‑Target Code → Regenerate & Reuse</pre></div>
       <p>Each stage narrows ambiguity and raises determinism. The <strong>KnowledgeMap</strong> becomes a reusable semantic substrate: future DSLs derive from established structural intelligence instead of re‑prompting from scratch.</p>
+      <div class="pipeline" aria-label="Mermaid Diagram">
+        <pre class="mermaid">flowchart LR
+  A[Topic Input] --> B[KnowledgeMap (10 levels)]
+  B --> C[Enrichment & Autofix]
+  C --> D[Canonical Contracts]
+  D --> E[Semantic Spec]
+  E --> F[DSL (S-IR)]
+  F --> G[Visual / Block Editing]
+  G --> H[Simulation & Interpreter]
+  H --> I[Deterministic Codegen]
+  I --> J[Partial Regeneration & Multi-DSL]
+        </pre>
+      </div>
       <div class="inline-link-block">
         <a href="pitch-decks/WHITEPAPER_REVISED.md#L1" target="_blank" rel="noopener">Read Full Lifecycle →</a>
       </div>
@@ -248,11 +310,11 @@ END</code></pre>
       <div class="cta-panel">
         <h2>Ready to Compile Domain Knowledge?</h2>
         <p>Adopt the semantic synthesis layer early to institutionalize domain intelligence and enable safe, deterministic regeneration across evolving stacks.</p>
-        <div class="cta-row" style="margin-top:1.25rem;">
+  <div class="cta-row margin-top">
           <a class="btn" href="pitch-decks/WHITEPAPER_REVISED.md" target="_blank" rel="noopener">Read Full Whitepaper</a>
           <a class="btn secondary" href="pitch-decks/DSL_GRAMMAR_REFERENCE.md" target="_blank" rel="noopener">Explore DSL Grammar</a>
         </div>
-        <p style="margin-top:1.5rem; font-size:.85rem; color:var(--muted);">Next: integrate telemetry + partial regeneration engine; request early access channel.</p>
+  <p class="note-muted">Next: integrate telemetry + partial regeneration engine; request early access channel.</p>
       </div>
     </section>
   </main>
@@ -261,7 +323,51 @@ END</code></pre>
     <p>Artifacts: <a href="pitch-decks/WHITEPAPER_REVISED.md">Whitepaper</a> • <a href="pitch-decks/DSL_GRAMMAR_REFERENCE.md">Grammar Reference</a></p>
     <p>&copy; <span id="year"></span> Semantic Synthesis Platform. All rights reserved.</p>
   </footer>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js" integrity="sha384-vjsYLk4nA5VgQOHqyrqk7vRh9bZ1xgT8J9n9jWnV6cYQOAUwO50M3FrstGvY1JDL" crossorigin="anonymous"></script>
   <script>
+    mermaid.initialize({ startOnLoad: true, theme: 'dark' });
+    // Theme toggle
+    const themeBtn = document.getElementById('themeToggle');
+    const storedTheme = localStorage.getItem('sdcc-theme');
+    if (storedTheme === 'light') { document.body.classList.add('theme-light'); themeBtn.textContent = 'DARK'; }
+    themeBtn.addEventListener('click', () => {
+      const light = document.body.classList.toggle('theme-light');
+      themeBtn.textContent = light ? 'DARK' : 'LIGHT';
+      localStorage.setItem('sdcc-theme', light ? 'light' : 'dark');
+      try { mermaid.initialize({ startOnLoad:false, theme: light ? 'default' : 'dark' }); mermaid.run(); } catch(e) {}
+    });
+
+    // Scroll spy
+    const navLinks = Array.from(document.querySelectorAll('nav a[href^="#"]'));
+    const sections = navLinks.map(l => document.querySelector(l.getAttribute('href'))).filter(Boolean);
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          const id = '#' + entry.target.id;
+          navLinks.forEach(a => a.classList.toggle('active', a.getAttribute('href') === id));
+        }
+      });
+    }, { root:null, rootMargin:'0px 0px -70% 0px', threshold:0.1 });
+    sections.forEach(s => observer.observe(s));
+
+    // Copy buttons
+    function addCopyButtons(){
+      document.querySelectorAll('pre > code').forEach(code => {
+        const pre = code.parentElement;
+        if (pre.classList.contains('copy-added')) return;
+        pre.classList.add('copy-added');
+        const btn = document.createElement('button');
+        btn.textContent = 'COPY';
+        btn.setAttribute('aria-label','Copy code');
+        Object.assign(btn.style,{position:'absolute',top:'6px',right:'6px',background:'var(--panel-alt)',color:'var(--text)',border:'1px solid #2a3642',padding:'.3rem .6rem',fontSize:'.6rem',letterSpacing:'.5px',borderRadius:'.4rem',cursor:'pointer'});
+        btn.addEventListener('click',()=>{navigator.clipboard.writeText(code.textContent).then(()=>{btn.textContent='COPIED'; setTimeout(()=>btn.textContent='COPY',1500);});});
+        pre.style.position='relative';
+        pre.appendChild(btn);
+      });
+    }
+    addCopyButtons();
+
+    // Year
     document.getElementById('year').textContent = new Date().getFullYear();
   </script>
 </body>
