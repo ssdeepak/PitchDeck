@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Semantic Domain-to-Code Compiler</title>
+  <meta name="description" content="Transform a domain topic into a governed semantic blueprint, executable DSL, simulation, and multi-target code generation." />
+  <style>
+    :root {
+      --bg: #0f1115;
+      --panel: #1b1f27;
+      --panel-alt: #242a33;
+      --text: #e6ecf3;
+      --muted: #96a3b6;
+      --accent: #5b9bff;
+      --accent-glow: #8bc1ff;
+      --danger: #ff4772;
+      --ok: #3adba6;
+      --warning: #ffb347;
+      --font-stack: system-ui,-apple-system,Segoe UI,Roboto,Inter,Helvetica,Arial,sans-serif;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+    }
+    * { box-sizing: border-box; }
+    body { margin:0; font-family: var(--font-stack); color: var(--text); background: var(--bg); -webkit-font-smoothing: antialiased; }
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    header { padding: 3.5rem 1.5rem 2rem; text-align: center; background: linear-gradient(145deg,#10131a,#1a2330 55%,#12161d); position: relative; overflow: hidden; }
+    header:before { content:""; position:absolute; inset:0; background: radial-gradient(circle at 20% 30%, rgba(91,155,255,0.15), transparent 60%), radial-gradient(circle at 80% 70%, rgba(58,219,166,0.12), transparent 60%); pointer-events:none; }
+    h1 { font-size: clamp(2rem, 5vw, 3.2rem); margin:0 0 1rem; letter-spacing:.5px; }
+    .tagline { font-size: clamp(1rem,1.6vw,1.35rem); max-width: 960px; margin: 0 auto 1.75rem; line-height:1.45; color: var(--muted); }
+    .cta-row { display:flex; flex-wrap:wrap; gap:1rem; justify-content:center; }
+    .btn { display:inline-flex; align-items:center; gap:.5rem; background: var(--accent); color:#08141f; padding:.85rem 1.25rem; font-weight:600; border-radius: .55rem; box-shadow:0 4px 20px -5px rgba(91,155,255,.45); transition:.25s; }
+    .btn.secondary { background: var(--panel-alt); color: var(--text); box-shadow:0 2px 10px -3px rgba(0,0,0,.5); }
+    .btn:hover { transform: translateY(-2px); box-shadow:0 6px 28px -6px rgba(91,155,255,.6); }
+    nav { position:sticky; top:0; background: rgba(15,17,21,0.85); backdrop-filter: blur(12px); border-bottom:1px solid #222a33; z-index:40; }
+    nav ul { margin:0; padding:.5rem 1rem; display:flex; gap:1rem; flex-wrap:wrap; list-style:none; font-size:.9rem; }
+    nav a { padding:.5rem .75rem; border-radius:.4rem; display:inline-block; }
+    nav a:hover { background: var(--panel-alt); }
+    main { max-width: 1240px; margin: 0 auto; padding: 2.5rem 1.25rem 5rem; line-height:1.55; }
+    section { margin-bottom: 4.5rem; }
+    h2 { margin:0 0 1.25rem; font-size: clamp(1.6rem,3vw,2.15rem); }
+    h3 { margin-top:2.25rem; font-size:1.25rem; letter-spacing:.5px; text-transform:uppercase; font-weight:600; color: var(--accent-glow); }
+    p { margin: 0 0 1.1rem; }
+    code, pre { font-family: var(--mono); background: #12171f; color: #d6efff; border:1px solid #1f2731; border-radius:.45rem; font-size:.85rem; line-height:1.4; }
+    pre { padding:1rem 1.1rem; overflow:auto; position:relative; }
+    .grid { display:grid; gap:1.5rem; }
+    @media (min-width:900px){ .grid.cols-3 { grid-template-columns: repeat(3,1fr); } }
+    @media (min-width:900px){ .grid.cols-4 { grid-template-columns: repeat(4,1fr); } }
+    .card { background: linear-gradient(160deg,#1c222b,#161b22); padding:1.1rem 1.15rem 1.2rem; border:1px solid #232c36; border-radius:.75rem; position:relative; box-shadow:0 2px 8px -2px rgba(0,0,0,.55); }
+    .card h4 { margin:.25rem 0 .65rem; font-size:1.05rem; }
+    .muted { color: var(--muted); font-size:.9rem; }
+    .accent { color: var(--accent-glow); }
+    .table-wrap { overflow:auto; border:1px solid #1f2731; border-radius:.6rem; margin:1rem 0 1.5rem; }
+    table { border-collapse: collapse; width:100%; min-width:700px; font-size:.85rem; }
+    th, td { padding:.6rem .75rem; border-bottom:1px solid #1f2731; text-align:left; }
+    th { background:#161c24; font-weight:600; color: var(--accent-glow); position:sticky; top:0; }
+    tr:last-child td { border-bottom:none; }
+    .pipeline { font-family: var(--mono); font-size:.7rem; line-height:1.15; white-space:pre; background:#12171f; padding:1rem; border:1px solid #1f2731; border-radius:.6rem; }
+    .badge-row { display:flex; gap:.6rem; flex-wrap:wrap; margin:1rem 0 1.5rem; }
+    .badge { background:#19212a; border:1px solid #24303c; padding:.4rem .65rem; font-size:.7rem; letter-spacing:.5px; border-radius:2rem; text-transform:uppercase; color: var(--muted); }
+    .hero-kpis { display:flex; flex-wrap:wrap; gap:1rem; justify-content:center; margin-top:2rem; }
+    .kpi { min-width:150px; background:#182029; padding:.9rem 1rem; border:1px solid #22303c; border-radius:.65rem; text-align:center; }
+    .kpi .val { font-size:1.3rem; font-weight:600; color: var(--ok); }
+    .kpi .label { font-size:.7rem; letter-spacing:1px; text-transform:uppercase; color: var(--muted); }
+    footer { background:#101419; padding:2.5rem 1.25rem 3.5rem; font-size:.8rem; color: var(--muted); }
+    footer a { color: var(--accent); }
+    .anchor-link { opacity:0; margin-left:.35rem; font-size:.8rem; }
+    h2:hover .anchor-link, h3:hover .anchor-link { opacity:1; }
+    .inline-link-block { margin-top:.9rem; display:flex; gap:.85rem; flex-wrap:wrap; }
+    .cta-panel { background: linear-gradient(135deg,#18222d,#141b23); border:1px solid #23313d; padding:2rem 1.5rem 2.2rem; border-radius:1rem; max-width:1050px; margin:0 auto; text-align:center; }
+    .cta-panel h2 { margin-top:0; }
+    .split { display:grid; gap:2rem; }
+    @media (min-width:1000px){ .split { grid-template-columns: 1fr 1fr; align-items:start; } }
+    .highlight { background: linear-gradient(90deg,rgba(91,155,255,.15),rgba(58,219,166,.12)); padding:.25rem .55rem; border-radius:.4rem; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Semantic Domain‑to‑Code Compiler</h1>
+    <p class="tagline">From a single topic input to a 10‑level semantic KnowledgeMap, canonical contracts, an executable DSL, simulation, and deterministic multi‑target code generation. <span class="highlight">Compile once. Regenerate forever.</span></p>
+    <div class="cta-row">
+      <a class="btn" href="#pipeline">View Pipeline</a>
+      <a class="btn secondary" href="#dsl-examples">DSL Examples</a>
+      <a class="btn secondary" href="pitch-decks/WHITEPAPER_REVISED.md" target="_blank" rel="noopener">Full Whitepaper</a>
+      <a class="btn secondary" href="pitch-decks/DSL_GRAMMAR_REFERENCE.md" target="_blank" rel="noopener">Grammar Reference</a>
+    </div>
+    <div class="hero-kpis">
+      <div class="kpi"><div class="val">10‑Level</div><div class="label">Depth Mapping</div></div>
+      <div class="kpi"><div class="val">-37%</div><div class="label">Entropy (β)</div></div>
+      <div class="kpi"><div class="val">18 min</div><div class="label">Idea → DSL (α)</div></div>
+      <div class="kpi"><div class="val">4 Targets</div><div class="label">Current Outputs</div></div>
+    </div>
+  </header>
+  <nav>
+    <ul>
+      <li><a href="#pipeline">Pipeline</a></li>
+      <li><a href="#differentiation">Differentiation</a></li>
+      <li><a href="#knowledge-map">KnowledgeMap</a></li>
+      <li><a href="#contracts">Contracts</a></li>
+      <li><a href="#dsl">DSL</a></li>
+      <li><a href="#multi-dsl">Multi‑DSL</a></li>
+      <li><a href="#interpreter">Simulation</a></li>
+      <li><a href="#codegen">Codegen</a></li>
+      <li><a href="#governance">Governance</a></li>
+      <li><a href="#security">Security</a></li>
+      <li><a href="#metrics">Metrics</a></li>
+      <li><a href="#dsl-examples">Examples</a></li>
+      <li><a href="#cta">Get Started</a></li>
+    </ul>
+  </nav>
+  <main>
+    <section id="pipeline">
+      <h2>End‑to‑End Pipeline<a class="anchor-link" href="#pipeline">§</a></h2>
+      <div class="pipeline" aria-label="Pipeline Diagram"><pre>Topic → KnowledgeMap(10) → Enrich+Autofix → Contracts → Spec → DSL(S‑IR) → Visual Edit → Simulate → Multi‑Target Code → Regenerate & Reuse</pre></div>
+      <p>Each stage narrows ambiguity and raises determinism. The <strong>KnowledgeMap</strong> becomes a reusable semantic substrate: future DSLs derive from established structural intelligence instead of re‑prompting from scratch.</p>
+      <div class="inline-link-block">
+        <a href="pitch-decks/WHITEPAPER_REVISED.md#L1" target="_blank" rel="noopener">Read Full Lifecycle →</a>
+      </div>
+    </section>
+
+    <section id="differentiation">
+      <h2>Differentiation<a class="anchor-link" href="#differentiation">§</a></h2>
+      <p>Low/no‑code tools accelerate surface assembly; raw AI codegen is fast but volatile. We provide a <em>governed semantic execution layer</em> with persistent IR and simulation.</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Dimension</th><th>Low/No‑Code</th><th>Raw AI Codegen</th><th>This Platform</th></tr></thead>
+          <tbody>
+            <tr><td>Domain Capture</td><td>Shallow forms</td><td>Implicit prompts</td><td>10‑level KnowledgeMap</td></tr>
+            <tr><td>Intermediate Representation</td><td>Opaque / absent</td><td>None</td><td>Portable S‑IR DSL</td></tr>
+            <tr><td>Determinism</td><td>UI-bound</td><td>Stochastic</td><td>Contracts + Grammar</td></tr>
+            <tr><td>Multi-Modal Fusion</td><td>Limited</td><td>Unstructured</td><td>AI + Data + IoT + Analytics + UX + Agents</td></tr>
+            <tr><td>Behavioral Testing</td><td>Post-build</td><td>Manual</td><td>Pre-emission simulation</td></tr>
+            <tr><td>Regeneration</td><td>Manual rebuild</td><td>Risky</td><td>Incremental & partial</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="knowledge-map">
+      <h2>KnowledgeMap<a class="anchor-link" href="#knowledge-map">§</a></h2>
+      <p>A 10‑level semantic domain graph combining hierarchical depth with relational edges (dependency, compositional, causal, associative). Enrichment adds KPIs, roles, risks, and glossary metadata while <strong>Autofix</strong> repairs structural hygiene (orphan removal, type normalization).</p>
+      <p><strong>Value:</strong> Persistent substrate enabling multiple future DSLs (operational, analytics, IoT, agent collaboration) without re-capturing the domain.</p>
+    </section>
+
+    <section id="contracts">
+      <h2>Canonical Contracts<a class="anchor-link" href="#contracts">§</a></h2>
+      <div class="grid cols-3">
+        <div class="card"><h4>Entities</h4><p class="muted">Durable domain shapes for modeling & storage.</p></div>
+        <div class="card"><h4>Events</h4><p class="muted">Lifecycle & state transition signals.</p></div>
+        <div class="card"><h4>APIs</h4><p class="muted">Interaction boundaries (OpenAPI/GraphQL planned).</p></div>
+        <div class="card"><h4>State Machines</h4><p class="muted">Bounded context lifecycles gating flows.</p></div>
+        <div class="card"><h4>Token Intelligence</h4><p class="muted">Weighted semantic vocabulary to constrain AI variance.</p></div>
+        <div class="card"><h4>Alignment Spine</h4><p class="muted">Contracts shrink hallucination window & enable partial rebuilds.</p></div>
+      </div>
+    </section>
+
+    <section id="dsl">
+      <h2>Executable DSL (S‑IR)<a class="anchor-link" href="#dsl">§</a></h2>
+      <p>The portable semantic intermediate representation consumed by interpreter & transpilers. Grammar spans orchestration (<code>AGENT</code>, <code>CALL</code>), interaction (<code>IN</code>, <code>CHOICE</code>, <code>FORM</code>), data modeling (<code>SCHEMA</code>, <code>TABLE</code>), AI reasoning (<code>PROMPT</code>, <code>GENERATE</code>), analytics (<code>ANALYZE</code>), IoT (<code>SENSE</code>, <code>ACTUATE</code>), and integration (<code>FETCH</code>, <code>READ</code>, <code>WRITE</code>).</p>
+      <div class="inline-link-block">
+        <a href="pitch-decks/DSL_GRAMMAR_REFERENCE.md" target="_blank" rel="noopener">Full Grammar Reference →</a>
+      </div>
+    </section>
+
+    <section id="multi-dsl">
+      <h2>Multi‑DSL Layering<a class="anchor-link" href="#multi-dsl">§</a></h2>
+      <p>Generate layered DSLs from one KnowledgeMap + Contracts: Operational, Analytics, IoT Automation, Agent Collaboration, and vertical packs. All share lineage—updates propagate deterministically.</p>
+    </section>
+
+    <section id="interpreter">
+      <h2>Simulation & Interpreter<a class="anchor-link" href="#interpreter">§</a></h2>
+      <p>Shift‑left validation executes DSL behavior before code emission. Features include statement handlers, scoped variables per agent, layered prompt assembly, breakpoints (planned), and traceable execution paths.</p>
+      <p class="muted">Outcome: Early detection of orchestration flaws & integration gaps.</p>
+    </section>
+
+    <section id="codegen">
+      <h2>Deterministic Code Generation<a class="anchor-link" href="#codegen">§</a></h2>
+      <div class="grid cols-4">
+        <div class="card"><h4>TypeScript</h4><p class="muted">Agent orchestration & logic scaffolds.</p></div>
+        <div class="card"><h4>Dart / Flutter</h4><p class="muted">Reactive data models & state.</p></div>
+        <div class="card"><h4>C# / Semantic Kernel</h4><p class="muted">Orchestration + wizard HTML.</p></div>
+        <div class="card"><h4>HTML Wizard</h4><p class="muted">Interactive multi-step UI.</p></div>
+      </div>
+      <p class="muted">Planned: OpenAPI, GraphQL, workflow YAML, additional backends.</p>
+    </section>
+
+    <section id="governance">
+      <h2>Governance & Policy<a class="anchor-link" href="#governance">§</a></h2>
+      <p>Environment and statement-family aware policies (e.g., restrict <code>ACTUATE</code> in prod, cap <code>GENERATE</code> tokens in regulated sectors). Enforcement phases: pre-interpretation lint, runtime guard, transpiler omission/stubbing.</p>
+      <pre><code>policies:
+  - id: restrict-actuation-production
+    match: { environment: prod, statements: [ACTUATE] }
+    action: review
+  - id: block-unbounded-generate
+    match: { environment: regulated, statements: [GENERATE] }
+    constraints: { maxTokens: 400, creativity: Focused }
+    action: allow</code></pre>
+    </section>
+
+    <section id="security">
+      <h2>Security & Data Isolation<a class="anchor-link" href="#security">§</a></h2>
+      <p>Principles: minimize semantic layer exposure, pluggable providers, reproducibility without data leakage. Techniques: redacted prompt archives, scoped vector stores, runtime sandboxing, secret indirection, provenance stamping.</p>
+    </section>
+
+    <section id="metrics">
+      <h2>Metrics & KPIs<a class="anchor-link" href="#metrics">§</a></h2>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Metric</th><th>Signal</th><th>Early (Placeholder)</th><th>12‑mo Target</th></tr></thead>
+          <tbody>
+            <tr><td>Domain Capture Velocity</td><td>Acceleration</td><td>18 min</td><td>&lt; 10 min</td></tr>
+            <tr><td>Contract Density</td><td>Extraction Quality</td><td>0.42</td><td>&gt; 0.55</td></tr>
+            <tr><td>Entropy Reduction</td><td>Reliability</td><td>-37%</td><td>-55%</td></tr>
+            <tr><td>Regeneration Latency (full)</td><td>Iteration Speed</td><td>90s</td><td>&lt; 45s</td></tr>
+            <tr><td>Regeneration Latency (partial)</td><td>Incremental Build</td><td>—</td><td>&lt; 20s</td></tr>
+            <tr><td>Heuristic Accuracy</td><td>First Draft Acceptance</td><td>68%</td><td>85%</td></tr>
+            <tr><td>Simulation Adoption</td><td>Quality Discipline</td><td>62%</td><td>90%</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="dsl-examples">
+      <h2>DSL Examples<a class="anchor-link" href="#dsl-examples">§</a></h2>
+      <h3>Energy Optimizer</h3>
+      <pre><code>PLAN "Energy Optimizer"
+  SENSE meter.reading EVERY 5m
+  ANALYZE usage TREND 24h
+  IF usage &gt; threshold THEN
+    GENERATE "Suggest savings"
+  END
+END</code></pre>
+      <h3>Maintenance Orchestrator</h3>
+      <pre><code>PLAN "Maintenance Orchestrator"
+  SCHEMA Pump(id, model, hoursRun, vibrationIndex)
+  SENSE pumpSensor.vibration EVERY 10m
+  ANALYZE vibrationIndex TREND 7d
+  IF vibrationIndex &gt; threshold THEN
+    EVENT "FailureDetected"
+    GENERATE "Draft technician work order"
+    CALL "EscalationAgent"
+  END
+END</code></pre>
+      <p class="muted">See whitepaper narrative for full end‑to‑end scenario.</p>
+    </section>
+
+    <section id="cta">
+      <div class="cta-panel">
+        <h2>Ready to Compile Domain Knowledge?</h2>
+        <p>Adopt the semantic synthesis layer early to institutionalize domain intelligence and enable safe, deterministic regeneration across evolving stacks.</p>
+        <div class="cta-row" style="margin-top:1.25rem;">
+          <a class="btn" href="pitch-decks/WHITEPAPER_REVISED.md" target="_blank" rel="noopener">Read Full Whitepaper</a>
+          <a class="btn secondary" href="pitch-decks/DSL_GRAMMAR_REFERENCE.md" target="_blank" rel="noopener">Explore DSL Grammar</a>
+        </div>
+        <p style="margin-top:1.5rem; font-size:.85rem; color:var(--muted);">Next: integrate telemetry + partial regeneration engine; request early access channel.</p>
+      </div>
+    </section>
+  </main>
+  <footer>
+    <p><strong>Semantic Domain‑to‑Code Compiler</strong> – A governed semantic synthesis and regeneration layer.</p>
+    <p>Artifacts: <a href="pitch-decks/WHITEPAPER_REVISED.md">Whitepaper</a> • <a href="pitch-decks/DSL_GRAMMAR_REFERENCE.md">Grammar Reference</a></p>
+    <p>&copy; <span id="year"></span> Semantic Synthesis Platform. All rights reserved.</p>
+  </footer>
+  <script>
+    document.getElementById('year').textContent = new Date().getFullYear();
+  </script>
+</body>
+</html>
