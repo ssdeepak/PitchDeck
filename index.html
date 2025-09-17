@@ -288,6 +288,99 @@
       border:1px solid rgba(255,255,255,.1); 
       border-radius:.8rem; 
       box-shadow: var(--shadow);
+      margin: 1.5rem 0;
+    }
+    
+    /* Mermaid diagram specific styles */
+    .diagram-container {
+      background: linear-gradient(145deg, var(--panel), var(--panel-alt));
+      border: 1px solid rgba(255,255,255,.15);
+      border-radius: 1rem;
+      padding: 2rem;
+      margin: 2rem 0 3rem;
+      box-shadow: var(--shadow);
+      overflow: hidden;
+      position: relative;
+    }
+    
+    .diagram-container:before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, var(--accent), var(--accent-glow), var(--ok));
+      border-radius: 1rem 1rem 0 0;
+    }
+    
+    .diagram-container .mermaid {
+      font-family: var(--font-stack) !important;
+      background: transparent !important;
+      padding: 1rem !important;
+      text-align: center;
+      white-space: normal;
+      font-size: 0.9rem;
+      line-height: 1.4;
+    }
+    
+    .diagram-container .mermaid svg {
+      max-width: 100% !important;
+      height: auto !important;
+      background: transparent !important;
+      border-radius: 0.5rem;
+      filter: drop-shadow(0 4px 8px rgba(0,0,0,0.2));
+    }
+    
+    /* Mobile optimizations for diagrams */
+    @media (max-width: 768px) {
+      .diagram-container {
+        padding: 1rem;
+        margin: 1.5rem 0 2rem;
+      }
+      
+      .diagram-container .mermaid {
+        font-size: 0.75rem !important;
+        padding: 0.5rem !important;
+      }
+      
+      .diagram-container .mermaid svg {
+        max-height: 400px;
+        width: 100% !important;
+      }
+      
+      /* Force mermaid to be more compact on mobile */
+      .diagram-container .mermaid .node rect {
+        rx: 8 !important;
+        ry: 8 !important;
+      }
+      
+      .diagram-container .mermaid .node text {
+        font-size: 11px !important;
+      }
+    }
+    
+    /* Enhanced h3 styling for diagram sections */
+    section h3 {
+      font-size: 1.4rem;
+      margin: 3rem 0 1.5rem;
+      padding: 1rem 1.5rem;
+      background: linear-gradient(135deg, rgba(91,155,255,0.1), rgba(58,219,166,0.1));
+      border-left: 4px solid var(--accent);
+      border-radius: 0.5rem;
+      color: var(--accent-glow);
+      font-weight: 700;
+      position: relative;
+    }
+    
+    section h3:first-of-type {
+      margin-top: 2rem;
+    }
+    
+    /* Regular pipeline text styling */
+    .pipeline:not(:has(.mermaid)) {
+      white-space: pre;
+      font-family: var(--mono);
     }
     .badge-row { 
       display:flex; 
@@ -520,24 +613,164 @@ sdcc test plan.xml
       <p class="muted">Commands are conceptual—actual interface will evolve.</p>
     </section>
     <section id="pipeline">
-      <h2>End‑to‑End Pipeline<a class="anchor-link" href="#pipeline">§</a></h2>
-      <div class="pipeline" aria-label="Pipeline Diagram"><pre>Topic → KnowledgeMap(10) → Enrich+Autofix → Contracts → Spec → DSL(S‑IR) → Visual Edit → Simulate → Multi‑Target Code → Regenerate & Reuse</pre></div>
-      <p>Each stage narrows ambiguity and raises determinism. The <strong>KnowledgeMap</strong> becomes a reusable semantic substrate: future DSLs derive from established structural intelligence instead of re‑prompting from scratch.</p>
-      <div class="pipeline" aria-label="Mermaid Diagram">
-        <pre class="mermaid">flowchart LR
-  A[Topic Input] --> B[KnowledgeMap (10 levels)]
-  B --> C[Enrichment & Autofix]
-  C --> D[Canonical Contracts]
-  D --> E[Semantic Spec]
-  E --> F[DSL (S-IR)]
-  F --> G[Visual / Block Editing]
-  G --> H[Simulation & Interpreter]
-  H --> I[Deterministic Codegen]
-  I --> J[Partial Regeneration & Multi-DSL]
-        </pre>
+      <h2>Visual Architecture Overview<a class="anchor-link" href="#pipeline">§</a></h2>
+      <p>From a single domain topic to production-ready, multi-target applications. Each diagram below shows a critical aspect of our semantic compilation approach.</p>
+      
+      <!-- Main Pipeline Flow -->
+      <h3>🚀 Complete Transformation Pipeline</h3>
+      <div class="diagram-container">
+        <div class="mermaid">
+graph TD
+    A[🎯 Domain Topic Input] --> B[🧠 AI Knowledge Mapping]
+    B --> C[📊 10-Level Semantic Structure]
+    C --> D[🔧 Enrichment & Auto-Fix]
+    D --> E[📋 Canonical Contracts]
+    E --> F[⚙️ Executable DSL Generation]
+    F --> G[🎨 Visual/Block Editor]
+    G --> H[🔍 Behavioral Simulation]
+    H --> I[💻 Multi-Target Codegen]
+    I --> J[🔄 Partial Regeneration]
+    
+    style A fill:#5b9bff,stroke:#8bc1ff,stroke-width:3px,color:#fff
+    style C fill:#3adba6,stroke:#2dd4bf,stroke-width:2px,color:#fff
+    style F fill:#ff4772,stroke:#f43f5e,stroke-width:2px,color:#fff
+    style I fill:#ffb347,stroke:#fb923c,stroke-width:2px,color:#fff
+        </div>
       </div>
+      
+      <!-- Knowledge Map Structure -->
+      <h3>🧠 10-Level Knowledge Map Structure</h3>
+      <div class="diagram-container">
+        <div class="mermaid">
+graph TB
+    subgraph "🎯 Domain Intelligence Layers"
+        L1[Level 1: Core Entities]
+        L2[Level 2: Relationships]
+        L3[Level 3: Behaviors]
+        L4[Level 4: Constraints]
+        L5[Level 5: Data Flow]
+        L6[Level 6: Business Rules]
+        L7[Level 7: Integration Points]
+        L8[Level 8: Performance Models]
+        L9[Level 9: Security Patterns]
+        L10[Level 10: Deployment Strategy]
+    end
+    
+    L1 --> L2 --> L3 --> L4 --> L5
+    L5 --> L6 --> L7 --> L8 --> L9 --> L10
+    
+    L10 --> DSL[🎨 Generated DSL]
+    DSL --> SIM[🔍 Simulation Engine]
+    DSL --> CODE[💻 Code Generation]
+    
+    style L1 fill:#5b9bff,stroke:#8bc1ff,stroke-width:2px,color:#fff
+    style L5 fill:#3adba6,stroke:#2dd4bf,stroke-width:2px,color:#fff
+    style L10 fill:#ff4772,stroke:#f43f5e,stroke-width:2px,color:#fff
+    style DSL fill:#ffb347,stroke:#fb923c,stroke-width:3px,color:#fff
+        </div>
+      </div>
+      
+      <!-- Multi-Target Generation -->
+      <h3>🎯 Multi-Target Code Generation</h3>
+      <div class="diagram-container">
+        <div class="mermaid">
+graph LR
+    subgraph "🏗️ Single DSL Source"
+        DSL[📝 Semantic DSL<br/>S-IR Format]
+    end
+    
+    subgraph "🎯 Target Platforms"
+        TS[📱 TypeScript<br/>React/Vue/Angular]
+        DART[🎨 Dart<br/>Flutter Mobile]
+        CS[⚡ C#<br/>.NET/Blazor]
+        PY[🐍 Python<br/>FastAPI/Django]
+        GO[🚀 Go<br/>Microservices]
+        SQL[🗄️ SQL<br/>Database Schema]
+    end
+    
+    DSL --> TS
+    DSL --> DART
+    DSL --> CS
+    DSL --> PY
+    DSL --> GO
+    DSL --> SQL
+    
+    style DSL fill:#5b9bff,stroke:#8bc1ff,stroke-width:3px,color:#fff
+    style TS fill:#3adba6,stroke:#2dd4bf,stroke-width:2px,color:#fff
+    style DART fill:#ff4772,stroke:#f43f5e,stroke-width:2px,color:#fff
+    style CS fill:#ffb347,stroke:#fb923c,stroke-width:2px,color:#fff
+        </div>
+      </div>
+      
+      <!-- Value Proposition -->
+      <h3>💎 Value Proposition Flow</h3>
+      <div class="diagram-container">
+        <div class="mermaid">
+graph TD
+    PROBLEM[❌ Traditional Development<br/>• Scattered Knowledge<br/>• Inconsistent Implementation<br/>• High Maintenance Cost] 
+    
+    SOLUTION[✅ Semantic Compilation<br/>• Centralized Domain Model<br/>• Consistent Multi-Target Output<br/>• Regenerative Architecture]
+    
+    subgraph "🔄 Regenerative Benefits"
+        REGEN1[📈 Stack Migration<br/>React → Vue in minutes]
+        REGEN2[🔧 Feature Updates<br/>Change once, deploy everywhere]
+        REGEN3[📊 Performance Optimization<br/>Auto-optimize per target]
+        REGEN4[🛡️ Security Updates<br/>Centralized policy enforcement]
+    end
+    
+    PROBLEM -->|Transform with| SOLUTION
+    SOLUTION --> REGEN1
+    SOLUTION --> REGEN2
+    SOLUTION --> REGEN3
+    SOLUTION --> REGEN4
+    
+    style PROBLEM fill:#ff4772,stroke:#f43f5e,stroke-width:2px,color:#fff
+    style SOLUTION fill:#3adba6,stroke:#2dd4bf,stroke-width:3px,color:#fff
+    style REGEN1 fill:#5b9bff,stroke:#8bc1ff,stroke-width:2px,color:#fff
+    style REGEN2 fill:#5b9bff,stroke:#8bc1ff,stroke-width:2px,color:#fff
+    style REGEN3 fill:#5b9bff,stroke:#8bc1ff,stroke-width:2px,color:#fff
+    style REGEN4 fill:#5b9bff,stroke:#8bc1ff,stroke-width:2px,color:#fff
+        </div>
+      </div>
+      
+      <!-- Simulation Engine -->
+      <h3>🔍 Pre-Generation Simulation</h3>
+      <div class="diagram-container">
+        <div class="mermaid">
+graph LR
+    subgraph "🎮 Simulation Engine"
+        SIM_INPUT[📊 DSL Specification]
+        SIM_ENGINE[⚙️ Behavioral Simulator]
+        SIM_OUTPUT[📈 Validation Results]
+    end
+    
+    subgraph "🔍 Validation Types"
+        PERF[⚡ Performance Testing]
+        SECURITY[🛡️ Security Analysis]
+        INTEGRATION[🔗 Integration Testing]
+        BUSINESS[📋 Business Logic Validation]
+    end
+    
+    SIM_INPUT --> SIM_ENGINE
+    SIM_ENGINE --> SIM_OUTPUT
+    
+    SIM_ENGINE --> PERF
+    SIM_ENGINE --> SECURITY
+    SIM_ENGINE --> INTEGRATION
+    SIM_ENGINE --> BUSINESS
+    
+    SIM_OUTPUT --> CODEGEN[✅ Approved for Generation]
+    SIM_OUTPUT --> REFINEMENT[🔄 Refinement Needed]
+    
+    style SIM_ENGINE fill:#5b9bff,stroke:#8bc1ff,stroke-width:3px,color:#fff
+    style CODEGEN fill:#3adba6,stroke:#2dd4bf,stroke-width:2px,color:#fff
+    style REFINEMENT fill:#ffb347,stroke:#fb923c,stroke-width:2px,color:#fff
+        </div>
+      </div>
+      
       <div class="inline-link-block">
-        <a href="pitch-decks/WHITEPAPER_REVISED.md#L1" target="_blank" rel="noopener">Read Full Lifecycle →</a>
+        <a href="WHITEPAPER_REVISED.md" target="_blank" rel="noopener">📖 Read Complete Technical Details →</a>
+        <a href="DSL_GRAMMAR_REFERENCE.md" target="_blank" rel="noopener">⚙️ Explore DSL Grammar →</a>
       </div>
     </section>
 
@@ -684,9 +917,49 @@ END</code></pre>
     <p>Artifacts: <a href="WHITEPAPER_REVISED.md">Whitepaper</a> • <a href="DSL_GRAMMAR_REFERENCE.md">Grammar Reference</a></p>
     <p>&copy; <span id="year"></span> Semantic Synthesis Platform. All rights reserved.</p>
   </footer>
-  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js" integrity="sha384-vjsYLk4nA5VgQOHqyrqk7vRh9bZ1xgT8J9n9jWnV6cYQOAUwO50M3FrstGvY1JDL" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10.6.1/dist/mermaid.min.js"></script>
   <script>
-    mermaid.initialize({ startOnLoad: true, theme: 'dark' });
+    // Initialize mermaid with proper configuration
+    mermaid.initialize({ 
+      startOnLoad: true, 
+      theme: 'dark',
+      flowchart: {
+        useMaxWidth: true,
+        htmlLabels: true,
+        curve: 'basis',
+        padding: 20,
+        nodeSpacing: 50,
+        rankSpacing: 80
+      },
+      graph: {
+        useMaxWidth: true,
+        htmlLabels: true,
+        curve: 'basis'
+      },
+      themeVariables: {
+        primaryColor: '#5b9bff',
+        primaryTextColor: '#ffffff',
+        primaryBorderColor: '#8bc1ff',
+        lineColor: '#96a3b6',
+        sectionBkgColor: '#1b1f27',
+        altSectionBkgColor: '#242a33',
+        gridColor: '#96a3b6',
+        secondaryColor: '#3adba6',
+        tertiaryColor: '#242a33',
+        background: 'transparent',
+        mainBkg: '#5b9bff',
+        secondBkg: '#3adba6',
+        tertiaryBkg: '#ff4772',
+        primaryBorderColor: '#8bc1ff',
+        primaryTextColor: '#ffffff',
+        fontFamily: 'system-ui,-apple-system,Segoe UI,Roboto,Inter,Helvetica,Arial,sans-serif',
+        fontSize: '14px',
+        darkMode: true,
+        edgeLabelBackground: 'transparent'
+      },
+      secure: ['secure', 'securityLevel', 'startOnLoad', 'maxTextSize'],
+      fontSize: 14
+    });
     
     // Theme toggle with improved transitions
     const themeBtn = document.getElementById('themeToggle');
@@ -699,10 +972,71 @@ END</code></pre>
       const light = document.body.classList.toggle('theme-light');
       themeBtn.textContent = light ? 'DARK' : 'LIGHT';
       localStorage.setItem('sdcc-theme', light ? 'light' : 'dark');
+      
+      // Reinitialize mermaid with new theme
       try { 
-        mermaid.initialize({ startOnLoad:false, theme: light ? 'default' : 'dark' }); 
+        mermaid.initialize({ 
+          startOnLoad: false, 
+          theme: light ? 'default' : 'dark',
+          flowchart: {
+            useMaxWidth: true,
+            htmlLabels: true,
+            curve: 'basis',
+            padding: 20,
+            nodeSpacing: 50,
+            rankSpacing: 80
+          },
+          graph: {
+            useMaxWidth: true,
+            htmlLabels: true,
+            curve: 'basis'
+          },
+          themeVariables: light ? {
+            primaryColor: '#2563eb',
+            primaryTextColor: '#ffffff',
+            primaryBorderColor: '#1d4ed8',
+            lineColor: '#64748b',
+            sectionBkgColor: '#f1f5f9',
+            altSectionBkgColor: '#ffffff',
+            gridColor: '#64748b',
+            secondaryColor: '#059669',
+            tertiaryColor: '#f8fafc',
+            background: 'transparent',
+            mainBkg: '#2563eb',
+            secondBkg: '#059669',
+            tertiaryBkg: '#dc2626',
+            fontFamily: 'system-ui,-apple-system,Segoe UI,Roboto,Inter,Helvetica,Arial,sans-serif',
+            fontSize: '14px',
+            darkMode: false,
+            edgeLabelBackground: 'transparent'
+          } : {
+            primaryColor: '#5b9bff',
+            primaryTextColor: '#ffffff',
+            primaryBorderColor: '#8bc1ff',
+            lineColor: '#96a3b6',
+            sectionBkgColor: '#1b1f27',
+            altSectionBkgColor: '#242a33',
+            gridColor: '#96a3b6',
+            secondaryColor: '#3adba6',
+            tertiaryColor: '#242a33',
+            background: 'transparent',
+            mainBkg: '#5b9bff',
+            secondBkg: '#3adba6',
+            tertiaryBkg: '#ff4772',
+            fontFamily: 'system-ui,-apple-system,Segoe UI,Roboto,Inter,Helvetica,Arial,sans-serif',
+            fontSize: '14px',
+            darkMode: true,
+            edgeLabelBackground: 'transparent'
+          }
+        }); 
+        // Re-render all mermaid diagrams
+        document.querySelectorAll('.mermaid').forEach(element => {
+          element.removeAttribute('data-processed');
+        });
         mermaid.run(); 
-      } catch(e) {}
+      } catch(e) {
+        console.log('Mermaid reinitialization failed:', e);
+      }
     });
 
     // Enhanced scroll spy with smooth active transitions
@@ -799,6 +1133,39 @@ END</code></pre>
     
     // Initialize copy buttons
     addCopyButtons();
+    
+    // Force mermaid to render on page load
+    document.addEventListener('DOMContentLoaded', function() {
+      mermaid.run();
+      
+      // Add diagram interaction enhancements
+      setTimeout(() => {
+        document.querySelectorAll('.diagram-container').forEach(container => {
+          // Add hover effects to diagram containers
+          container.addEventListener('mouseenter', () => {
+            container.style.transform = 'translateY(-2px)';
+            container.style.boxShadow = 'var(--shadow-hover)';
+          });
+          
+          container.addEventListener('mouseleave', () => {
+            container.style.transform = 'translateY(0)';
+            container.style.boxShadow = 'var(--shadow)';
+          });
+          
+          // Add click to expand functionality for mobile
+          if (window.innerWidth <= 768) {
+            const mermaidEl = container.querySelector('.mermaid');
+            if (mermaidEl) {
+              container.style.cursor = 'pointer';
+              container.addEventListener('click', () => {
+                mermaidEl.style.transform = mermaidEl.style.transform === 'scale(1.2)' ? 'scale(1)' : 'scale(1.2)';
+                mermaidEl.style.transition = 'transform 0.3s ease';
+              });
+            }
+          }
+        });
+      }, 1000);
+    });
 
     // Keyboard navigation support
     document.addEventListener('keydown', (e) => {
