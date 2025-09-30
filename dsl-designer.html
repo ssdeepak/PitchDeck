@@ -1513,18 +1513,25 @@
 
    /* LLM Configuration Styles */
    .llm-config-container {
-       padding: 24px;
-       width:100%;
-       
+       display: grid;
+       grid-template-rows: auto 1fr auto;
+       grid-template-areas: 
+           "header"
+           "content"
+           "footer";
+       height: 100%;
+       overflow: hidden;
    }
 
    .config-header {
+       grid-area: header;
        display: flex;
        justify-content: space-between;
        align-items: center;
-       margin-bottom: 32px;
-       padding-bottom: 16px;
+       padding: 20px 24px 16px 24px;
        border-bottom: 2px solid var(--border);
+       background: var(--surface);
+       flex-shrink: 0;
    }
 
    .config-title {
@@ -1575,10 +1582,73 @@
        display: grid;
        grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
        gap: 24px;
-       max-height: 55%;
+       max-height: none;
        width: 100%;
-       overflow-y: auto;
        margin-bottom: 32px;
+   }
+
+   /* Tablet and mobile responsive improvements */
+   @media (max-width: 1024px) {
+       .config-grid {
+           grid-template-columns: 1fr;
+           gap: 20px;
+       }
+   }
+
+   @media (max-width: 768px) {
+       .config-content {
+           padding: 16px;
+       }
+       
+       .config-header {
+           padding: 16px;
+           flex-direction: column;
+           gap: 12px;
+           align-items: flex-start;
+       }
+       
+       .config-footer {
+           padding: 12px 16px;
+       }
+       
+       .config-grid {
+           gap: 16px;
+           margin-bottom: 16px;
+           grid-template-columns: 1fr;
+       }
+       
+       .llm-status {
+           display: flex;
+           gap: 12px;
+           align-items: center;
+           width: 100%;
+           flex-wrap: wrap;
+       }
+       
+       .config-actions {
+           gap: 8px;
+       }
+       
+       .config-actions .btn {
+           flex: 1;
+           min-width: calc(50% - 4px);
+           font-size: 14px;
+           padding: 8px 12px;
+       }
+       
+       .config-title {
+           font-size: 18px;
+       }
+       
+       .panel-header h4 {
+           font-size: 16px;
+       }
+       
+       .param-group input,
+       .param-group textarea,
+       .param-group select {
+           font-size: 16px; /* Prevents zoom on iOS */
+       }
    }
 
    .config-panel {
@@ -2026,12 +2096,29 @@
        }
    }
 
+   .config-content {
+       grid-area: content;
+       padding: 24px;
+       overflow-y: auto;
+       overflow-x: hidden;
+   }
+
+   .config-footer {
+       grid-area: footer;
+       padding: 16px 24px;
+       border-top: 1px solid var(--border);
+       background: var(--surface);
+       display: flex;
+       justify-content: center;
+       align-items: center;
+       flex-shrink: 0;
+   }
+
    .config-actions {
        display: flex;
        gap: 12px;
        justify-content: center;
-       padding: 24px 0;
-       border-top: 1px solid var(--border);
+       flex-wrap: wrap;
    }
 
    .tab-status {
@@ -2458,7 +2545,8 @@
                         </div>
                     </div>
 
-                    <div class="config-grid">
+                    <div class="config-content">
+                        <div class="config-grid">
                         <!-- Model Selection Panel -->
                         <div class="config-panel">
                             <div class="panel-header">
@@ -2682,24 +2770,29 @@
                         </div>
                     </div>
 
-                    <!-- Configuration Actions -->
-                    <div class="config-actions">
-                        <button class="btn btn-success" onclick="saveConfiguration()">
-                            <i class="material-icons">save</i>
-                            Save Configuration
-                        </button>
-                        <button class="btn btn-secondary" onclick="loadConfiguration()">
-                            <i class="material-icons">folder_open</i>
-                            Load Configuration
-                        </button>
-                        <button class="btn btn-secondary" onclick="exportConfiguration()">
-                            <i class="material-icons">download</i>
-                            Export Config
-                        </button>
-                        <button class="btn btn-warning" onclick="resetConfiguration()">
-                            <i class="material-icons">restore</i>
-                            Reset All
-                        </button>
+                        </div>
+                    </div>
+
+                    <!-- Configuration Footer -->
+                    <div class="config-footer">
+                        <div class="config-actions">
+                            <button class="btn btn-success" onclick="saveConfiguration()">
+                                <i class="material-icons">save</i>
+                                Save Configuration
+                            </button>
+                            <button class="btn btn-secondary" onclick="loadConfiguration()">
+                                <i class="material-icons">folder_open</i>
+                                Load Configuration
+                            </button>
+                            <button class="btn btn-secondary" onclick="exportConfiguration()">
+                                <i class="material-icons">download</i>
+                                Export Config
+                            </button>
+                            <button class="btn btn-warning" onclick="resetConfiguration()">
+                                <i class="material-icons">restore</i>
+                                Reset All
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -8644,9 +8737,10 @@ This sophisticated AI-generated content demonstrates contextual awareness and in
                 iterations++;
                 await sleep(100);
                 
-                // Safety break for demo
-                if (iterations >= 3) {
-                    addPlanExecutionLog(`🛡️ WHILE loop limited to 3 iterations for demo`);
+                // Configurable safety break to prevent infinite loops
+                const demoLimit = planExecutionState.variables.get('DemoLoopLimit') || 10;
+                if (iterations >= demoLimit) {
+                    addPlanExecutionLog(`🛡️ WHILE loop limited to ${demoLimit} iterations (configurable via DemoLoopLimit variable)`);
                     break;
                 }
             }
