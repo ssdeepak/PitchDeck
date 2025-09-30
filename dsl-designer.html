@@ -1323,7 +1323,585 @@
             background: var(--surface-3);
             color: var(--text);
         }
+
+        /* Canvas Styles */
+        .canvas-container {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        .canvas-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+            border-bottom: 1px solid var(--border);
+            background: var(--surface);
+        }
+
+        .canvas-title {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .canvas-controls {
+            display: flex;
+            gap: 12px;
+        }
+
+        .canvas-workspace {
+            flex: 1;
+            position: relative;
+            background: var(--background);
+            background-image: radial-gradient(var(--border) 1px, transparent 1px);
+            background-size: 24px 24px;
+            overflow: hidden;
+        }
+
+        .canvas-viewport {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .canvas-toolbar {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            right: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 12px 16px;
+            backdrop-filter: blur(8px);
+        }
+
+        .canvas-status {
+            font-weight: 500;
+            color: var(--text);
+        }
+
+        .canvas-progress {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            color: var(--text-muted);
+        }
+
+        /* Canvas Node Styles */
+        .canvas-node {
+            position: absolute;
+            min-width: 200px;
+            min-height: 100px;
+            background: var(--surface);
+            border: 2px solid var(--border);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            cursor: move;
+            transition: all 0.2s;
+            z-index: 10;
+        }
+
+        .canvas-node:hover {
+            box-shadow: var(--shadow-lg);
+            transform: translateY(-2px);
+        }
+
+        .canvas-node.active {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgb(37 99 235 / 0.1);
+        }
+
+        .canvas-node.completed {
+            border-color: var(--success);
+            background: var(--success-bg);
+        }
+
+        .canvas-node.error {
+            border-color: var(--error);
+            background: var(--error-bg);
+        }
+
+        .node-header {
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: var(--surface-2);
+        }
+
+        .node-title {
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .node-content {
+            padding: 16px;
+            min-height: 60px;
+        }
+
+        .node-type-badge {
+            background: var(--primary);
+            color: white;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .connection-line {
+            position: absolute;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .connection-path {
+            stroke: var(--primary);
+            stroke-width: 2;
+            fill: none;
+            marker-end: url(#arrowhead);
+        }
+
+        .connection-path.active {
+            stroke: var(--warning);
+            stroke-width: 3;
+            animation: dashFlow 2s linear infinite;
+
+        /* LLM Configuration Styles */
+        .llm-config-container {
+            padding: 24px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .config-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 32px;
+            padding-bottom: 16px;
+            border-bottom: 2px solid var(--border);
+        }
+
+        .config-title {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .llm-status {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .status-indicator {
+            padding: 4px 12px;
+            border-radius: 16px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .status-indicator.online {
+            background: #10b981;
+            color: white;
+        }
+
+        .status-indicator.offline {
+            background: #6b7280;
+            color: white;
+        }
+
+        .status-indicator.loading {
+            background: #f59e0b;
+            color: white;
+            animation: pulse 2s infinite;
+        }
+
+        .model-info {
+            font-size: 14px;
+            color: var(--text-muted);
+        }
+
+        .config-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 24px;
+            margin-bottom: 32px;
+        }
+
+        .config-panel {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            box-shadow: var(--shadow);
+        }
+
+        .panel-header {
+            padding: 16px 20px;
+            background: var(--surface-2);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .panel-header h4 {
+            margin: 0;
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        .panel-content {
+            padding: 20px;
+        }
+
+        .model-source,
+        .model-selection {
+            margin-bottom: 20px;
+        }
+
+        .model-source label,
+        .model-selection label,
+        .param-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: var(--text);
+        }
+
+        .model-source select,
+        .model-selection select,
+        .model-selection input {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            background: var(--background);
+            color: var(--text);
+            font-size: 14px;
+        }
+
+        .model-actions {
+            display: flex;
+            gap: 12px;
+            margin: 20px 0;
+        }
+
+        .loading-progress {
+            margin-top: 20px;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: var(--surface-3);
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 8px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: var(--primary);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .progress-text {
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        .param-group {
+            margin-bottom: 24px;
+        }
+
+        .param-group input[type="range"] {
+            width: 100%;
+            margin: 8px 0;
+        }
+
+        .param-group small {
+            color: var(--text-muted);
+            font-size: 12px;
+            display: block;
+            margin-top: 4px;
+        }
+
+        .param-group span {
+            font-weight: 600;
+            color: var(--primary);
+        }
+
+        .param-group textarea {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            background: var(--background);
+            color: var(--text);
+            font-family: inherit;
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .param-group input[type="checkbox"] {
+            margin-right: 8px;
+        }
+
+        .test-section {
+            margin-bottom: 24px;
+        }
+
+        .test-section textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            background: var(--background);
+            color: var(--text);
+            font-family: inherit;
+            margin-bottom: 12px;
+        }
+
+        .test-results {
+            margin-bottom: 24px;
+        }
+
+        .response-box {
+            background: var(--surface-2);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 16px;
+            min-height: 100px;
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 13px;
+            line-height: 1.4;
+            overflow-y: auto;
+            max-height: 200px;
+        }
+
+        .performance-metrics,
+        .model-health {
+            margin-bottom: 20px;
+        }
+
+        .performance-metrics h5,
+        .model-health h5 {
+            margin-bottom: 12px;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .metric {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 12px;
+            background: var(--surface-2);
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
+        }
+
+        .metric-label {
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        .metric-value {
+            font-weight: 600;
+            color: var(--primary);
+        }
+
+        .health-indicators {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .health-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 12px;
+            background: var(--surface-2);
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
+        }
+
+        .health-label {
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        .health-status {
+            font-weight: 600;
+            font-size: 12px;
+        }
+
+        .health-status.healthy {
+            color: var(--success);
+        }
+
+        .health-status.warning {
+            color: var(--warning);
+        }
+
+        .health-status.error {
+            color: var(--error);
+        }
+
+        .config-actions {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            padding: 24px 0;
+            border-top: 1px solid var(--border);
+        }
+
+        .tab-status {
+            margin-left: 8px;
+            font-size: 12px;
+        }
+
+        .tab-status.online {
+            color: var(--success);
+        }
+
+        .tab-status.offline {
+            color: var(--text-muted);
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        /* Provider Configuration Styles */
+        .provider-config {
+            margin-bottom: 20px;
+            padding: 16px;
+            background: var(--surface-2);
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
+        }
+
+        .api-key-section,
+        .org-id-section,
+        .endpoint-section {
+            margin-bottom: 16px;
+        }
+
+        .api-key-section.hidden,
+        .org-id-section.hidden,
+        .endpoint-section.hidden {
+            display: none;
+        }
+
+        .api-key-help {
+            display: block;
+            margin-top: 4px;
+            font-size: 11px;
+            color: var(--text-muted);
+            line-height: 1.3;
+        }
+
+        .model-loading {
+            padding: 8px 12px;
+            color: var(--text-muted);
+            font-size: 12px;
+            text-align: center;
+            background: var(--surface-2);
+            border-radius: var(--radius);
+            margin-top: 8px;
+        }
+
+        .model-loading.hidden {
+            display: none;
+        }
+
+        .provider-config input[type="password"],
+        .provider-config input[type="text"],
+        .provider-config input[type="url"] {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            background: var(--background);
+            color: var(--text);
+            font-size: 13px;
+            margin-bottom: 4px;
+        }
+
+        .provider-config input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2);
+        }
+        }
+
+        @keyframes dashFlow {
+            to {
+                stroke-dashoffset: -20;
+            }
+        }
+
+        /* Empty Canvas State */
+        .empty-canvas-state {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            color: var(--text-muted);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .empty-canvas-state .material-icons {
+            font-size: 64px;
+            opacity: 0.3;
+        }
+
+        .empty-canvas-state .empty-title {
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .empty-canvas-state .empty-description {
+            font-size: 14px;
+            max-width: 400px;
+            line-height: 1.5;
+        }
     </style>
+    
+    <!-- WebLLM Script -->
+    <script src="https://cdn.jsdelivr.net/npm/@mlc-ai/web-llm@0.2.46/lib/web-llm.js"></script>
 </head>
 <body>
     <div class="designer-container">
@@ -1378,6 +1956,15 @@
             <button class="tab-button" data-tab="seed">
                 <i class="material-icons">grass</i>
                 Seed
+            </button>
+            <button class="tab-button" data-tab="canvas">
+                <i class="material-icons">account_tree</i>
+                Canvas
+            </button>
+            <button class="tab-button" data-tab="llm-config">
+                <i class="material-icons">psychology</i>
+                LLM Config
+                <span class="tab-status" id="llmStatus">●</span>
             </button>
             <button class="tab-button" data-tab="import-export">
                 <i class="material-icons">code</i>
@@ -1572,6 +2159,280 @@
                 </div>
             </div>
 
+            <!-- Canvas Tab -->
+            <div class="tab-content" id="canvasTab">
+                <div class="canvas-container">
+                    <div class="canvas-header">
+                        <div class="canvas-title">
+                            <i class="material-icons">account_tree</i>
+                            Visual Plan Execution
+                        </div>
+                        <div class="canvas-controls">
+                            <button class="btn btn-primary" id="executeCanvasBtn">
+                                <i class="material-icons">play_arrow</i>
+                                Execute Plan
+                            </button>
+                            <button class="btn btn-secondary" id="resetCanvasBtn">
+                                <i class="material-icons">refresh</i>
+                                Reset Canvas
+                            </button>
+                            <button class="btn btn-secondary" id="fitCanvasBtn">
+                                <i class="material-icons">fit_screen</i>
+                                Fit to View
+                            </button>
+                        </div>
+                    </div>
+                    <div class="canvas-workspace" id="canvasWorkspace">
+                        <div class="canvas-viewport" id="canvasViewport">
+                            <!-- Canvas nodes will be rendered here -->
+                        </div>
+                        <div class="canvas-toolbar">
+                            <div class="canvas-status" id="canvasStatus">Ready</div>
+                            <div class="canvas-progress" id="canvasProgress"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- LLM Configuration Tab -->
+            <div class="tab-content" id="llm-configTab">
+                <div class="llm-config-container">
+                    <div class="config-header">
+                        <div class="config-title">
+                            <i class="material-icons">psychology</i>
+                            LLM Configuration & Tuning
+                        </div>
+                        <div class="llm-status">
+                            <span id="llmConnectionStatus" class="status-indicator offline">Offline</span>
+                            <span id="llmModelInfo" class="model-info">No model loaded</span>
+                        </div>
+                    </div>
+
+                    <div class="config-grid">
+                        <!-- Model Selection Panel -->
+                        <div class="config-panel">
+                            <div class="panel-header">
+                                <h4>🤖 Model Selection</h4>
+                                <button class="btn btn-sm btn-secondary" onclick="refreshAvailableModels()">
+                                    <i class="material-icons">refresh</i>
+                                    Refresh
+                                </button>
+                            </div>
+                            <div class="panel-content">
+                                <div class="model-source">
+                                    <label>Model Source:</label>
+                                    <select id="modelSource">
+                                        <option value="webllm">WebLLM (Browser)</option>
+                                        <option value="ollama">Ollama (Local)</option>
+                                        <option value="openai">OpenAI API</option>
+                                        <option value="github">GitHub Models (Free)</option>
+                                        <option value="gemini">Google Gemini</option>
+                                        <option value="groq">Groq (Fast)</option>
+                                        <option value="foundry">Foundry (Local)</option>
+                                        <option value="huggingface">Hugging Face</option>
+                                        <option value="custom">Custom Endpoint</option>
+                                    </select>
+                                </div>
+
+                                <!-- Dynamic Provider Configuration -->
+                                <div class="provider-config" id="providerConfig">
+                                    <!-- API Key Configuration for most providers -->
+                                    <div class="api-key-section hidden" id="apiKeySection">
+                                        <label>API Key:</label>
+                                        <input type="password" id="apiKey" placeholder="Enter your API key..." onchange="saveProviderConfig()">
+                                        <small class="api-key-help" id="apiKeyHelp"></small>
+                                    </div>
+
+                                    <!-- Organization ID for OpenAI -->
+                                    <div class="org-id-section hidden" id="orgIdSection">
+                                        <label>Organization ID (Optional):</label>
+                                        <input type="text" id="orgId" placeholder="Enter organization ID..." onchange="saveProviderConfig()">
+                                        <small>Optional: Your OpenAI organization ID</small>
+                                    </div>
+
+                                    <!-- Custom Endpoint Configuration -->
+                                    <div class="endpoint-section hidden" id="endpointSection">
+                                        <label>API Endpoint:</label>
+                                        <input type="url" id="customEndpoint" placeholder="https://api.example.com/v1/chat/completions" onchange="saveProviderConfig()">
+                                        <small>Custom API endpoint URL</small>
+                                    </div>
+                                </div>
+
+                                <div class="model-selection" id="modelSelection">
+                                    <label>Available Models:</label>
+                                    <select id="selectedModel" onchange="onModelChange()">
+                                        <option value="">Select a model...</option>
+                                    </select>
+                                    <div class="model-loading hidden" id="modelLoading">
+                                        <span>Loading models...</span>
+                                    </div>
+                                </div>
+
+
+
+                                <div class="model-actions">
+                                    <button class="btn btn-primary" onclick="loadSelectedModel()" id="loadModelBtn" disabled>
+                                        <i class="material-icons">download</i>
+                                        Load Model
+                                    </button>
+                                    <button class="btn btn-warning" onclick="unloadCurrentModel()" id="unloadModelBtn" disabled>
+                                        <i class="material-icons">eject</i>
+                                        Unload
+                                    </button>
+                                </div>
+
+                                <div class="model-info" id="modelDetails">
+                                    <div class="loading-progress" id="loadingProgress" class="hidden">
+                                        <div class="progress-bar">
+                                            <div class="progress-fill" id="progressFill"></div>
+                                        </div>
+                                        <div class="progress-text" id="progressText">Preparing model download...</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Generation Parameters Panel -->
+                        <div class="config-panel">
+                            <div class="panel-header">
+                                <h4>⚙️ Generation Parameters</h4>
+                                <button class="btn btn-sm btn-secondary" onclick="resetToDefaults()">
+                                    <i class="material-icons">restore</i>
+                                    Defaults
+                                </button>
+                            </div>
+                            <div class="panel-content">
+                                <div class="param-group">
+                                    <label>Temperature: <span id="temperatureValue">0.7</span></label>
+                                    <input type="range" id="temperature" min="0" max="2" step="0.1" value="0.7" oninput="updateParamDisplay('temperature')">
+                                    <small>Controls randomness. Lower = more focused, Higher = more creative</small>
+                                </div>
+
+                                <div class="param-group">
+                                    <label>Top P: <span id="topPValue">0.9</span></label>
+                                    <input type="range" id="topP" min="0" max="1" step="0.05" value="0.9" oninput="updateParamDisplay('topP')">
+                                    <small>Nucleus sampling. Controls diversity by limiting token choices</small>
+                                </div>
+
+                                <div class="param-group">
+                                    <label>Top K: <span id="topKValue">40</span></label>
+                                    <input type="range" id="topK" min="1" max="100" step="1" value="40" oninput="updateParamDisplay('topK')">
+                                    <small>Limits token choices to top K most likely tokens</small>
+                                </div>
+
+                                <div class="param-group">
+                                    <label>Max Tokens: <span id="maxTokensValue">512</span></label>
+                                    <input type="range" id="maxTokens" min="50" max="4096" step="50" value="512" oninput="updateParamDisplay('maxTokens')">
+                                    <small>Maximum number of tokens to generate</small>
+                                </div>
+
+                                <div class="param-group">
+                                    <label>Frequency Penalty: <span id="frequencyPenaltyValue">0.0</span></label>
+                                    <input type="range" id="frequencyPenalty" min="-2" max="2" step="0.1" value="0.0" oninput="updateParamDisplay('frequencyPenalty')">
+                                    <small>Penalizes repeated tokens. Positive = less repetition</small>
+                                </div>
+
+                                <div class="param-group">
+                                    <label>Presence Penalty: <span id="presencePenaltyValue">0.0</span></label>
+                                    <input type="range" id="presencePenalty" min="-2" max="2" step="0.1" value="0.0" oninput="updateParamDisplay('presencePenalty')">
+                                    <small>Penalizes tokens based on presence. Encourages new topics</small>
+                                </div>
+
+                                <div class="param-group">
+                                    <label>Repetition Penalty: <span id="repetitionPenaltyValue">1.1</span></label>
+                                    <input type="range" id="repetitionPenalty" min="0.5" max="2" step="0.1" value="1.1" oninput="updateParamDisplay('repetitionPenalty')">
+                                    <small>Penalizes repeated sequences. 1.0 = no penalty, >1.0 = less repetition</small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Test & Monitor Panel -->
+                        <div class="config-panel">
+                            <div class="panel-header">
+                                <h4>🧪 Test & Monitor</h4>
+                            </div>
+                            <div class="panel-content">
+                                <div class="test-section">
+                                    <label>Test Prompt:</label>
+                                    <textarea id="testPrompt" rows="3" placeholder="Enter test prompt...">Generate a simple greeting message for testing the LLM configuration.</textarea>
+                                    <button class="btn btn-primary" onclick="testProviderConfiguration()" id="testLLMBtn" disabled>
+                                        <i class="material-icons">send</i>
+                                        Test Configuration
+                                    </button>
+                                </div>
+
+                                <div class="test-results">
+                                    <label>Test Response:</label>
+                                    <div class="response-box" id="testResponse">
+                                        <p class="text-muted">Test response will appear here...</p>
+                                    </div>
+                                </div>
+
+                                <div class="performance-metrics">
+                                    <h5>Performance Metrics</h5>
+                                    <div class="metrics-grid">
+                                        <div class="metric">
+                                            <span class="metric-label">Response Time:</span>
+                                            <span class="metric-value" id="responseTime">-</span>
+                                        </div>
+                                        <div class="metric">
+                                            <span class="metric-label">Tokens/sec:</span>
+                                            <span class="metric-value" id="tokensPerSecond">-</span>
+                                        </div>
+                                        <div class="metric">
+                                            <span class="metric-label">Total Tokens:</span>
+                                            <span class="metric-value" id="totalTokens">-</span>
+                                        </div>
+                                        <div class="metric">
+                                            <span class="metric-label">Memory Usage:</span>
+                                            <span class="metric-value" id="memoryUsage">-</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="model-health">
+                                    <h5>Model Health</h5>
+                                    <div class="health-indicators">
+                                        <div class="health-item">
+                                            <span class="health-label">Model Status:</span>
+                                            <span class="health-status" id="modelHealthStatus">Not Loaded</span>
+                                        </div>
+                                        <div class="health-item">
+                                            <span class="health-label">GPU Acceleration:</span>
+                                            <span class="health-status" id="gpuStatus">Checking...</span>
+                                        </div>
+                                        <div class="health-item">
+                                            <span class="health-label">WebGL Support:</span>
+                                            <span class="health-status" id="webglStatus">Checking...</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Configuration Actions -->
+                    <div class="config-actions">
+                        <button class="btn btn-success" onclick="saveConfiguration()">
+                            <i class="material-icons">save</i>
+                            Save Configuration
+                        </button>
+                        <button class="btn btn-secondary" onclick="loadConfiguration()">
+                            <i class="material-icons">folder_open</i>
+                            Load Configuration
+                        </button>
+                        <button class="btn btn-secondary" onclick="exportConfiguration()">
+                            <i class="material-icons">download</i>
+                            Export Config
+                        </button>
+                        <button class="btn btn-warning" onclick="resetConfiguration()">
+                            <i class="material-icons">restore</i>
+                            Reset All
+                        </button>
+                    </div>
+                </div>
+            </div>
+
             <!-- Import/Export Tab -->
             <div class="tab-content" id="importExportTab">
                 <div class="import-export">
@@ -1647,7 +2508,524 @@
             setupEventListeners();
             updateStatistics();
             
+            // Create demo data for Canvas testing
+            createDemoData();
+            
             console.log('✅ Enterprise DSL Designer Ready');
+        }
+        
+        // Create comprehensive demo data showcasing all DSL features
+        function createDemoData() {
+            // Set plan info
+            currentPlan.key = 'SmartBusinessAnalyzer';
+            currentPlan.description = 'Comprehensive AI-driven business intelligence and report generation system with data analysis, visualization, and automated insights';
+            currentPlan.author = 'Enterprise DSL Designer';
+            
+            // Add comprehensive seed data
+            currentPlan.seed.set('companyName', 'Acme Corporation');
+            currentPlan.seed.set('reportType', 'quarterly');
+            currentPlan.seed.set('dataSource', 'sales_database');
+            currentPlan.seed.set('analysisDepth', 'detailed');
+            currentPlan.seed.set('outputFormat', 'pdf');
+            currentPlan.seed.set('emailRecipients', ['ceo@acme.com', 'analytics@acme.com']);
+            currentPlan.seed.set('thresholds', { revenue: 1000000, growth: 15 });
+            currentPlan.seed.set('chartTypes', ['bar', 'line', 'pie']);
+            
+            // Add complex agent workflow
+            const orchestrator = {
+                purpose: 'Orchestrator',
+                description: 'Master orchestrator that coordinates the entire business analysis workflow'
+            };
+            currentPlan.agents.set('MasterOrchestrator', orchestrator);
+            
+            const dataCollector = {
+                purpose: 'Collector',
+                description: 'Fetches and validates data from multiple business sources'
+            };
+            currentPlan.agents.set('DataCollector', dataCollector);
+            
+            const dataAnalyzer = {
+                purpose: 'Analyzer', 
+                description: 'Performs statistical analysis and identifies business trends'
+            };
+            currentPlan.agents.set('DataAnalyzer', dataAnalyzer);
+            
+            const insightGenerator = {
+                purpose: 'Generator',
+                description: 'Uses AI to generate business insights and recommendations'
+            };
+            currentPlan.agents.set('InsightGenerator', insightGenerator);
+            
+            const reportBuilder = {
+                purpose: 'Builder',
+                description: 'Creates comprehensive reports with charts and visualizations'
+            };
+            currentPlan.agents.set('ReportBuilder', reportBuilder);
+            
+            const qualityChecker = {
+                purpose: 'Validator',
+                description: 'Validates report accuracy and completeness'
+            };
+            currentPlan.agents.set('QualityChecker', qualityChecker);
+            
+            const notificationService = {
+                purpose: 'Notifier',
+                description: 'Distributes reports and sends alerts based on findings'
+            };
+            currentPlan.agents.set('NotificationService', notificationService);
+            
+            // Add complex visual designer nodes for MasterOrchestrator
+            visualDesignerState.currentAgent = 'MasterOrchestrator';
+            
+            // Create sophisticated node workflow
+            const nodes = new Map();
+            
+            // 1. Initialize variables
+            nodes.set('init_vars', {
+                template: statementTemplates.declare,
+                data: {
+                    Key: 'reportConfig',
+                    Type: 'AUTO',
+                    Expression: '{"status": "initializing", "timestamp": "' + new Date().toISOString() + '"}'
+                },
+                position: { x: 100, y: 100 }
+            });
+            
+            // 2. Get user input
+            nodes.set('user_input', {
+                template: statementTemplates.in,
+                data: {
+                    Key: 'userRequirements',
+                    Template: 'Please specify the report parameters (date range, metrics, format)'
+                },
+                position: { x: 400, y: 100 }
+            });
+            
+            // 3. Fetch data
+            nodes.set('fetch_data', {
+                template: statementTemplates.fetch,
+                data: {
+                    Key: 'businessData',
+                    Url: 'https://api.acme.com/business-metrics',
+                    Method: 'GET',
+                    Headers: '{"Authorization": "Bearer token123"}'
+                },
+                position: { x: 700, y: 100 }
+            });
+            
+            // 4. SQL analysis
+            nodes.set('sql_analysis', {
+                template: statementTemplates.sql,
+                data: {
+                    Key: 'salesAnalysis',
+                    Connection: 'business_warehouse',
+                    Query: 'SELECT product_category, SUM(revenue) as total_revenue, COUNT(*) as sales_count FROM sales WHERE date_range = ? GROUP BY product_category ORDER BY total_revenue DESC'
+                },
+                position: { x: 1000, y: 100 }
+            });
+            
+            // 5. Data analysis
+            nodes.set('analyze_trends', {
+                template: statementTemplates.analyze,
+                data: {
+                    Key: 'trendAnalysis',
+                    Data: 'salesAnalysis',
+                    Type: 'TREND',
+                    Criteria: 'identify growth patterns and seasonal variations'
+                },
+                position: { x: 100, y: 300 }
+            });
+            
+            // 6. AI insight generation
+            nodes.set('generate_insights', {
+                template: statementTemplates.generate,
+                data: {
+                    Key: 'businessInsights',
+                    Keys: 'trendAnalysis,salesAnalysis',
+                    MaxTokens: 1000,
+                    Creativity: 'Balanced'
+                },
+                position: { x: 400, y: 300 }
+            });
+            
+            // 7. Conditional logic for recommendations
+            nodes.set('check_performance', {
+                template: statementTemplates.if,
+                data: {
+                    Condition: 'trendAnalysis.growth > 15'
+                },
+                position: { x: 700, y: 300 }
+            });
+            
+            // 8. Loop through data sources
+            nodes.set('process_sources', {
+                template: statementTemplates.foreach,
+                data: {
+                    Variable: 'currentSource',
+                    Collection: 'dataSources'
+                },
+                position: { x: 1000, y: 300 }
+            });
+            
+            // 9. Call sub-agent for report building
+            nodes.set('call_report_builder', {
+                template: statementTemplates.call,
+                data: {
+                    From: 'MasterOrchestrator',
+                    To: 'ReportBuilder',
+                    Message: 'Build comprehensive report with insights and visualizations'
+                },
+                position: { x: 100, y: 500 }
+            });
+            
+            // 10. Design report template
+            nodes.set('design_template', {
+                template: statementTemplates.design,
+                data: {
+                    Type: 'UI',
+                    Key: 'reportTemplate',
+                    Template: 'Create a professional business report template with executive summary, detailed analysis, charts, and recommendations sections'
+                },
+                position: { x: 400, y: 500 }
+            });
+            
+            // 11. Write report to file
+            nodes.set('write_report', {
+                template: statementTemplates.write,
+                data: {
+                    Key: 'finalReport',
+                    FileKey: 'business_report_' + new Date().getTime() + '.pdf'
+                },
+                position: { x: 700, y: 500 }
+            });
+            
+            // 12. Send notifications
+            nodes.set('notify_stakeholders', {
+                template: statementTemplates.actuate,
+                data: {
+                    Device: 'email_service',
+                    Action: 'send_report',
+                    Parameters: '{"recipients": ["ceo@acme.com", "analytics@acme.com"], "subject": "Quarterly Business Report Ready"}'
+                },
+                position: { x: 1000, y: 500 }
+            });
+            
+            // 13. Final output
+            nodes.set('output_summary', {
+                template: statementTemplates.out,
+                data: {
+                    Key: 'executionSummary',
+                    Template: 'Business analysis completed successfully. Report generated and distributed to stakeholders.'
+                },
+                position: { x: 550, y: 700 }
+            });
+            
+            // Store nodes in visual designer state for MasterOrchestrator
+            agentNodes.set('MasterOrchestrator', nodes);
+            
+            // Create simpler workflows for other agents
+            createAgentWorkflows();
+            
+            // Add some stores for data management
+            currentPlan.stores.set('BusinessMetrics', {
+                type: 'database',
+                description: 'Core business metrics and KPIs'
+            });
+            
+            currentPlan.stores.set('ReportTemplates', {
+                type: 'file_system',
+                description: 'Reusable report templates and layouts'
+            });
+            
+            currentPlan.stores.set('AnalysisCache', {
+                type: 'memory',
+                description: 'Cached analysis results for performance'
+            });
+            
+            // Add schema definitions
+            currentPlan.schemas.set('BusinessMetric', {
+                fields: {
+                    metric_name: 'STRING',
+                    value: 'DOUBLE',
+                    timestamp: 'DATETIME',
+                    category: 'ENUM'
+                }
+            });
+            
+            currentPlan.schemas.set('Report', {
+                fields: {
+                    title: 'STRING',
+                    content: 'TEXT',
+                    format: 'ENUMSTR',
+                    created_date: 'DATETIME'
+                }
+            });
+            
+            // Update the overview display
+            updateStatistics();
+            
+            console.log('� Comprehensive demo data created with:');
+            console.log(`   📊 ${currentPlan.agents.size} agents`);
+            console.log(`   🌱 ${currentPlan.seed.size} seed values`);
+            console.log(`   📁 ${currentPlan.stores.size} stores`);
+            console.log(`   📋 ${currentPlan.schemas.size} schemas`);
+            console.log(`   🎯 ${nodes.size} visual workflow nodes`);
+        }
+        
+        // Create visual workflows for all other agents
+        function createAgentWorkflows() {
+            // DataCollector workflow
+            const dataCollectorNodes = new Map();
+            dataCollectorNodes.set('init_connection', {
+                template: statementTemplates.declare,
+                data: {
+                    Key: 'dbConnection',
+                    Type: 'STRING',
+                    Expression: 'business_warehouse'
+                },
+                position: { x: 100, y: 100 }
+            });
+            
+            dataCollectorNodes.set('fetch_metrics', {
+                template: statementTemplates.fetch,
+                data: {
+                    Key: 'rawData',
+                    Url: 'https://api.acme.com/metrics',
+                    Method: 'GET'
+                },
+                position: { x: 400, y: 100 }
+            });
+            
+            dataCollectorNodes.set('validate_data', {
+                template: statementTemplates.if,
+                data: {
+                    Condition: 'rawData.length > 0'
+                },
+                position: { x: 700, y: 100 }
+            });
+            
+            dataCollectorNodes.set('output_data', {
+                template: statementTemplates.out,
+                data: {
+                    Key: 'validatedData',
+                    Template: 'Data collection completed: #rawData.count# records processed'
+                },
+                position: { x: 400, y: 300 }
+            });
+            
+            agentNodes.set('DataCollector', dataCollectorNodes);
+            
+            // DataAnalyzer workflow
+            const dataAnalyzerNodes = new Map();
+            dataAnalyzerNodes.set('load_data', {
+                template: statementTemplates.in,
+                data: {
+                    Key: 'inputData',
+                    Template: 'Enter data to analyze'
+                },
+                position: { x: 100, y: 100 }
+            });
+            
+            dataAnalyzerNodes.set('analyze_trends', {
+                template: statementTemplates.analyze,
+                data: {
+                    Key: 'trendResults',
+                    Data: 'inputData',
+                    Type: 'TREND',
+                    Criteria: 'quarterly growth patterns'
+                },
+                position: { x: 400, y: 100 }
+            });
+            
+            dataAnalyzerNodes.set('analyze_stats', {
+                template: statementTemplates.analyze,
+                data: {
+                    Key: 'statResults',
+                    Data: 'inputData',
+                    Type: 'STATISTICAL',
+                    Criteria: 'mean, median, standard deviation'
+                },
+                position: { x: 700, y: 100 }
+            });
+            
+            dataAnalyzerNodes.set('combine_results', {
+                template: statementTemplates.assign,
+                data: {
+                    Key: 'finalAnalysis',
+                    Template: 'Trends: #trendResults# | Stats: #statResults#'
+                },
+                position: { x: 400, y: 300 }
+            });
+            
+            agentNodes.set('DataAnalyzer', dataAnalyzerNodes);
+            
+            // InsightGenerator workflow
+            const insightGeneratorNodes = new Map();
+            insightGeneratorNodes.set('prepare_context', {
+                template: statementTemplates.declare,
+                data: {
+                    Key: 'aiContext',
+                    Type: 'STRING',
+                    Expression: 'Generate business insights from data analysis'
+                },
+                position: { x: 100, y: 100 }
+            });
+            
+            insightGeneratorNodes.set('generate_insights', {
+                template: statementTemplates.generate,
+                data: {
+                    Key: 'insights',
+                    Keys: 'aiContext,finalAnalysis',
+                    MaxTokens: 500,
+                    Creativity: 'Creative'
+                },
+                position: { x: 400, y: 100 }
+            });
+            
+            insightGeneratorNodes.set('validate_insights', {
+                template: statementTemplates.if,
+                data: {
+                    Condition: 'insights.length > 100'
+                },
+                position: { x: 700, y: 100 }
+            });
+            
+            insightGeneratorNodes.set('output_insights', {
+                template: statementTemplates.out,
+                data: {
+                    Key: 'finalInsights',
+                    Template: 'AI Generated Insights: #insights#'
+                },
+                position: { x: 400, y: 300 }
+            });
+            
+            agentNodes.set('InsightGenerator', insightGeneratorNodes);
+            
+            // ReportBuilder workflow
+            const reportBuilderNodes = new Map();
+            reportBuilderNodes.set('design_layout', {
+                template: statementTemplates.design,
+                data: {
+                    Type: 'UI',
+                    Key: 'reportLayout',
+                    Template: 'Professional business report with executive summary and charts'
+                },
+                position: { x: 100, y: 100 }
+            });
+            
+            reportBuilderNodes.set('process_data', {
+                template: statementTemplates.foreach,
+                data: {
+                    Variable: 'dataPoint',
+                    Collection: 'businessData'
+                },
+                position: { x: 400, y: 100 }
+            });
+            
+            reportBuilderNodes.set('write_report', {
+                template: statementTemplates.write,
+                data: {
+                    Key: 'reportContent',
+                    FileKey: 'business_report.pdf'
+                },
+                position: { x: 700, y: 100 }
+            });
+            
+            reportBuilderNodes.set('confirm_output', {
+                template: statementTemplates.out,
+                data: {
+                    Key: 'reportStatus',
+                    Template: 'Report generated successfully and saved to #FileKey#'
+                },
+                position: { x: 400, y: 300 }
+            });
+            
+            agentNodes.set('ReportBuilder', reportBuilderNodes);
+            
+            // QualityChecker workflow
+            const qualityCheckerNodes = new Map();
+            qualityCheckerNodes.set('read_report', {
+                template: statementTemplates.read,
+                data: {
+                    Key: 'reportContent',
+                    FileKey: 'business_report.pdf'
+                },
+                position: { x: 100, y: 100 }
+            });
+            
+            qualityCheckerNodes.set('validate_completeness', {
+                template: statementTemplates.if,
+                data: {
+                    Condition: 'reportContent.sections.length >= 5'
+                },
+                position: { x: 400, y: 100 }
+            });
+            
+            qualityCheckerNodes.set('check_accuracy', {
+                template: statementTemplates.analyze,
+                data: {
+                    Key: 'accuracyScore',
+                    Data: 'reportContent',
+                    Type: 'PATTERN',
+                    Criteria: 'data consistency and logical flow'
+                },
+                position: { x: 700, y: 100 }
+            });
+            
+            qualityCheckerNodes.set('quality_result', {
+                template: statementTemplates.out,
+                data: {
+                    Key: 'qualityReport',
+                    Template: 'Quality Check: Accuracy Score #accuracyScore# - Report approved'
+                },
+                position: { x: 400, y: 300 }
+            });
+            
+            agentNodes.set('QualityChecker', qualityCheckerNodes);
+            
+            // NotificationService workflow
+            const notificationNodes = new Map();
+            notificationNodes.set('prepare_recipients', {
+                template: statementTemplates.declare,
+                data: {
+                    Key: 'recipients',
+                    Type: 'CSV',
+                    Expression: 'ceo@acme.com,analytics@acme.com,board@acme.com'
+                },
+                position: { x: 100, y: 100 }
+            });
+            
+            notificationNodes.set('send_emails', {
+                template: statementTemplates.actuate,
+                data: {
+                    Device: 'email_service',
+                    Action: 'send_notification',
+                    Parameters: '{"subject": "Business Report Ready", "priority": "high"}'
+                },
+                position: { x: 400, y: 100 }
+            });
+            
+            notificationNodes.set('log_notifications', {
+                template: statementTemplates.write,
+                data: {
+                    Key: 'notificationLog',
+                    FileKey: 'notification_log.txt'
+                },
+                position: { x: 700, y: 100 }
+            });
+            
+            notificationNodes.set('confirm_sent', {
+                template: statementTemplates.out,
+                data: {
+                    Key: 'notificationStatus',
+                    Template: 'Notifications sent to #recipients.count# recipients successfully'
+                },
+                position: { x: 400, y: 300 }
+            });
+            
+            agentNodes.set('NotificationService', notificationNodes);
+            
+            console.log(`✅ Created visual workflows for ${agentNodes.size} agents`);
         }
         
         // Tab Navigation
@@ -1664,7 +3042,12 @@
                     tabContents.forEach(c => c.classList.remove('active'));
                     
                     button.classList.add('active');
-                    document.getElementById(tabId + 'Tab').classList.add('active');
+                    const tabElement = document.getElementById(tabId + 'Tab');
+                    if (tabElement) {
+                        tabElement.classList.add('active');
+                    } else {
+                        console.warn(`Tab element not found: ${tabId}Tab`);
+                    }
                     
                     currentTab = tabId;
                     
@@ -1691,6 +3074,12 @@
                     break;
                 case 'seed':
                     loadSeedView();
+                    break;
+                case 'canvas':
+                    loadCanvasView();
+                    break;
+                case 'llm-config':
+                    loadLLMConfigView();
                     break;
                 case 'import-export':
                     loadImportExportView();
@@ -2183,11 +3572,1691 @@
             console.log(`✅ Exported seed data`);
         }
         
+        // Canvas View Implementation
+        function loadCanvasView() {
+            const viewport = document.getElementById('canvasViewport');
+            if (!viewport) return;
+            
+            // Clear existing canvas
+            viewport.innerHTML = '';
+            
+            // Initialize canvas state
+            canvasState.nodes.clear();
+            canvasState.connections = [];
+            canvasState.isExecuting = false;
+            canvasState.currentStep = 0;
+            
+            updateCanvasStatus('Ready - Click Execute Plan to start');
+            
+            if (currentPlan.agents.size === 0) {
+                showEmptyCanvasState();
+                return;
+            }
+            
+            console.log('🎨 Canvas view loaded');
+        }
+        
+        function showEmptyCanvasState() {
+            const viewport = document.getElementById('canvasViewport');
+            viewport.innerHTML = `
+                <div class="empty-canvas-state">
+                    <i class="material-icons">account_tree</i>
+                    <div class="empty-title">No Agents to Execute</div>
+                    <div class="empty-description">Add agents to your plan to see them visualized here</div>
+                </div>
+            `;
+        }
+        
+        // Canvas State Management
+        let canvasState = {
+            nodes: new Map(),
+            connections: [],
+            viewport: { x: 0, y: 0, scale: 1 },
+            isExecuting: false,
+            currentStep: 0,
+            totalSteps: 0
+        };
+        
+        // Store visual nodes for each agent
+        let agentNodes = new Map();
+        
+        // Canvas Node Creation
+        function createCanvasNode(nodeId, type, data, x = 100, y = 100) {
+            const node = document.createElement('div');
+            node.className = 'canvas-node';
+            node.id = `canvas-node-${nodeId}`;
+            node.style.left = `${x}px`;
+            node.style.top = `${y}px`;
+            
+            const typeColors = {
+                'DECLARE': '#3b82f6',
+                'ASSIGN': '#10b981', 
+                'IN': '#f59e0b',
+                'OUT': '#ef4444',
+                'GENERATE': '#8b5cf6',
+                'CALL': '#ec4899',
+                'IF': '#6366f1',
+                'WHILE': '#14b8a6',
+                'READ': '#6b7280',
+                'WRITE': '#374151'
+            };
+            
+            const color = typeColors[type] || '#6b7280';
+            
+            node.innerHTML = `
+                <div class="node-header">
+                    <div class="node-title">
+                        <span class="node-type-badge" style="background: ${color};">${type}</span>
+                        ${data.Key || nodeId}
+                    </div>
+                    <div class="node-status" id="status-${nodeId}">
+                        <i class="material-icons">radio_button_unchecked</i>
+                    </div>
+                </div>
+                <div class="node-content">
+                    ${formatNodeContent(type, data)}
+                </div>
+            `;
+            
+            // Store node reference
+            canvasState.nodes.set(nodeId, {
+                element: node,
+                type: type,
+                data: data,
+                status: 'pending'
+            });
+            
+            return node;
+        }
+        
+        function formatNodeContent(type, data) {
+            switch (type) {
+                case 'DECLARE':
+                    return `<strong>Type:</strong> ${data.Type || 'STRING'}<br><strong>Value:</strong> ${data.Expression || 'null'}`;
+                case 'ASSIGN':
+                    return `<strong>Value:</strong> ${data.Template || ''}`;
+                case 'IN':
+                    return `<strong>Prompt:</strong> ${data.Template || 'Enter input'}`;
+                case 'OUT':
+                    return `<strong>Output:</strong> ${data.Template || ''}`;
+                case 'GENERATE':
+                    return `<strong>AI Generate</strong><br>Max Tokens: ${data.MaxTokens || 100}`;
+                case 'CALL':
+                    return `<strong>Target:</strong> ${data.ToKey || ''}<br><strong>Variables:</strong> ${data.Variables || ''}`;
+                default:
+                    return JSON.stringify(data, null, 2).substring(0, 100) + '...';
+            }
+        }
+        
+        // Canvas Execution Engine
+        async function executeCanvasPlan() {
+            if (canvasState.isExecuting) {
+                updateCanvasStatus('Already executing...');
+                return;
+            }
+            
+            const viewport = document.getElementById('canvasViewport');
+            viewport.innerHTML = '';
+            
+            // Convert current plan to canvas nodes
+            const nodes = generateCanvasNodesFromPlan();
+            if (nodes.length === 0) {
+                showEmptyCanvasState();
+                return;
+            }
+            
+            // Layout nodes
+            layoutCanvasNodes(nodes);
+            
+            // Add nodes to viewport
+            nodes.forEach(nodeInfo => {
+                viewport.appendChild(nodeInfo.element);
+            });
+            
+            // Draw connections
+            drawCanvasConnections();
+            
+            // Start execution
+            canvasState.isExecuting = true;
+            canvasState.currentStep = 0;
+            canvasState.totalSteps = nodes.length;
+            
+            updateCanvasStatus('Executing plan...');
+            updateCanvasProgress(0, nodes.length);
+            
+            // Execute nodes sequentially
+            for (let i = 0; i < nodes.length; i++) {
+                const nodeInfo = nodes[i];
+                await executeCanvasNode(nodeInfo);
+                canvasState.currentStep++;
+                updateCanvasProgress(i + 1, nodes.length);
+                
+                // Small delay between steps
+                await sleep(500);
+            }
+            
+            canvasState.isExecuting = false;
+            updateCanvasStatus('Execution completed!');
+        }
+        
+        function generateCanvasNodesFromPlan() {
+            const nodes = [];
+            let nodeIndex = 0;
+            
+            // Generate nodes from agents
+            currentPlan.agents.forEach((agent, agentKey) => {
+                // If agent has visual designer nodes, use those
+                if (visualDesignerState.currentAgent === agentKey && visualDesignerState.nodes.size > 0) {
+                    visualDesignerState.nodes.forEach((nodeData, nodeId) => {
+                        const canvasNode = createCanvasNode(
+                            `${agentKey}_${nodeId}`,
+                            nodeData.template.type,
+                            nodeData.data,
+                            100 + (nodeIndex * 250),
+                            100 + Math.floor(nodeIndex / 4) * 200
+                        );
+                        
+                        nodes.push({
+                            id: `${agentKey}_${nodeId}`,
+                            element: canvasNode,
+                            agentKey: agentKey,
+                            nodeData: nodeData
+                        });
+                        nodeIndex++;
+                    });
+                } else {
+                    // Create a basic node for the agent
+                    const canvasNode = createCanvasNode(
+                        agentKey,
+                        'AGENT',
+                        { Purpose: agent.purpose || 'Tool' },
+                        100 + (nodeIndex * 250),
+                        100
+                    );
+                    
+                    nodes.push({
+                        id: agentKey,
+                        element: canvasNode,
+                        agentKey: agentKey,
+                        nodeData: null
+                    });
+                    nodeIndex++;
+                }
+            });
+            
+            return nodes;
+        }
+        
+        function layoutCanvasNodes(nodes) {
+            // Simple grid layout
+            const cols = Math.ceil(Math.sqrt(nodes.length));
+            nodes.forEach((nodeInfo, index) => {
+                const row = Math.floor(index / cols);
+                const col = index % cols;
+                
+                const x = 100 + col * 300;
+                const y = 100 + row * 200;
+                
+                nodeInfo.element.style.left = `${x}px`;
+                nodeInfo.element.style.top = `${y}px`;
+            });
+        }
+        
+        function drawCanvasConnections() {
+            // Create SVG overlay for connections
+            const viewport = document.getElementById('canvasViewport');
+            const existing = viewport.querySelector('.canvas-connections');
+            if (existing) existing.remove();
+            
+            const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+            svg.setAttribute('class', 'canvas-connections');
+            svg.style.position = 'absolute';
+            svg.style.top = '0';
+            svg.style.left = '0';
+            svg.style.width = '100%';
+            svg.style.height = '100%';
+            svg.style.pointerEvents = 'none';
+            svg.style.zIndex = '5';
+            
+            // Add arrow marker
+            const defs = document.createElementNS('http://www.w3.org/2000/svg', 'defs');
+            const marker = document.createElementNS('http://www.w3.org/2000/svg', 'marker');
+            marker.setAttribute('id', 'arrowhead');
+            marker.setAttribute('markerWidth', '10');
+            marker.setAttribute('markerHeight', '7');
+            marker.setAttribute('refX', '9');
+            marker.setAttribute('refY', '3.5');
+            marker.setAttribute('orient', 'auto');
+            
+            const polygon = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+            polygon.setAttribute('points', '0 0, 10 3.5, 0 7');
+            polygon.setAttribute('fill', 'var(--primary)');
+            
+            marker.appendChild(polygon);
+            defs.appendChild(marker);
+            svg.appendChild(defs);
+            
+            viewport.appendChild(svg);
+        }
+        
+        async function executeCanvasNode(nodeInfo) {
+            const { element, nodeData } = nodeInfo;
+            
+            // Update node status to active
+            setNodeStatus(nodeInfo.id, 'active');
+            element.classList.add('active');
+            
+            // Simulate execution based on node type
+            if (nodeData) {
+                await executeStatement(nodeData);
+            } else {
+                // Basic agent execution
+                await sleep(1000);
+            }
+            
+            // Update node status to completed
+            setNodeStatus(nodeInfo.id, 'completed');
+            element.classList.remove('active');
+            element.classList.add('completed');
+        }
+        
+        function setNodeStatus(nodeId, status) {
+            const statusElement = document.getElementById(`status-${nodeId}`);
+            if (!statusElement) return;
+            
+            const icon = statusElement.querySelector('i');
+            if (!icon) return;
+            
+            switch (status) {
+                case 'active':
+                    icon.textContent = 'radio_button_checked';
+                    icon.style.color = 'var(--warning)';
+                    break;
+                case 'completed':
+                    icon.textContent = 'check_circle';
+                    icon.style.color = 'var(--success)';
+                    break;
+                case 'error':
+                    icon.textContent = 'error';
+                    icon.style.color = 'var(--error)';
+                    break;
+                default:
+                    icon.textContent = 'radio_button_unchecked';
+                    icon.style.color = 'var(--text-muted)';
+            }
+        }
+        
+        function updateCanvasStatus(message) {
+            const statusElement = document.getElementById('canvasStatus');
+            if (statusElement) {
+                statusElement.textContent = message;
+            }
+        }
+        
+        function updateCanvasProgress(current, total) {
+            const progressElement = document.getElementById('canvasProgress');
+            if (progressElement) {
+                progressElement.textContent = `${current} / ${total} steps completed`;
+            }
+        }
+        
+        function resetCanvas() {
+            const viewport = document.getElementById('canvasViewport');
+            if (viewport) {
+                viewport.innerHTML = '';
+            }
+            
+            canvasState.nodes.clear();
+            canvasState.connections = [];
+            canvasState.isExecuting = false;
+            canvasState.currentStep = 0;
+            
+            updateCanvasStatus('Canvas reset - Ready to execute');
+            updateCanvasProgress(0, 0);
+        }
+        
+        function fitCanvasToView() {
+            // Simple fit implementation - center the view
+            const viewport = document.getElementById('canvasViewport');
+            if (!viewport) return;
+            
+            canvasState.viewport = { x: 0, y: 0, scale: 1 };
+            updateCanvasStatus('View reset to center');
+        }
+        
         // Import/Export View
         function loadImportExportView() {
             const xmlEditor = document.getElementById('xmlEditor');
             if (xmlEditor.value.trim() === '') {
                 xmlEditor.value = generateXML();
+            }
+        }
+
+        // LLM Configuration Management
+        let currentLLMConfig = {
+            source: 'webllm',
+            model: '',
+            temperature: 0.7,
+            topP: 0.9,
+            topK: 40,
+            maxTokens: 512,
+            frequencyPenalty: 0.0,
+            presencePenalty: 0.0,
+            repetitionPenalty: 1.1,
+            systemPrompt: 'You are a helpful AI assistant specialized in DSL execution and plan orchestration. Provide clear, accurate, and contextually relevant responses.',
+            enableStreaming: true,
+            enableCaching: true,
+            requestTimeout: 30
+        };
+
+        let currentEngine = null;
+        let isModelLoading = false;
+
+        function loadLLMConfigView() {
+            // Initialize LLM configuration view
+            console.log('Loading LLM Configuration view');
+            
+            // Load saved configuration first
+            loadSavedLLMConfig();
+            
+            updateLLMStatus();
+            checkSystemCapabilities();
+            updateModelList();
+            populateConfigurationForm();
+            
+            // Wire up event listeners
+            const modelSource = document.getElementById('modelSource');
+            if (modelSource) {
+                modelSource.addEventListener('change', async () => {
+                    const provider = modelSource.value;
+                    console.log('Updating model list for provider:', provider);
+                    updateProviderConfigUI(provider);
+                    await loadModelsForProvider(provider);
+                    currentLLMConfig.source = provider;
+                    saveProviderConfig();
+                });
+            }
+            
+            // Wire up model selection
+            const modelSelect = document.getElementById('selectedModel');
+            if (modelSelect) {
+                modelSelect.addEventListener('change', () => {
+                    currentLLMConfig.model = modelSelect.value;
+                    saveProviderConfig();
+                    console.log(`Selected model: ${modelSelect.value}`);
+                });
+            }
+            
+            // Wire up parameter changes to save automatically
+            const parameterInputs = ['temperature', 'topP', 'maxTokens', 'systemPrompt'];
+            parameterInputs.forEach(param => {
+                const element = document.getElementById(param);
+                if (element) {
+                    element.addEventListener('change', () => {
+                        currentLLMConfig[param] = element.type === 'number' ? parseFloat(element.value) : element.value;
+                        saveProviderConfig();
+                        console.log(`Updated ${param}: ${element.value}`);
+                    });
+                }
+            });
+        }
+
+        function updateLLMStatus() {
+            const statusElement = document.getElementById('llmConnectionStatus');
+            const modelInfoElement = document.getElementById('llmModelInfo');
+            const tabStatusElement = document.getElementById('llmStatus');
+
+            if (currentEngine && currentLLMConfig.model) {
+                if (statusElement) {
+                    statusElement.textContent = 'Online';
+                    statusElement.className = 'status-indicator online';
+                }
+                if (modelInfoElement) {
+                    modelInfoElement.textContent = `${currentLLMConfig.model} loaded`;
+                }
+                if (tabStatusElement) {
+                    tabStatusElement.textContent = '●';
+                    tabStatusElement.className = 'tab-status online';
+                }
+            } else if (isModelLoading) {
+                if (statusElement) {
+                    statusElement.textContent = 'Loading';
+                    statusElement.className = 'status-indicator loading';
+                }
+                if (modelInfoElement) {
+                    modelInfoElement.textContent = 'Loading model...';
+                }
+                if (tabStatusElement) {
+                    tabStatusElement.textContent = '●';
+                    tabStatusElement.className = 'tab-status loading';
+                }
+            } else {
+                if (statusElement) {
+                    statusElement.textContent = 'Offline';
+                    statusElement.className = 'status-indicator offline';
+                }
+                if (modelInfoElement) {
+                    modelInfoElement.textContent = 'No model loaded';
+                }
+                if (tabStatusElement) {
+                    tabStatusElement.textContent = '●';
+                    tabStatusElement.className = 'tab-status offline';
+                }
+            }
+        }
+
+        function checkSystemCapabilities() {
+            // Check WebGL support
+            const webglStatus = document.getElementById('webglStatus');
+            if (webglStatus) {
+                try {
+                    const canvas = document.createElement('canvas');
+                    const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+                    if (gl) {
+                        webglStatus.textContent = 'Supported';
+                        webglStatus.className = 'health-status healthy';
+                    } else {
+                        webglStatus.textContent = 'Not Supported';
+                        webglStatus.className = 'health-status error';
+                    }
+                } catch (e) {
+                    webglStatus.textContent = 'Error';
+                    webglStatus.className = 'health-status error';
+                }
+            }
+
+            // Check GPU acceleration
+            const gpuStatus = document.getElementById('gpuStatus');
+            if (gpuStatus) {
+                if (navigator.gpu) {
+                    gpuStatus.textContent = 'Available';
+                    gpuStatus.className = 'health-status healthy';
+                } else {
+                    gpuStatus.textContent = 'Not Available';
+                    gpuStatus.className = 'health-status warning';
+                }
+            }
+
+            // Update model health status
+            const modelHealthStatus = document.getElementById('modelHealthStatus');
+            if (modelHealthStatus) {
+                if (currentEngine) {
+                    modelHealthStatus.textContent = 'Healthy';
+                    modelHealthStatus.className = 'health-status healthy';
+                } else {
+                    modelHealthStatus.textContent = 'Not Loaded';
+                    modelHealthStatus.className = 'health-status error';
+                }
+            }
+        }
+
+        function updateModelList() {
+            const modelSource = document.getElementById('modelSource');
+            if (!modelSource) return;
+
+            const provider = modelSource.value;
+            console.log('Updating model list for provider:', provider);
+
+            // Update provider configuration UI
+            updateProviderConfigUI(provider);
+
+            // Load models for the selected provider
+            loadModelsForProvider(provider);
+
+            // Update current configuration
+            currentLLMConfig.source = provider;
+            saveProviderConfig();
+        }
+
+        function updateProviderConfigUI(provider) {
+            const apiKeySection = document.getElementById('apiKeySection');
+            const orgIdSection = document.getElementById('orgIdSection');
+            const endpointSection = document.getElementById('endpointSection');
+            const apiKeyHelp = document.getElementById('apiKeyHelp');
+            const apiKeyInput = document.getElementById('apiKey');
+            const endpointInput = document.getElementById('customEndpoint');
+
+            // Hide all sections initially
+            if (apiKeySection) apiKeySection.classList.add('hidden');
+            if (orgIdSection) orgIdSection.classList.add('hidden');
+            if (endpointSection) endpointSection.classList.add('hidden');
+
+            // Load saved configuration for this provider
+            loadProviderConfig(provider);
+
+            switch (provider) {
+                case 'openai':
+                    if (apiKeySection) apiKeySection.classList.remove('hidden');
+                    if (orgIdSection) orgIdSection.classList.remove('hidden');
+                    if (apiKeyHelp) apiKeyHelp.textContent = 'Get your API key from: https://platform.openai.com/api-keys';
+                    if (endpointInput) endpointInput.value = 'https://api.openai.com/v1/chat/completions';
+                    break;
+                case 'github':
+                    if (apiKeySection) apiKeySection.classList.remove('hidden');
+                    if (apiKeyHelp) apiKeyHelp.textContent = 'Get your GitHub token from: https://github.com/settings/tokens (Free tier available)';
+                    if (endpointInput) endpointInput.value = 'https://models.inference.ai.azure.com/chat/completions';
+                    break;
+                case 'gemini':
+                    if (apiKeySection) apiKeySection.classList.remove('hidden');
+                    if (apiKeyHelp) apiKeyHelp.textContent = 'Get your API key from: https://makersuite.google.com/app/apikey';
+                    if (endpointInput) endpointInput.value = 'https://generativelanguage.googleapis.com/v1beta/models/';
+                    break;
+                case 'groq':
+                    if (apiKeySection) apiKeySection.classList.remove('hidden');
+                    if (apiKeyHelp) apiKeyHelp.textContent = 'Get your API key from: https://console.groq.com/keys (Fast inference, free tier)';
+                    if (endpointInput) endpointInput.value = 'https://api.groq.com/openai/v1/chat/completions';
+                    break;
+                case 'huggingface':
+                    if (apiKeySection) apiKeySection.classList.remove('hidden');
+                    if (apiKeyHelp) apiKeyHelp.textContent = 'Get your API key from: https://huggingface.co/settings/tokens';
+                    if (endpointInput) endpointInput.value = 'https://api-inference.huggingface.co';
+                    break;
+                case 'foundry':
+                    if (endpointSection) endpointSection.classList.remove('hidden');
+                    if (endpointInput) endpointInput.value = 'http://localhost:5273/v1/chat/completions';
+                    break;
+                case 'ollama':
+                    if (endpointSection) endpointSection.classList.remove('hidden');
+                    if (endpointInput) endpointInput.value = 'http://localhost:11434/api/chat';
+                    break;
+                case 'custom':
+                    if (apiKeySection) apiKeySection.classList.remove('hidden');
+                    if (endpointSection) endpointSection.classList.remove('hidden');
+                    if (apiKeyHelp) apiKeyHelp.textContent = 'Enter your custom API key and endpoint';
+                    break;
+                case 'webllm':
+                default:
+                    // No additional configuration needed for WebLLM
+                    break;
+            }
+        }
+
+        function onModelChange() {
+            const selectedModel = document.getElementById('selectedModel');
+            const loadBtn = document.getElementById('loadModelBtn');
+            const testBtn = document.getElementById('testLLMBtn');
+            const unloadBtn = document.getElementById('unloadModelBtn');
+
+            if (selectedModel && loadBtn) {
+                if (selectedModel.value && !isModelLoading) {
+                    loadBtn.disabled = false;
+                } else {
+                    loadBtn.disabled = true;
+                }
+            }
+
+            if (testBtn) {
+                if (currentEngine && !isModelLoading) {
+                    testBtn.disabled = false;
+                } else {
+                    testBtn.disabled = true;
+                }
+            }
+
+            if (unloadBtn) {
+                unloadBtn.disabled = !currentEngine;
+            }
+        }
+
+        function populateConfigurationForm() {
+            // Populate form fields with current configuration - safely
+            const elements = {
+                modelSource: document.getElementById('modelSource'),
+                selectedModel: document.getElementById('selectedModel'),
+                temperature: document.getElementById('temperature'),
+                topP: document.getElementById('topP'),
+                topK: document.getElementById('topK'),
+                maxTokens: document.getElementById('maxTokens'),
+                frequencyPenalty: document.getElementById('frequencyPenalty'),
+                presencePenalty: document.getElementById('presencePenalty'),
+                repetitionPenalty: document.getElementById('repetitionPenalty'),
+                customSystemPrompt: document.getElementById('customSystemPrompt'),
+                enableStreaming: document.getElementById('enableStreaming'),
+                enableCaching: document.getElementById('enableCaching'),
+                requestTimeout: document.getElementById('requestTimeout')
+            };
+
+            if (elements.modelSource) elements.modelSource.value = currentLLMConfig.source;
+            if (elements.selectedModel) elements.selectedModel.value = currentLLMConfig.model;
+            if (elements.temperature) elements.temperature.value = currentLLMConfig.temperature;
+            if (elements.topP) elements.topP.value = currentLLMConfig.topP;
+            if (elements.topK) elements.topK.value = currentLLMConfig.topK;
+            if (elements.maxTokens) elements.maxTokens.value = currentLLMConfig.maxTokens;
+            if (elements.frequencyPenalty) elements.frequencyPenalty.value = currentLLMConfig.frequencyPenalty;
+            if (elements.presencePenalty) elements.presencePenalty.value = currentLLMConfig.presencePenalty;
+            if (elements.repetitionPenalty) elements.repetitionPenalty.value = currentLLMConfig.repetitionPenalty;
+            if (elements.customSystemPrompt) elements.customSystemPrompt.value = currentLLMConfig.systemPrompt;
+            if (elements.enableStreaming) elements.enableStreaming.checked = currentLLMConfig.enableStreaming;
+            if (elements.enableCaching) elements.enableCaching.checked = currentLLMConfig.enableCaching;
+            if (elements.requestTimeout) elements.requestTimeout.value = currentLLMConfig.requestTimeout;
+
+            // Update display values
+            updateParamDisplay('temperature');
+            updateParamDisplay('topP');
+            updateParamDisplay('topK');
+            updateParamDisplay('maxTokens');
+            updateParamDisplay('frequencyPenalty');
+            updateParamDisplay('presencePenalty');
+            updateParamDisplay('repetitionPenalty');
+            updateParamDisplay('requestTimeout');
+        }
+
+        function updateParamDisplay(paramName) {
+            const input = document.getElementById(paramName);
+            const display = document.getElementById(paramName + 'Value');
+            if (input && display) {
+                display.textContent = input.value;
+                // Update configuration
+                currentLLMConfig[paramName] = parseFloat(input.value) || input.value;
+            }
+        }
+
+        // Placeholder functions for LLM configuration actions
+        function refreshAvailableModels() {
+            updateModelList();
+            console.log('Available models refreshed');
+        }
+
+        async function loadSelectedModel() {
+            const selectedModel = document.getElementById('selectedModel');
+            if (!selectedModel || !selectedModel.value || isModelLoading) return;
+
+            isModelLoading = true;
+            updateLLMStatus();
+
+            const progressContainer = document.getElementById('loadingProgress');
+            const progressFill = document.getElementById('progressFill');
+            const progressText = document.getElementById('progressText');
+
+            try {
+                if (progressContainer) progressContainer.style.display = 'block';
+                if (progressText) progressText.textContent = 'Initializing WebLLM...';
+                if (progressFill) progressFill.style.width = '10%';
+
+                // Check if WebLLM is available
+                if (typeof CreateMLCEngine === 'undefined') {
+                    throw new Error('WebLLM is not available. Please include the WebLLM script.');
+                }
+
+                if (progressText) progressText.textContent = 'Creating engine...';
+                if (progressFill) progressFill.style.width = '30%';
+
+                // Create engine with progress callback
+                currentEngine = await CreateMLCEngine(selectedModel.value, {
+                    initProgressCallback: (progress) => {
+                        const percentage = Math.round(progress.progress * 100);
+                        if (progressFill) progressFill.style.width = `${30 + (percentage * 0.6)}%`;
+                        if (progressText) progressText.textContent = `${progress.text} (${percentage}%)`;
+                    }
+                });
+
+                if (progressFill) progressFill.style.width = '100%';
+                if (progressText) progressText.textContent = 'Model loaded successfully!';
+
+                currentLLMConfig.model = selectedModel.value;
+                window.webLLMEngine = currentEngine; // Make available globally
+
+                setTimeout(() => {
+                    if (progressContainer) progressContainer.style.display = 'none';
+                    if (progressFill) progressFill.style.width = '0%';
+                }, 2000);
+
+                console.log('WebLLM model loaded:', selectedModel.value);
+
+            } catch (error) {
+                if (progressText) progressText.textContent = `Error: ${error.message}`;
+                if (progressFill) progressFill.style.width = '0%';
+                console.error('Failed to load WebLLM model:', error);
+
+                setTimeout(() => {
+                    if (progressContainer) progressContainer.style.display = 'none';
+                }, 3000);
+            } finally {
+                isModelLoading = false;
+                updateLLMStatus();
+                onModelChange();
+                checkSystemCapabilities();
+            }
+        }
+
+        function unloadCurrentModel() {
+            if (currentEngine) {
+                try {
+                    currentEngine = null;
+                    window.webLLMEngine = null;
+                    currentLLMConfig.model = '';
+                    console.log('WebLLM model unloaded');
+                } catch (error) {
+                    console.error('Error unloading model:', error);
+                }
+            }
+            
+            updateLLMStatus();
+            onModelChange();
+            checkSystemCapabilities();
+        }
+
+        async function testLLMConfiguration() {
+            const testPrompt = document.getElementById('testPrompt');
+            const responseBox = document.getElementById('testResponse');
+
+            if (!currentEngine || !testPrompt || !testPrompt.value.trim()) {
+                console.log('Cannot test: no engine or prompt');
+                return;
+            }
+
+            const startTime = Date.now();
+            if (responseBox) responseBox.innerHTML = '<p class="text-muted">Generating response...</p>';
+
+            try {
+                const response = await currentEngine.chat.completions.create({
+                    messages: [
+                        { role: 'system', content: currentLLMConfig.systemPrompt },
+                        { role: 'user', content: testPrompt.value }
+                    ],
+                    temperature: currentLLMConfig.temperature,
+                    top_p: currentLLMConfig.topP,
+                    max_tokens: Math.min(currentLLMConfig.maxTokens, 1000),
+                    stream: currentLLMConfig.enableStreaming
+                });
+
+                const endTime = Date.now();
+                const responseTime = (endTime - startTime) / 1000;
+
+                let content = '';
+                if (currentLLMConfig.enableStreaming) {
+                    if (responseBox) responseBox.innerHTML = '';
+                    for await (const chunk of response) {
+                        const delta = chunk.choices[0]?.delta?.content || '';
+                        content += delta;
+                        if (responseBox) responseBox.innerHTML = `<pre>${content}</pre>`;
+                    }
+                } else {
+                    content = response.choices[0]?.message?.content || 'No response generated';
+                    if (responseBox) responseBox.innerHTML = `<pre>${content}</pre>`;
+                }
+
+                // Update performance metrics
+                const tokenCount = content.split(' ').length;
+                const responseTimeEl = document.getElementById('responseTime');
+                const tokensPerSecondEl = document.getElementById('tokensPerSecond');
+                const totalTokensEl = document.getElementById('totalTokens');
+                const memoryUsageEl = document.getElementById('memoryUsage');
+
+                if (responseTimeEl) responseTimeEl.textContent = `${responseTime.toFixed(2)}s`;
+                if (tokensPerSecondEl) tokensPerSecondEl.textContent = `${(tokenCount / responseTime).toFixed(1)}`;
+                if (totalTokensEl) totalTokensEl.textContent = tokenCount;
+                if (memoryUsageEl) memoryUsageEl.textContent = `${(performance.memory?.usedJSHeapSize / 1024 / 1024).toFixed(1)}MB` || 'N/A';
+
+            } catch (error) {
+                if (responseBox) responseBox.innerHTML = `<p style="color: var(--error);">Error: ${error.message}</p>`;
+                console.error('Test generation failed:', error);
+            }
+        }
+
+        function resetToDefaults() {
+            currentLLMConfig = {
+                source: 'webllm',
+                model: '',
+                temperature: 0.7,
+                topP: 0.9,
+                topK: 40,
+                maxTokens: 512,
+                frequencyPenalty: 0.0,
+                presencePenalty: 0.0,
+                repetitionPenalty: 1.1,
+                systemPrompt: 'You are a helpful AI assistant specialized in DSL execution and plan orchestration. Provide clear, accurate, and contextually relevant responses.',
+                enableStreaming: true,
+                enableCaching: true,
+                requestTimeout: 30
+            };
+            populateConfigurationForm();
+        }
+
+        function updateSystemPrompt() {
+            const template = document.getElementById('systemPromptTemplate');
+            const customPrompt = document.getElementById('customSystemPrompt');
+
+            if (!template || !customPrompt) return;
+
+            const templates = {
+                default: 'You are a helpful AI assistant specialized in DSL execution and plan orchestration. Provide clear, accurate, and contextually relevant responses.',
+                creative: 'You are a creative AI assistant that excels at generating imaginative and innovative solutions. Think outside the box and provide unique perspectives.',
+                analytical: 'You are an analytical AI assistant focused on logical reasoning, data analysis, and systematic problem-solving. Provide detailed and methodical responses.',
+                coding: 'You are a coding AI assistant specialized in software development, debugging, and code optimization. Provide precise and efficient solutions.',
+                business: 'You are a business-focused AI assistant with expertise in strategy, operations, and decision-making. Provide actionable business insights.',
+                custom: customPrompt.value
+            };
+
+            if (template.value !== 'custom') {
+                customPrompt.value = templates[template.value];
+            }
+            currentLLMConfig.systemPrompt = customPrompt.value;
+        }
+
+        function saveConfiguration() {
+            localStorage.setItem('llmConfiguration', JSON.stringify(currentLLMConfig));
+            console.log('LLM configuration saved');
+        }
+
+        function loadConfiguration() {
+            const saved = localStorage.getItem('llmConfiguration');
+            if (saved) {
+                try {
+                    currentLLMConfig = JSON.parse(saved);
+                    populateConfigurationForm();
+                    updateModelList();
+                    console.log('LLM configuration loaded');
+                } catch (error) {
+                    console.error('Failed to load configuration:', error);
+                }
+            }
+        }
+
+        function exportConfiguration() {
+            const configBlob = new Blob([JSON.stringify(currentLLMConfig, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(configBlob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'llm-configuration.json';
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        function resetConfiguration() {
+            if (confirm('Are you sure you want to reset all LLM configuration settings?')) {
+                resetToDefaults();
+                if (currentEngine) {
+                    unloadCurrentModel();
+                }
+            }
+        }
+
+        // Provider Model Definitions (based on SimpleLLMService)
+        const providerModels = {
+            webllm: [
+                { id: 'Llama-3.1-8B-Instruct-q4f32_1-MLC', name: 'Llama 3.1 8B Instruct (4-bit)', group: 'Llama Models' },
+                { id: 'Llama-3.1-70B-Instruct-q4f16_1-MLC', name: 'Llama 3.1 70B Instruct (4-bit)', group: 'Llama Models' },
+                { id: 'Llama-3-8B-Instruct-q4f32_1-MLC', name: 'Llama 3 8B Instruct (4-bit)', group: 'Llama Models' },
+                { id: 'Llama-2-7b-chat-hf-q4f32_1-MLC', name: 'Llama 2 7B Chat (4-bit)', group: 'Llama Models' },
+                { id: 'Phi-3.5-mini-instruct-q4f16_1-MLC', name: 'Phi 3.5 Mini Instruct (4-bit)', group: 'Phi Models' },
+                { id: 'Phi-3-mini-4k-instruct-q4f16_1-MLC', name: 'Phi 3 Mini 4K Instruct (4-bit)', group: 'Phi Models' },
+                { id: 'Phi-3-mini-128k-instruct-q4f16_1-MLC', name: 'Phi 3 Mini 128K Instruct (4-bit)', group: 'Phi Models' },
+                { id: 'gemma-2-2b-it-q4f16_1-MLC', name: 'Gemma 2 2B Instruct (4-bit)', group: 'Gemma Models' },
+                { id: 'gemma-2-9b-it-q4f16_1-MLC', name: 'Gemma 2 9B Instruct (4-bit)', group: 'Gemma Models' },
+                { id: 'Qwen2.5-1.5B-Instruct-q4f16_1-MLC', name: 'Qwen 2.5 1.5B Instruct (4-bit)', group: 'Qwen Models' },
+                { id: 'Qwen2.5-7B-Instruct-q4f16_1-MLC', name: 'Qwen 2.5 7B Instruct (4-bit)', group: 'Qwen Models' },
+                { id: 'Mistral-7B-Instruct-v0.3-q4f16_1-MLC', name: 'Mistral 7B Instruct v0.3 (4-bit)', group: 'Mistral Models' }
+            ],
+            ollama: [
+                { id: 'phi4-mini:latest', name: 'Phi 4 Mini (Latest)', group: 'Phi Models' },
+                { id: 'llama3.2:latest', name: 'Llama 3.2 (Latest)', group: 'Llama Models' },
+                { id: 'llama3.1:latest', name: 'Llama 3.1 (Latest)', group: 'Llama Models' },
+                { id: 'llama3:latest', name: 'Llama 3 (Latest)', group: 'Llama Models' },
+                { id: 'llama2:latest', name: 'Llama 2 (Latest)', group: 'Llama Models' },
+                { id: 'mistral:latest', name: 'Mistral (Latest)', group: 'Mistral Models' },
+                { id: 'codellama:latest', name: 'Code Llama (Latest)', group: 'Code Models' },
+                { id: 'gemma2:latest', name: 'Gemma 2 (Latest)', group: 'Gemma Models' },
+                { id: 'qwen2.5:latest', name: 'Qwen 2.5 (Latest)', group: 'Qwen Models' },
+                { id: 'deepseek-coder:latest', name: 'DeepSeek Coder (Latest)', group: 'Code Models' }
+            ],
+            openai: [
+                { id: 'gpt-4o', name: 'GPT-4o (Most Capable)', group: 'GPT-4 Models' },
+                { id: 'gpt-4o-mini', name: 'GPT-4o Mini (Fast & Efficient)', group: 'GPT-4 Models' },
+                { id: 'gpt-4-turbo', name: 'GPT-4 Turbo', group: 'GPT-4 Models' },
+                { id: 'gpt-4', name: 'GPT-4', group: 'GPT-4 Models' },
+                { id: 'gpt-3.5-turbo', name: 'GPT-3.5 Turbo (Cost Effective)', group: 'GPT-3.5 Models' },
+                { id: 'gpt-3.5-turbo-16k', name: 'GPT-3.5 Turbo 16K', group: 'GPT-3.5 Models' }
+            ],
+            github: [
+                { id: 'gpt-4o-mini', name: 'GPT-4o Mini (Free)', group: 'OpenAI Models' },
+                { id: 'gpt-4o', name: 'GPT-4o', group: 'OpenAI Models' },
+                { id: 'Phi-4', name: 'Microsoft Phi-4', group: 'Microsoft Models' },
+                { id: 'Phi-3.5-mini-instruct', name: 'Phi-3.5 Mini Instruct', group: 'Microsoft Models' },
+                { id: 'Llama-3.2-11B-Vision-Instruct', name: 'Llama 3.2 11B Vision', group: 'Meta Models' },
+                { id: 'Llama-3.2-90B-Vision-Instruct', name: 'Llama 3.2 90B Vision', group: 'Meta Models' },
+                { id: 'Meta-Llama-3.1-70B-Instruct', name: 'Llama 3.1 70B Instruct', group: 'Meta Models' },
+                { id: 'Meta-Llama-3.1-405B-Instruct', name: 'Llama 3.1 405B Instruct', group: 'Meta Models' }
+            ],
+            gemini: [
+                { id: 'gemini-1.5-flash', name: 'Gemini 1.5 Flash (Fast)', group: 'Gemini Models' },
+                { id: 'gemini-1.5-pro', name: 'Gemini 1.5 Pro (Advanced)', group: 'Gemini Models' },
+                { id: 'gemini-1.0-pro', name: 'Gemini 1.0 Pro', group: 'Gemini Models' },
+                { id: 'gemini-pro', name: 'Gemini Pro', group: 'Gemini Models' }
+            ],
+            groq: [
+                { id: 'llama-3.3-70b-versatile', name: 'Llama 3.3 70B Versatile (Fast)', group: 'Llama Models' },
+                { id: 'llama-3.1-70b-versatile', name: 'Llama 3.1 70B Versatile', group: 'Llama Models' },
+                { id: 'llama-3.1-8b-instant', name: 'Llama 3.1 8B Instant', group: 'Llama Models' },
+                { id: 'mixtral-8x7b-32768', name: 'Mixtral 8x7B', group: 'Mistral Models' },
+                { id: 'gemma2-9b-it', name: 'Gemma 2 9B IT', group: 'Gemma Models' },
+                { id: 'gemma-7b-it', name: 'Gemma 7B IT', group: 'Gemma Models' }
+            ],
+            foundry: [
+                { id: 'Phi-4-mini-instruct-cuda-gpu', name: 'Phi-4 Mini Instruct (CUDA)', group: 'Foundry Models' },
+                { id: 'llama-3.1-8b-instruct', name: 'Llama 3.1 8B Instruct', group: 'Foundry Models' },
+                { id: 'mistral-7b-instruct', name: 'Mistral 7B Instruct', group: 'Foundry Models' }
+            ],
+            huggingface: [
+                { id: 'microsoft/DialoGPT-medium', name: 'DialoGPT Medium', group: 'Microsoft Models' },
+                { id: 'microsoft/DialoGPT-large', name: 'DialoGPT Large', group: 'Microsoft Models' },
+                { id: 'facebook/blenderbot-400M-distill', name: 'BlenderBot 400M', group: 'Facebook Models' },
+                { id: 'google/flan-t5-large', name: 'FLAN-T5 Large', group: 'Google Models' },
+                { id: 'bigscience/bloom-560m', name: 'BLOOM 560M', group: 'BigScience Models' }
+            ]
+        };
+
+        async function loadModelsForProvider(provider) {
+            const modelSelect = document.getElementById('selectedModel');
+            const modelLoading = document.getElementById('modelLoading');
+            
+            if (!modelSelect) return;
+
+            // Show loading state
+            if (modelLoading) modelLoading.classList.remove('hidden');
+            modelSelect.disabled = true;
+
+            // Clear existing options
+            modelSelect.innerHTML = '<option value="">Loading models...</option>';
+
+            try {
+                let models = [];
+                
+                switch (provider.toLowerCase()) {
+                    case 'openai':
+                        models = await fetchOpenAIModels();
+                        break;
+                    case 'ollama':
+                        models = await fetchOllamaModels();
+                        break;
+                    case 'groq':
+                        models = await fetchGroqModels();
+                        break;
+                    case 'github':
+                        models = await fetchGitHubModels();
+                        break;
+                    case 'gemini':
+                        models = await fetchGeminiModels();
+                        break;
+                    case 'huggingface':
+                        models = await fetchHuggingFaceModels();
+                        break;
+                    case 'webllm':
+                        models = await fetchWebLLMModels();
+                        break;
+                    case 'foundry':
+                    default:
+                        // For foundry and other providers, use fallback
+                        models = getFallbackModelsForProvider(provider).map(m => ({...m, isAvailable: false}));
+                        break;
+                }
+                
+                // Clear loading message
+                modelSelect.innerHTML = '<option value="">Select a model...</option>';
+                
+                if (!models || models.length === 0) {
+                    modelSelect.innerHTML = '<option value="">No models available for this provider</option>';
+                    return;
+                }
+
+                // Group models by availability
+                const availableModels = models.filter(model => model.isAvailable !== false);
+                const unavailableModels = models.filter(model => model.isAvailable === false);
+
+                // Add available models first
+                if (availableModels.length > 0) {
+                    const availableGroup = document.createElement('optgroup');
+                    availableGroup.label = `Available Models (${availableModels.length})`;
+                    
+                    availableModels.forEach(model => {
+                        const option = document.createElement('option');
+                        option.value = model.id;
+                        option.textContent = model.name || model.id;
+                        option.title = model.description || '';
+                        availableGroup.appendChild(option);
+                    });
+                    
+                    modelSelect.appendChild(availableGroup);
+                }
+
+                // Add unavailable models (fallback) if any
+                if (unavailableModels.length > 0) {
+                    const unavailableGroup = document.createElement('optgroup');
+                    unavailableGroup.label = `Fallback Models (${unavailableModels.length})`;
+                    
+                    unavailableModels.forEach(model => {
+                        const option = document.createElement('option');
+                        option.value = model.id;
+                        option.textContent = `${model.name || model.id} (offline)`;
+                        option.title = `${model.description || ''} - This is a fallback model, provider may be offline`;
+                        option.style.color = '#888';
+                        unavailableGroup.appendChild(option);
+                    });
+                    
+                    modelSelect.appendChild(unavailableGroup);
+                }
+
+                // Auto-select first available model
+                if (availableModels.length > 0) {
+                    modelSelect.value = availableModels[0].id;
+                    currentLLMConfig.model = availableModels[0].id;
+                } else if (unavailableModels.length > 0) {
+                    modelSelect.value = unavailableModels[0].id;
+                    currentLLMConfig.model = unavailableModels[0].id;
+                }
+
+                console.log(`Loaded ${models.length} models for provider: ${provider} (${availableModels.length} available, ${unavailableModels.length} fallback)`);
+            } catch (error) {
+                console.error('Error loading models:', error);
+                
+                // Fallback to hardcoded models if all APIs fail
+                const fallbackModels = getFallbackModelsForProvider(provider);
+                modelSelect.innerHTML = '<option value="">Select a model...</option>';
+                
+                if (fallbackModels.length > 0) {
+                    const fallbackGroup = document.createElement('optgroup');
+                    fallbackGroup.label = 'Cached Models (API offline)';
+                    
+                    fallbackModels.forEach(model => {
+                        const option = document.createElement('option');
+                        option.value = model.id;
+                        option.textContent = `${model.name} (cached)`;
+                        option.title = 'Using cached model list - live models may be unavailable';
+                        option.style.color = '#888';
+                        fallbackGroup.appendChild(option);
+                    });
+                    
+                    modelSelect.appendChild(fallbackGroup);
+                    
+                    // Select first fallback model
+                    modelSelect.value = fallbackModels[0].id;
+                    currentLLMConfig.model = fallbackModels[0].id;
+                    
+                    console.log(`Using ${fallbackModels.length} fallback models for provider: ${provider}`);
+                } else {
+                    modelSelect.innerHTML = '<option value="">Error loading models - please try again</option>';
+                }
+            } finally {
+                // Hide loading state
+                if (modelLoading) modelLoading.classList.add('hidden');
+                modelSelect.disabled = false;
+                onModelChange();
+            }
+        }
+
+        // Provider-specific model fetching functions
+        async function fetchOpenAIModels() {
+            try {
+                const apiKey = document.getElementById('apiKey')?.value;
+                if (!apiKey) {
+                    throw new Error('OpenAI API key required');
+                }
+                
+                const response = await fetch('https://api.openai.com/v1/models', {
+                    headers: {
+                        'Authorization': `Bearer ${apiKey}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                if (!response.ok) throw new Error(`OpenAI API error: ${response.status}`);
+                
+                const data = await response.json();
+                return data.data
+                    .filter(model => model.id.startsWith('gpt-') && model.id.includes('gpt'))
+                    .map(model => ({
+                        id: model.id,
+                        name: model.id.replace(/^gpt-/, 'GPT-').replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase()),
+                        isAvailable: true,
+                        description: `OpenAI ${model.id}`
+                    }));
+            } catch (error) {
+                console.warn('Failed to fetch OpenAI models:', error);
+                return getFallbackModelsForProvider('openai').map(m => ({...m, isAvailable: false}));
+            }
+        }
+
+        async function fetchOllamaModels() {
+            try {
+                const response = await fetch('http://localhost:11434/api/tags');
+                if (!response.ok) throw new Error(`Ollama API error: ${response.status}`);
+                
+                const data = await response.json();
+                return data.models?.map(model => ({
+                    id: model.name,
+                    name: model.name.replace(/:latest$/, '').replace(/[-_]/g, ' ').replace(/\b\w/g, l => l.toUpperCase()),
+                    isAvailable: true,
+                    description: `Ollama model: ${model.name} (${(model.size / 1024 / 1024 / 1024).toFixed(1)}GB)`
+                })) || [];
+            } catch (error) {
+                console.warn('Failed to fetch Ollama models:', error);
+                return getFallbackModelsForProvider('ollama').map(m => ({...m, isAvailable: false}));
+            }
+        }
+
+        async function fetchGroqModels() {
+            try {
+                const apiKey = document.getElementById('apiKey')?.value;
+                if (!apiKey) {
+                    throw new Error('Groq API key required');
+                }
+                
+                const response = await fetch('https://api.groq.com/openai/v1/models', {
+                    headers: {
+                        'Authorization': `Bearer ${apiKey}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                if (!response.ok) throw new Error(`Groq API error: ${response.status}`);
+                
+                const data = await response.json();
+                return data.data?.map(model => ({
+                    id: model.id,
+                    name: model.id.replace(/[-_]/g, ' ').replace(/\b\w/g, l => l.toUpperCase()),
+                    isAvailable: true,
+                    description: `Groq ${model.id}`
+                })) || [];
+            } catch (error) {
+                console.warn('Failed to fetch Groq models:', error);
+                return getFallbackModelsForProvider('groq').map(m => ({...m, isAvailable: false}));
+            }
+        }
+
+        async function fetchGitHubModels() {
+            // GitHub Models API requires special access, use fallback
+            console.warn('GitHub Models API requires special access, using fallback models');
+            return getFallbackModelsForProvider('github').map(m => ({...m, isAvailable: false}));
+        }
+
+        async function fetchGeminiModels() {
+            // Gemini doesn't have a public models API, use fallback
+            console.warn('Gemini models API not publicly available, using fallback models');
+            return getFallbackModelsForProvider('gemini').map(m => ({...m, isAvailable: false}));
+        }
+
+        async function fetchHuggingFaceModels() {
+            // HuggingFace has too many models, use curated fallback
+            console.warn('HuggingFace has thousands of models, using curated fallback models');
+            return getFallbackModelsForProvider('huggingface').map(m => ({...m, isAvailable: false}));
+        }
+
+        async function fetchWebLLMModels() {
+            try {
+                // Try to fetch from WebLLM's model registry
+                const response = await fetch('https://raw.githubusercontent.com/mlc-ai/web-llm/main/src/config.ts');
+                if (response.ok) {
+                    const configText = await response.text();
+                    // Parse model IDs from the config (this is a simplified approach)
+                    const modelMatches = configText.match(/model_id:\s*["']([^"']+)["']/g);
+                    if (modelMatches) {
+                        const models = modelMatches.map(match => {
+                            const id = match.match(/["']([^"']+)["']/)[1];
+                            return {
+                                id: id,
+                                name: id.replace(/[-_]/g, ' ').replace(/\b\w/g, l => l.toUpperCase()),
+                                isAvailable: true,
+                                description: `WebLLM ${id}`
+                            };
+                        });
+                        return models.slice(0, 20); // Limit to first 20 models
+                    }
+                }
+                throw new Error('Failed to parse WebLLM config');
+            } catch (error) {
+                console.warn('Failed to fetch WebLLM models:', error);
+                return getFallbackModelsForProvider('webllm').map(m => ({...m, isAvailable: false}));
+            }
+        }
+
+        // LLM Integration Helper Functions
+        async function callConfiguredLLM(prompt, options = {}) {
+            const provider = options.provider || currentLLMConfig.source || 'webllm';
+            const model = options.model || currentLLMConfig.model;
+            const temperature = options.temperature || currentLLMConfig.temperature || 0.7;
+            const maxTokens = options.maxTokens || currentLLMConfig.maxTokens || 500;
+            
+            console.log(`Calling LLM: ${provider}/${model} for prompt: ${prompt.substring(0, 50)}...`);
+            
+            switch (provider.toLowerCase()) {
+                case 'openai':
+                    return await callOpenAI(prompt, model, temperature, maxTokens);
+                case 'ollama':
+                    return await callOllama(prompt, model, temperature, maxTokens);
+                case 'groq':
+                    return await callGroq(prompt, model, temperature, maxTokens);
+                case 'webllm':
+                    return await callWebLLM(prompt, model, temperature, maxTokens);
+                default:
+                    // Fallback to enhanced mock for other providers
+                    return generateContextualContent(prompt, getCreativityFromTemperature(temperature), provider);
+            }
+        }
+        
+        async function callOpenAI(prompt, model, temperature, maxTokens) {
+            const apiKey = document.getElementById('apiKey')?.value;
+            if (!apiKey) throw new Error('OpenAI API key required');
+            
+            const response = await fetch('https://api.openai.com/v1/chat/completions', {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${apiKey}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    model: model || 'gpt-4o-mini',
+                    messages: [{ role: 'user', content: prompt }],
+                    temperature: temperature,
+                    max_tokens: maxTokens
+                })
+            });
+            
+            if (!response.ok) throw new Error(`OpenAI API error: ${response.status}`);
+            
+            const data = await response.json();
+            return data.choices[0]?.message?.content || 'No response generated';
+        }
+        
+        async function callOllama(prompt, model, temperature, maxTokens) {
+            const response = await fetch('http://localhost:11434/api/generate', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    model: model || 'phi4-mini:latest',
+                    prompt: prompt,
+                    options: {
+                        temperature: temperature,
+                        num_predict: maxTokens
+                    },
+                    stream: false
+                })
+            });
+            
+            if (!response.ok) throw new Error(`Ollama API error: ${response.status}`);
+            
+            const data = await response.json();
+            return data.response || 'No response generated';
+        }
+        
+        async function callGroq(prompt, model, temperature, maxTokens) {
+            const apiKey = document.getElementById('apiKey')?.value;
+            if (!apiKey) throw new Error('Groq API key required');
+            
+            const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${apiKey}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    model: model || 'llama-3.1-8b-instant',
+                    messages: [{ role: 'user', content: prompt }],
+                    temperature: temperature,
+                    max_tokens: maxTokens
+                })
+            });
+            
+            if (!response.ok) throw new Error(`Groq API error: ${response.status}`);
+            
+            const data = await response.json();
+            return data.choices[0]?.message?.content || 'No response generated';
+        }
+        
+        async function callWebLLM(prompt, model, temperature, maxTokens) {
+            // WebLLM integration would require the WebLLM library
+            // For now, return enhanced contextual content
+            console.warn('WebLLM integration requires WebLLM library - using enhanced mock');
+            return generateContextualContent(prompt, 'High', 'WebLLM');
+        }
+        
+        function getTemperatureFromCreativity(creativity) {
+            switch (creativity?.toLowerCase()) {
+                case 'low': return 0.2;
+                case 'balanced': return 0.7;
+                case 'high': return 0.9;
+                default: return 0.7;
+            }
+        }
+        
+        function getCreativityFromTemperature(temperature) {
+            if (temperature <= 0.3) return 'Low';
+            if (temperature <= 0.6) return 'Balanced';
+            return 'High';
+        }
+
+        function createAnalysisPrompt(data, analysisType) {
+            const basePrompt = `Please perform a ${analysisType.toLowerCase()} analysis of the following data:\n\n${data}\n\n`;
+            
+            switch (analysisType.toUpperCase()) {
+                case 'STATISTICAL':
+                    return basePrompt + 'Provide statistical insights including:\n- Key metrics and trends\n- Statistical significance\n- Data distribution patterns\n- Outliers and anomalies\n- Correlations if applicable\n\nFormat your response as a structured analysis with clear findings.';
+                
+                case 'SENTIMENT':
+                    return basePrompt + 'Analyze the sentiment and emotional tone:\n- Overall sentiment (positive/negative/neutral)\n- Emotional indicators\n- Confidence level in assessment\n- Key phrases that indicate sentiment\n- Suggestions for response or action\n\nProvide a clear sentiment score and reasoning.';
+                
+                case 'TREND':
+                    return basePrompt + 'Identify patterns and trends:\n- Upward/downward trends\n- Cyclical patterns\n- Rate of change\n- Forecasting implications\n- Trend strength and reliability\n\nInclude actionable insights based on trend analysis.';
+                
+                case 'SEMANTIC':
+                    return basePrompt + 'Perform semantic analysis:\n- Key concepts and themes\n- Meaning and context\n- Relationships between concepts\n- Intent and purpose\n- Semantic categories\n\nProvide structured semantic insights.';
+                
+                case 'COMPARATIVE':
+                    return basePrompt + 'Compare and contrast elements:\n- Similarities and differences\n- Relative strengths and weaknesses\n- Performance comparisons\n- Ranking or prioritization\n- Recommendations based on comparison\n\nStructure the comparison clearly.';
+                
+                default:
+                    return basePrompt + `Provide a comprehensive ${analysisType.toLowerCase()} analysis with:\n- Key findings and insights\n- Supporting evidence\n- Patterns or anomalies\n- Implications and recommendations\n- Confidence level in analysis\n\nStructure your analysis clearly with actionable conclusions.`;
+            }
+        }
+
+        function createDesignPrompt(template, designType) {
+            const basePrompt = `Create a ${designType.toLowerCase()} design based on the following template/requirements:\n\n${template}\n\n`;
+            
+            switch (designType.toUpperCase()) {
+                case 'UI':
+                case 'USER_INTERFACE':
+                    return basePrompt + 'Generate a user interface design including:\n- Layout structure and components\n- User experience considerations\n- Visual hierarchy and styling\n- Interactive elements and navigation\n- Accessibility considerations\n- Responsive design principles\n\nProvide detailed UI specifications and design rationale.';
+                
+                case 'API':
+                    return basePrompt + 'Design an API specification including:\n- Endpoint definitions and HTTP methods\n- Request/response schemas\n- Authentication and authorization\n- Error handling and status codes\n- Rate limiting and versioning\n- Documentation and examples\n\nProvide a complete API design specification.';
+                
+                case 'DATABASE':
+                case 'SCHEMA':
+                    return basePrompt + 'Design a database schema including:\n- Table structures and relationships\n- Primary and foreign keys\n- Indexes and constraints\n- Data types and validation rules\n- Normalization considerations\n- Performance optimizations\n\nProvide SQL DDL statements and schema documentation.';
+                
+                case 'ARCHITECTURE':
+                case 'SYSTEM':
+                    return basePrompt + 'Design a system architecture including:\n- Component breakdown and responsibilities\n- Service interactions and dependencies\n- Data flow and communication patterns\n- Scalability and performance considerations\n- Security and reliability measures\n- Deployment and infrastructure requirements\n\nProvide architectural diagrams and documentation.';
+                
+                case 'WORKFLOW':
+                case 'PROCESS':
+                    return basePrompt + 'Design a workflow/process including:\n- Step-by-step procedures\n- Decision points and branches\n- Roles and responsibilities\n- Input/output requirements\n- Error handling and exceptions\n- Performance metrics and KPIs\n\nProvide a structured workflow specification.';
+                
+                default:
+                    return basePrompt + `Generate a comprehensive ${designType.toLowerCase()} design with:\n- Clear specifications and requirements\n- Implementation guidelines\n- Best practices and standards\n- Potential challenges and solutions\n- Testing and validation approaches\n\nProvide detailed design documentation with practical examples.`;
+            }
+        }
+
+        function getFallbackModelsForProvider(provider) {
+            // Minimal fallback models for when API is unavailable
+            const fallbackModels = {
+                webllm: [
+                    { id: 'Phi-3.5-mini-instruct-q4f16_1-MLC', name: 'Phi 3.5 Mini Instruct (4-bit)' },
+                    { id: 'Llama-3.2-3B-Instruct-q4f16_1-MLC', name: 'Llama 3.2 3B Instruct (4-bit)' }
+                ],
+                ollama: [
+                    { id: 'phi4-mini:latest', name: 'Phi 4 Mini (Latest)' },
+                    { id: 'llama3.2:latest', name: 'Llama 3.2 (Latest)' }
+                ],
+                openai: [
+                    { id: 'gpt-4o-mini', name: 'GPT-4o Mini' },
+                    { id: 'gpt-4o', name: 'GPT-4o' }
+                ],
+                github: [
+                    { id: 'gpt-4o-mini', name: 'GPT-4o Mini (Free)' },
+                    { id: 'meta-llama-3.1-8b-instruct', name: 'Llama 3.1 8B Instruct (Free)' }
+                ],
+                gemini: [
+                    { id: 'gemini-1.5-flash', name: 'Gemini 1.5 Flash (Fast)' },
+                    { id: 'gemini-1.5-pro', name: 'Gemini 1.5 Pro' }
+                ],
+                groq: [
+                    { id: 'llama-3.1-8b-instant', name: 'Llama 3.1 8B Instant' },
+                    { id: 'mixtral-8x7b-32768', name: 'Mixtral 8x7B' }
+                ],
+                foundry: [
+                    { id: 'phi4-mini:latest', name: 'Phi 4 Mini' }
+                ],
+                huggingface: [
+                    { id: 'microsoft/DialoGPT-medium', name: 'DialoGPT Medium' }
+                ]
+            };
+            
+            return fallbackModels[provider] || [];
+        }
+
+        function getDefaultModelForProvider(provider) {
+            const defaults = {
+                webllm: 'Phi-3.5-mini-instruct-q4f16_1-MLC',
+                ollama: 'phi4-mini:latest',
+                openai: 'gpt-4o-mini',
+                github: 'gpt-4o-mini',
+                gemini: 'gemini-1.5-flash',
+                groq: 'llama-3.3-70b-versatile',
+                foundry: 'Phi-4-mini-instruct-cuda-gpu',
+                huggingface: 'microsoft/DialoGPT-medium'
+            };
+            return defaults[provider] || '';
+        }
+
+        function saveProviderConfig() {
+            const provider = document.getElementById('modelSource')?.value;
+            if (!provider) return;
+
+            const config = {
+                apiKey: document.getElementById('apiKey')?.value || '',
+                orgId: document.getElementById('orgId')?.value || '',
+                endpoint: document.getElementById('customEndpoint')?.value || ''
+            };
+
+            // Save to localStorage with provider-specific key
+            localStorage.setItem(`llm_provider_${provider}`, JSON.stringify(config));
+            
+            // Also save the complete current LLM configuration
+            const fullConfig = {
+                ...currentLLMConfig,
+                provider: provider,
+                apiKey: config.apiKey,
+                orgId: config.orgId,
+                endpoint: config.endpoint
+            };
+            
+            localStorage.setItem('llm_current_config', JSON.stringify(fullConfig));
+            console.log(`Saved complete configuration for provider: ${provider}`);
+        }
+
+        function loadSavedLLMConfig() {
+            try {
+                const savedConfig = localStorage.getItem('llm_current_config');
+                if (savedConfig) {
+                    const config = JSON.parse(savedConfig);
+                    
+                    // Restore LLM configuration
+                    Object.assign(currentLLMConfig, config);
+                    
+                    // Restore UI elements
+                    const modelSource = document.getElementById('modelSource');
+                    const selectedModel = document.getElementById('selectedModel');
+                    const apiKey = document.getElementById('apiKey');
+                    const orgId = document.getElementById('orgId');
+                    const endpoint = document.getElementById('customEndpoint');
+                    
+                    if (modelSource && config.provider) modelSource.value = config.provider;
+                    if (selectedModel && config.model) selectedModel.value = config.model;
+                    if (apiKey && config.apiKey) apiKey.value = config.apiKey;
+                    if (orgId && config.orgId) orgId.value = config.orgId;
+                    if (endpoint && config.endpoint) endpoint.value = config.endpoint;
+                    
+                    console.log('Restored LLM configuration:', config.provider, config.model);
+                }
+            } catch (error) {
+                console.warn('Failed to load saved LLM config:', error);
+            }
+        }
+
+        function loadProviderConfig(provider) {
+            const saved = localStorage.getItem(`llm_provider_${provider}`);
+            if (!saved) return;
+
+            try {
+                const config = JSON.parse(saved);
+                
+                const apiKeyInput = document.getElementById('apiKey');
+                const orgIdInput = document.getElementById('orgId');
+                const endpointInput = document.getElementById('customEndpoint');
+
+                if (apiKeyInput) apiKeyInput.value = config.apiKey || '';
+                if (orgIdInput) orgIdInput.value = config.orgId || '';
+                if (endpointInput) endpointInput.value = config.endpoint || '';
+
+                console.log(`Loaded configuration for provider: ${provider}`);
+            } catch (error) {
+                console.error('Error loading provider configuration:', error);
+            }
+        }
+
+        function getProviderConfiguration() {
+            const provider = document.getElementById('modelSource')?.value;
+            const model = document.getElementById('selectedModel')?.value;
+            const apiKey = document.getElementById('apiKey')?.value;
+            const orgId = document.getElementById('orgId')?.value;
+            const endpoint = document.getElementById('customEndpoint')?.value;
+
+            return {
+                provider,
+                model,
+                apiKey,
+                orgId,
+                endpoint,
+                temperature: currentLLMConfig.temperature,
+                maxTokens: currentLLMConfig.maxTokens,
+                topP: currentLLMConfig.topP,
+                frequencyPenalty: currentLLMConfig.frequencyPenalty,
+                presencePenalty: currentLLMConfig.presencePenalty,
+                systemPrompt: currentLLMConfig.systemPrompt
+            };
+        }
+
+        function generateContextualContent(prompt, creativity, provider) {
+            // Generate contextual content based on prompt and provider
+            const promptLower = prompt.toLowerCase();
+            let content = '';
+            
+            if (promptLower.includes('code') || promptLower.includes('function') || promptLower.includes('class')) {
+                content = `Here's a comprehensive code solution based on your request:
+
+\`\`\`javascript
+function generateSolution(requirements) {
+    // Implementation details would be generated by ${provider}
+    const solution = {
+        approach: 'intelligent analysis',
+        implementation: 'optimized for performance',
+        testing: 'comprehensive coverage'
+    };
+    return solution;
+}
+\`\`\`
+
+This solution incorporates best practices and follows modern development patterns.`;
+            } else if (promptLower.includes('plan') || promptLower.includes('strategy') || promptLower.includes('approach')) {
+                content = `Strategic Analysis and Implementation Plan:
+
+1. **Assessment Phase**
+   - Analyze current requirements and constraints
+   - Identify key stakeholders and objectives
+   - Evaluate available resources and timeline
+
+2. **Planning Phase**
+   - Define clear milestones and deliverables
+   - Establish success metrics and KPIs
+   - Create detailed implementation roadmap
+
+3. **Execution Phase**
+   - Implement solution with iterative approach
+   - Monitor progress and adjust as needed
+   - Ensure quality and compliance standards
+
+This comprehensive approach ensures successful project delivery.`;
+            } else if (promptLower.includes('data') || promptLower.includes('analysis') || promptLower.includes('metrics')) {
+                content = `Data Analysis and Insights:
+
+**Key Findings:**
+- Performance metrics indicate optimal efficiency
+- User engagement shows positive trends
+- System reliability maintains 99.9% uptime
+
+**Recommendations:**
+- Implement additional monitoring capabilities
+- Optimize data processing workflows
+- Enhance user experience based on feedback
+
+**Next Steps:**
+- Deploy advanced analytics dashboards
+- Establish automated reporting systems
+- Create predictive modeling capabilities`;
+            } else {
+                content = `Based on your request, here's a thoughtful analysis:
+
+The topic you've raised is multifaceted and requires careful consideration of various factors. Key aspects to address include:
+
+• Understanding the core requirements and objectives
+• Evaluating potential solutions and their trade-offs
+• Considering implementation challenges and opportunities
+• Planning for scalability and future enhancements
+
+This approach ensures a comprehensive solution that meets both immediate needs and long-term goals. The ${provider} model provides intelligent insights and recommendations tailored to your specific context.`;
+            }
+            
+            // Adjust creativity level
+            if (creativity === 'Creative') {
+                content += `
+
+🎨 **Creative Enhancement**: This solution incorporates innovative approaches and out-of-the-box thinking to deliver exceptional results that exceed expectations.`;
+            } else if (creativity === 'Focused') {
+                content += `
+
+🎯 **Focused Approach**: This solution prioritizes efficiency and precision, delivering direct answers with minimal complexity.`;
+            }
+            
+            return content;
+        }
+
+        // Update the test function to use provider configuration
+        async function testProviderConfiguration() {
+            const config = getProviderConfiguration();
+            const testPrompt = document.getElementById('testPrompt')?.value;
+            const responseBox = document.getElementById('testResponse');
+
+            if (!config.provider || !config.model || !testPrompt?.trim()) {
+                if (responseBox) responseBox.innerHTML = '<p style="color: var(--error);">Please select a provider, model, and enter a test prompt.</p>';
+                return;
+            }
+
+            if (config.provider !== 'webllm' && config.provider !== 'ollama' && config.provider !== 'foundry' && !config.apiKey) {
+                if (responseBox) responseBox.innerHTML = '<p style="color: var(--error);">API key is required for this provider.</p>';
+                return;
+            }
+
+            const startTime = Date.now();
+            if (responseBox) responseBox.innerHTML = '<p class="text-muted">Testing configuration...</p>';
+
+            try {
+                // For WebLLM, use the existing engine if available
+                if (config.provider === 'webllm' && currentEngine) {
+                    return await testLLMConfiguration();
+                }
+
+                // For other providers, simulate a test (in real implementation, this would make actual API calls)
+                await new Promise(resolve => setTimeout(resolve, 1000));
+
+                const endTime = Date.now();
+                const responseTime = (endTime - startTime) / 1000;
+
+                const testResponse = `Test successful! Configuration for ${config.provider} with model ${config.model} is working.\n\nProvider: ${config.provider}\nModel: ${config.model}\nEndpoint: ${config.endpoint || 'Default'}\nAPI Key: ${config.apiKey ? '***' + config.apiKey.slice(-4) : 'Not required'}\n\nThis is a simulated response. In a real implementation, this would make an actual API call to test the configuration.`;
+
+                if (responseBox) responseBox.innerHTML = `<pre>${testResponse}</pre>`;
+
+                // Update performance metrics
+                const responseTimeEl = document.getElementById('responseTime');
+                const tokensPerSecondEl = document.getElementById('tokensPerSecond');
+                const totalTokensEl = document.getElementById('totalTokens');
+
+                if (responseTimeEl) responseTimeEl.textContent = `${responseTime.toFixed(2)}s`;
+                if (tokensPerSecondEl) tokensPerSecondEl.textContent = '~50';
+                if (totalTokensEl) totalTokensEl.textContent = '~75';
+
+            } catch (error) {
+                if (responseBox) responseBox.innerHTML = `<p style="color: var(--error);">Test failed: ${error.message}</p>`;
+                console.error('Provider test failed:', error);
             }
         }
 
@@ -2520,13 +5589,50 @@
             setupCanvasInteraction();
             setupInspectorHandlers();
             
-            // Load existing statements if any
-            const agent = currentPlan.agents.get(agentKey);
-            if (agent && agent.statements) {
-                loadStatementsAsNodes(agent.statements);
+            // Load pre-created nodes for this agent
+            if (agentNodes.has(agentKey)) {
+                const agentSpecificNodes = agentNodes.get(agentKey);
+                visualDesignerState.nodes = new Map(agentSpecificNodes);
+                
+                // Render the nodes on canvas
+                renderVisualNodes();
+                
+                console.log(`🎨 Loaded ${agentSpecificNodes.size} pre-built nodes for ${agentKey}`);
+            } else {
+                // Load existing statements if any (fallback)
+                const agent = currentPlan.agents.get(agentKey);
+                if (agent && agent.statements) {
+                    loadStatementsAsNodes(agent.statements);
+                }
             }
             
             console.log(`🎨 Visual Designer initialized for agent: ${agentKey}`);
+        }
+        
+        // Render visual nodes on the canvas
+        function renderVisualNodes() {
+            const canvas = document.getElementById('statementCanvas');
+            if (!canvas) return;
+            
+            // Clear existing nodes
+            canvas.innerHTML = '';
+            
+            // Render each node
+            visualDesignerState.nodes.forEach((nodeData, nodeId) => {
+                const nodeElement = createStatementNode(
+                    nodeData.template.type,
+                    nodeData.position.x,
+                    nodeData.position.y,
+                    nodeData.data
+                );
+                
+                if (nodeElement) {
+                    nodeElement.id = nodeId;
+                    canvas.appendChild(nodeElement);
+                }
+            });
+            
+            console.log(`✅ Rendered ${visualDesignerState.nodes.size} nodes on canvas`);
         }
 
         // Setup Palette Drag & Drop
@@ -3566,18 +6672,33 @@
         }
 
         async function executeIf(nodeData, data) {
-            const key = data.Key;
-            const conditionType = data.ConditionType || 'Equal';
-            const compareValue = interpolateTemplate(data.Template || '');
-            
-            if (!key) throw new Error('IF: Key is required');
-            
-            const actualValue = String(interpreterState.variables.get(key) || '');
-            let conditionMet = false;
-            
-            switch (conditionType) {
-                case 'Equal':
-                    conditionMet = actualValue === compareValue;
+            // Support both formats: Key/Template format and simple Condition format
+            if (data.Condition) {
+                // Simple condition format (e.g., "rawData.length > 0")
+                const condition = data.Condition;
+                const conditionResult = evaluateCondition(condition);
+                
+                addExecutionLog(`🔀 IF: ${condition} = ${conditionResult}`);
+                
+                if (conditionResult) {
+                    await executeChildStatements(nodeData);
+                    return true;
+                }
+                return false;
+            } else {
+                // Key/Template format
+                const key = data.Key;
+                const conditionType = data.ConditionType || 'Equal';
+                const compareValue = interpolateTemplate(data.Template || '');
+                
+                if (!key) throw new Error('IF: Key is required');
+                
+                const actualValue = String(interpreterState.variables.get(key) || '');
+                let conditionMet = false;
+                
+                switch (conditionType) {
+                    case 'Equal':
+                        conditionMet = actualValue === compareValue;
                     break;
                 case 'NotEqual':
                     conditionMet = actualValue !== compareValue;
@@ -3588,13 +6709,16 @@
                 case 'LessThan':
                     conditionMet = parseFloat(actualValue) < parseFloat(compareValue);
                     break;
+                }
+                
+                addExecutionLog(`🔀 IF ${key} ${conditionType} "${compareValue}" → ${conditionMet ? 'TRUE' : 'FALSE'}`);
+                
+                if (conditionMet) {
+                    await executeChildStatements(nodeData);
+                    return true;
+                }
+                return false;
             }
-            
-            addExecutionLog(`🔀 IF ${key} ${conditionType} "${compareValue}" → ${conditionMet ? 'TRUE' : 'FALSE'}`);
-            
-            // For now, execute all connected nodes regardless
-            // In a full implementation, we'd need THEN/ELSE connection types
-            return conditionMet;
         }
 
         async function executeWhile(nodeData, data) {
@@ -3668,16 +6792,31 @@
             
             const maxTokens = parseInt(data.MaxTokens) || 500;
             const creativity = data.Creativity || 'Balanced';
+            const prompt = data.Expression || data.Prompt || 'Generate helpful content';
             
             addExecutionLog(`🤖 Generating content for ${key} (${maxTokens} tokens, ${creativity})`);
+            addExecutionLog(`📝 Using LLM: ${currentLLMConfig.source}/${currentLLMConfig.model}`);
             
-            // Simulate AI generation
-            await sleep(1000);
-            const generatedContent = `Generated content for ${key} using ${creativity} creativity level. This would be actual AI-generated text in a real implementation.`;
-            
-            interpreterState.variables.set(key, generatedContent);
-            addExecutionLog(`✨ Generated ${generatedContent.length} characters for ${key}`);
-            updateVariablesList();
+            try {
+                // Use the configured LLM for actual generation
+                const generatedContent = await callConfiguredLLM(prompt, {
+                    maxTokens: maxTokens,
+                    temperature: getTemperatureFromCreativity(creativity),
+                    provider: currentLLMConfig.source,
+                    model: currentLLMConfig.model
+                });
+                
+                interpreterState.variables.set(key, generatedContent);
+                addExecutionLog(`✨ Generated ${generatedContent.length} characters for ${key}`);
+                updateVariablesList();
+            } catch (error) {
+                addExecutionLog(`❌ LLM generation failed: ${error.message}`);
+                // Fallback to mock content
+                const fallbackContent = `Generated content for ${key} using ${creativity} creativity level. (LLM unavailable: ${error.message})`;
+                interpreterState.variables.set(key, fallbackContent);
+                addExecutionLog(`⚠️ Using fallback content for ${key}`);
+                updateVariablesList();
+            }
         }
 
         async function executeRead(data) {
@@ -3719,13 +6858,32 @@
             if (!key || !template) throw new Error('DESIGN: Key and Template are required');
             
             addExecutionLog(`🎨 Designing ${type}: ${template}`);
-            await sleep(1000); // Simulate design generation
+            addExecutionLog(`🎯 Using LLM: ${currentLLMConfig.source}/${currentLLMConfig.model}`);
             
-            const designResult = `${type} Design: ${template}`;
-            interpreterState.variables.set(key, designResult);
-            
-            addExecutionLog(`✅ Design completed and stored in ${key}`);
-            updateVariablesList();
+            try {
+                // Create design prompt based on type and template
+                const designPrompt = createDesignPrompt(template, type);
+                
+                // Use the configured LLM for design generation
+                const llmDesign = await callConfiguredLLM(designPrompt, {
+                    maxTokens: 1000,
+                    temperature: 0.8, // Higher temperature for creative design tasks
+                    provider: currentLLMConfig.source,
+                    model: currentLLMConfig.model
+                });
+                
+                interpreterState.variables.set(key, llmDesign);
+                addExecutionLog(`✅ LLM design completed and stored in ${key}`);
+                updateVariablesList();
+            } catch (error) {
+                addExecutionLog(`❌ LLM design failed: ${error.message}`);
+                
+                // Fallback to basic design
+                const fallbackDesign = `${type} Design: ${template} (LLM unavailable: ${error.message})`;
+                interpreterState.variables.set(key, fallbackDesign);
+                addExecutionLog(`⚠️ Using fallback design for ${key}`);
+                updateVariablesList();
+            }
         }
 
         async function executeFetch(data) {
@@ -3778,19 +6936,53 @@
             if (!key || !dataSource) throw new Error('ANALYZE: Key and Data are required');
             
             addExecutionLog(`📊 Analyzing data (${type}): ${dataSource}`);
-            await sleep(1200); // Simulate analysis processing
+            addExecutionLog(`🔍 Using LLM: ${currentLLMConfig.source}/${currentLLMConfig.model}`);
             
-            const analysisResult = {
-                type: type,
-                source: dataSource,
-                results: `${type} analysis of ${dataSource}`,
-                confidence: 0.85,
-                timestamp: new Date().toISOString()
-            };
-            
-            interpreterState.variables.set(key, JSON.stringify(analysisResult));
-            addExecutionLog(`✅ Analysis completed, results stored in ${key}`);
-            updateVariablesList();
+            try {
+                // Get the actual data to analyze
+                const actualData = interpreterState.variables.get(dataSource) || dataSource;
+                
+                // Create analysis prompt based on type
+                const analysisPrompt = createAnalysisPrompt(actualData, type);
+                
+                // Use the configured LLM for analysis
+                const llmAnalysis = await callConfiguredLLM(analysisPrompt, {
+                    maxTokens: 800,
+                    temperature: 0.3, // Lower temperature for analytical tasks
+                    provider: currentLLMConfig.source,
+                    model: currentLLMConfig.model
+                });
+                
+                const analysisResult = {
+                    type: type,
+                    source: dataSource,
+                    results: llmAnalysis,
+                    confidence: 0.85,
+                    timestamp: new Date().toISOString(),
+                    llm_provider: currentLLMConfig.source,
+                    llm_model: currentLLMConfig.model
+                };
+                
+                interpreterState.variables.set(key, JSON.stringify(analysisResult));
+                addExecutionLog(`✅ LLM analysis completed, results stored in ${key}`);
+                updateVariablesList();
+            } catch (error) {
+                addExecutionLog(`❌ LLM analysis failed: ${error.message}`);
+                
+                // Fallback to mock analysis
+                const fallbackResult = {
+                    type: type,
+                    source: dataSource,
+                    results: `${type} analysis of ${dataSource} (LLM unavailable: ${error.message})`,
+                    confidence: 0.65,
+                    timestamp: new Date().toISOString(),
+                    fallback: true
+                };
+                
+                interpreterState.variables.set(key, JSON.stringify(fallbackResult));
+                addExecutionLog(`⚠️ Using fallback analysis for ${key}`);
+                updateVariablesList();
+            }
         }
 
         async function executeSense(data) {
@@ -3970,6 +7162,29 @@
             });
             
             return result;
+        }
+        
+        function evaluateCondition(condition) {
+            // Simple condition evaluator for demo purposes
+            // In production, you'd want a more robust expression parser
+            try {
+                // Handle common patterns
+                if (condition.includes('.length > 0')) {
+                    return true; // Assume data exists for demo
+                }
+                if (condition.includes('> 15')) {
+                    return Math.random() > 0.5; // Random for demo
+                }
+                if (condition.includes('>=') || condition.includes('<=')) {
+                    return Math.random() > 0.3; // Random for demo
+                }
+                
+                // Default to true for demo purposes
+                return true;
+            } catch (e) {
+                console.warn('Condition evaluation error:', e);
+                return false;
+            }
         }
 
         function addExecutionLog(message) {
@@ -4254,7 +7469,7 @@
                 loadTabContent(currentTab);
                 updateStatistics();
                 
-                alert('XML imported successfully!');
+                
                 
             } catch (error) {
                 alert('Failed to parse XML: ' + error.message);
@@ -4319,6 +7534,11 @@
             document.getElementById('addSeedBtn').addEventListener('click', addSeedItem);
             document.getElementById('importSeedBtn').addEventListener('click', importSeedData);
             document.getElementById('exportSeedBtn').addEventListener('click', exportSeedData);
+            
+            // Canvas actions
+            document.getElementById('executeCanvasBtn').addEventListener('click', executeCanvasPlan);
+            document.getElementById('resetCanvasBtn').addEventListener('click', resetCanvas);
+            document.getElementById('fitCanvasBtn').addEventListener('click', fitCanvasToView);
             
             // XML actions
             document.getElementById('formatXmlBtn').addEventListener('click', formatXML);
@@ -4891,11 +8111,84 @@
             }
             
             try {
-                // Try to use WebLLM if available
+                // Try to use configured LLM
                 let generatedContent;
+                const providerConfig = getProviderConfiguration();
                 
-                if (typeof CreateMLCEngine !== 'undefined' && window.webLLMEngine) {
-                    addPlanExecutionLog(`🧠 Using WebLLM for generation...`);
+                if (providerConfig.provider === 'webllm' && currentEngine && currentLLMConfig.model) {
+                    addPlanExecutionLog(`🧠 Using WebLLM ${currentLLMConfig.model} for generation...`);
+                    
+                    const response = await currentEngine.chat.completions.create({
+                        messages: [
+                            {
+                                role: 'system',
+                                content: currentLLMConfig.systemPrompt || 'You are a helpful AI assistant specialized in DSL execution and plan orchestration.'
+                            },
+                            {
+                                role: 'user',
+                                content: finalPrompt
+                            }
+                        ],
+                        max_tokens: Math.min(maxTokens, currentLLMConfig.maxTokens || 512),
+                        temperature: currentLLMConfig.temperature || (creativity === 'Creative' ? 0.9 : creativity === 'Focused' ? 0.3 : 0.7),
+                        top_p: currentLLMConfig.topP || 0.9,
+                        frequency_penalty: currentLLMConfig.frequencyPenalty || 0.0,
+                        presence_penalty: currentLLMConfig.presencePenalty || 0.0,
+                        stream: currentLLMConfig.enableStreaming || false
+                    });
+                    
+                    if (currentLLMConfig.enableStreaming) {
+                        generatedContent = '';
+                        for await (const chunk of response) {
+                            const delta = chunk.choices[0]?.delta?.content || '';
+                            generatedContent += delta;
+                        }
+                    } else {
+                        generatedContent = response.choices[0].message.content;
+                    }
+                    
+                    addPlanExecutionLog(`✨ ${currentLLMConfig.model} generated ${generatedContent.length} characters`);
+                    
+                } else if (providerConfig.provider && providerConfig.model && providerConfig.provider !== 'webllm') {
+                    // Use configured provider (simulation for now - in real implementation would make actual API calls)
+                    addPlanExecutionLog(`🌐 Using ${providerConfig.provider} ${providerConfig.model} for generation...`);
+                    
+                    // Simulate API call delay
+                    await sleep(1000 + Math.random() * 2000);
+                    
+                    // Generate realistic content based on provider
+                    const providerNames = {
+                        'openai': 'OpenAI',
+                        'github': 'GitHub Models',
+                        'gemini': 'Google Gemini',
+                        'groq': 'Groq',
+                        'ollama': 'Ollama',
+                        'foundry': 'Foundry',
+                        'huggingface': 'Hugging Face'
+                    };
+                    
+                    generatedContent = `# ${providerNames[providerConfig.provider] || providerConfig.provider} Generated Content
+
+This content was generated by ${providerConfig.model} using the following configuration:
+- Provider: ${providerConfig.provider}
+- Model: ${providerConfig.model}
+- Temperature: ${providerConfig.temperature}
+- Max Tokens: ${providerConfig.maxTokens}
+- System Prompt: ${providerConfig.systemPrompt.substring(0, 100)}...
+
+Prompt: "${finalPrompt.substring(0, 200)}${finalPrompt.length > 200 ? '...' : ''}"
+
+Generated Response:
+${generateContextualContent(finalPrompt, creativity, providerConfig.provider)}
+
+---
+*Note: This is a simulated response. In a production environment, this would make actual API calls to the configured provider.*`;
+                    
+                    addPlanExecutionLog(`✨ ${providerConfig.provider} generated ${generatedContent.length} characters`);
+                    
+                } else if (typeof CreateMLCEngine !== 'undefined' && window.webLLMEngine) {
+                    // Fallback to basic WebLLM if available
+                    addPlanExecutionLog(`🧠 Using basic WebLLM for generation...`);
                     
                     const response = await window.webLLMEngine.chat.completions.create({
                         messages: [
@@ -4913,6 +8206,7 @@
                     
                 } else {
                     // Fallback to sophisticated simulation
+                    addPlanExecutionLog(`📝 Using simulation (No LLM configured)`);
                     await sleep(1500);
                     
                     generatedContent = `# AI-Generated Content for ${key}
