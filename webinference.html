@@ -1810,6 +1810,493 @@
               { from: 3, to: 4 }
             ]
           }
+        },
+        "Web Research Pipeline": {
+          description: "Search web → scrape content → AI analysis - Complete workflow!",
+          workflow: {
+            nodes: [
+              { 
+                id: 1, 
+                type: "websearch", 
+                x: 80, 
+                y: 120, 
+                data: { 
+                  query: "artificial intelligence trends 2024", 
+                  engine: "duckduckgo", 
+                  count: 5 
+                } 
+              },
+              { 
+                id: 2, 
+                type: "urlscraper", 
+                x: 380, 
+                y: 120, 
+                data: { 
+                  url: "https://en.wikipedia.org/wiki/Artificial_intelligence", 
+                  extract: "text" 
+                } 
+              },
+              { 
+                id: 3, 
+                type: "transform", 
+                x: 680, 
+                y: 120, 
+                data: { 
+                  transform: "format", 
+                  template: "Research Topic: {{research_topic}}\n\nSearch Results:\n{{searchText}}" 
+                } 
+              },
+              { 
+                id: 4, 
+                type: "persona", 
+                x: 80, 
+                y: 300, 
+                data: { persona: "You are a technology research analyst with expertise in AI trends." } 
+              },
+              { 
+                id: 5, 
+                type: "system", 
+                x: 80, 
+                y: 450, 
+                data: { system: "Provide structured analysis with key points, trends, and implications. Be concise but comprehensive." } 
+              },
+              { 
+                id: 6, 
+                type: "prompt", 
+                x: 680, 
+                y: 375, 
+                data: { text: "Based on this research data, identify the 3 most significant developments and provide detailed analysis: {{transformed}}" } 
+              },
+              { 
+                id: 7, 
+                type: "output", 
+                x: 980, 
+                y: 375, 
+                data: {} 
+              }
+            ],
+            edges: [
+              { from: 1, to: 2 },
+              { from: 2, to: 3 },
+              { from: 3, to: 6 },
+              { from: 4, to: 6 },
+              { from: 5, to: 6 },
+              { from: 6, to: 7 }
+            ]
+          }
+        },
+        "API Integration Chain": {
+          description: "Call external API → process response → AI enhancement - Live API!",
+          workflow: {
+            nodes: [
+              { 
+                id: 1, 
+                type: "apicall", 
+                x: 100, 
+                y: 150, 
+                data: { 
+                  method: "GET",
+                  url: "https://jsonplaceholder.typicode.com/posts/1", 
+                  headers: '{"Content-Type": "application/json"}',
+                  body: ""
+                } 
+              },
+              { 
+                id: 2, 
+                type: "transform", 
+                x: 400, 
+                y: 150, 
+                data: { 
+                  transform: "format", 
+                  template: "API Response Data:\nTitle: {{apiResponse.title}}\nContent: {{apiResponse.body}}\nUser ID: {{apiResponse.userId}}" 
+                } 
+              },
+              { 
+                id: 3, 
+                type: "persona", 
+                x: 100, 
+                y: 320, 
+                data: { persona: "You are a creative content strategist and copywriter." } 
+              },
+              { 
+                id: 4, 
+                type: "system", 
+                x: 100, 
+                y: 470, 
+                data: { system: "Transform boring content into engaging, compelling copy. Add emotion and clear structure." } 
+              },
+              { 
+                id: 5, 
+                type: "prompt", 
+                x: 400, 
+                y: 395, 
+                data: { text: "Transform this API data into an engaging blog post with catchy title and compelling introduction: {{transformed}}" } 
+              },
+              { 
+                id: 6, 
+                type: "output", 
+                x: 700, 
+                y: 395, 
+                data: {} 
+              }
+            ],
+            edges: [
+              { from: 1, to: 2 },
+              { from: 2, to: 5 },
+              { from: 3, to: 5 },
+              { from: 4, to: 5 },
+              { from: 5, to: 6 }
+            ]
+          }
+        },
+        "File Processing Workflow": {
+          description: "Process CSV data → analyze → generate insights - Pre-loaded data!",
+          workflow: {
+            nodes: [
+              { 
+                id: 1, 
+                type: "file", 
+                x: 80, 
+                y: 150, 
+                data: { 
+                  text: "Name,Age,Department,Salary,Years_Experience\nAlice Johnson,28,Engineering,75000,3\nBob Smith,35,Marketing,65000,7\nCarol Davis,42,Engineering,95000,12\nDavid Wilson,29,Sales,58000,4\nEva Brown,31,Engineering,82000,6\nFrank Miller,38,Marketing,70000,9\nGrace Lee,26,Sales,52000,2\nHenry Clark,45,Engineering,110000,15", 
+                  parsedData: { 
+                    headers: ["Name", "Age", "Department", "Salary", "Years_Experience"] 
+                  } 
+                } 
+              },
+              { 
+                id: 2, 
+                type: "transform", 
+                x: 380, 
+                y: 150, 
+                data: { 
+                  transform: "format", 
+                  template: "Employee Data Analysis:\n{{fileContent}}" 
+                } 
+              },
+              { 
+                id: 3, 
+                type: "persona", 
+                x: 80, 
+                y: 320, 
+                data: { persona: "You are a senior HR data analyst with expertise in workforce analytics." } 
+              },
+              { 
+                id: 4, 
+                type: "system", 
+                x: 80, 
+                y: 470, 
+                data: { system: "Analyze employee data and provide insights on salary distribution, department composition, and experience levels. Include specific numbers." } 
+              },
+              { 
+                id: 5, 
+                type: "prompt", 
+                x: 380, 
+                y: 395, 
+                data: { text: "Analyze this employee dataset and provide comprehensive insights about salary trends, department distribution, and experience correlation: {{transformed}}" } 
+              },
+              { 
+                id: 6, 
+                type: "output", 
+                x: 680, 
+                y: 395, 
+                data: {} 
+              }
+            ],
+            edges: [
+              { from: 1, to: 2 },
+              { from: 2, to: 5 },
+              { from: 3, to: 5 },
+              { from: 4, to: 5 },
+              { from: 5, to: 6 }
+            ]
+          }
+        },
+        "Conditional Logic Flow": {
+          description: "Smart routing based on content analysis - Shows conditional workflow!",
+          workflow: {
+            nodes: [
+              { 
+                id: 1, 
+                type: "prompt", 
+                x: 100, 
+                y: 200, 
+                data: { text: "Is the following a question or statement: The sky is blue during the day" } 
+              },
+              { 
+                id: 2, 
+                type: "conditional", 
+                x: 400, 
+                y: 200, 
+                data: { condition: "input.llmResponse && input.llmResponse.toLowerCase().includes('question')" } 
+              },
+              { 
+                id: 3, 
+                type: "prompt", 
+                x: 700, 
+                y: 100, 
+                data: { text: "Provide a detailed answer to this question: {{llmResponse}}" } 
+              },
+              { 
+                id: 4, 
+                type: "prompt", 
+                x: 700, 
+                y: 300, 
+                data: { text: "Expand on this statement with additional details and examples: {{llmResponse}}" } 
+              },
+              { 
+                id: 5, 
+                type: "output", 
+                x: 1000, 
+                y: 200, 
+                data: {} 
+              }
+            ],
+            edges: [
+              { from: 1, to: 2 },
+              { from: 2, to: 3 },
+              { from: 2, to: 4 },
+              { from: 3, to: 5 },
+              { from: 4, to: 5 }
+            ]
+          }
+        },
+        "Advanced Multi-Step Workflow": {
+          description: "Complex workflow: Memory + Variables + Multi-path - Advanced showcase!",
+          workflow: {
+            nodes: [
+              { 
+                id: 1, 
+                type: "memory", 
+                x: 80, 
+                y: 120, 
+                data: { 
+                  varname: "user_preference", 
+                  operation: "set", 
+                  value: "I prefer technical explanations with code examples" 
+                } 
+              },
+              { 
+                id: 2, 
+                type: "prompt", 
+                x: 380, 
+                y: 120, 
+                data: { text: "What type of explanation do you prefer: technical with code or simple everyday terms?" } 
+              },
+              { 
+                id: 3, 
+                type: "conditional", 
+                x: 680, 
+                y: 120, 
+                data: { condition: "input.llmResponse && input.llmResponse.toLowerCase().includes('technical')" } 
+              },
+              { 
+                id: 4, 
+                type: "persona", 
+                x: 80, 
+                y: 320, 
+                data: { persona: "You are a senior software engineer and technical educator." } 
+              },
+              { 
+                id: 5, 
+                type: "persona", 
+                x: 80, 
+                y: 470, 
+                data: { persona: "You are a friendly teacher who explains complex topics simply." } 
+              },
+              { 
+                id: 6, 
+                type: "prompt", 
+                x: 980, 
+                y: 80, 
+                data: { text: "Explain machine learning algorithms with Python code examples and technical details" } 
+              },
+              { 
+                id: 7, 
+                type: "prompt", 
+                x: 980, 
+                y: 200, 
+                data: { text: "Explain machine learning in simple terms using everyday analogies that anyone can understand" } 
+              },
+              { 
+                id: 8, 
+                type: "memory", 
+                x: 1280, 
+                y: 140, 
+                data: { 
+                  varname: "final_explanation", 
+                  operation: "set", 
+                  value: "{{llmResponse}}" 
+                } 
+              },
+              { 
+                id: 9, 
+                type: "transform", 
+                x: 1580, 
+                y: 140, 
+                data: { 
+                  transform: "format", 
+                  template: "User Preference: {{user_preference}}\n\nGenerated Explanation:\n{{final_explanation}}" 
+                } 
+              },
+              { 
+                id: 10, 
+                type: "output", 
+                x: 1880, 
+                y: 140, 
+                data: {} 
+              }
+            ],
+            edges: [
+              { from: 1, to: 2 },
+              { from: 2, to: 3 },
+              { from: 3, to: 6 },
+              { from: 3, to: 7 },
+              { from: 4, to: 6 },
+              { from: 5, to: 7 },
+              { from: 6, to: 8 },
+              { from: 7, to: 8 },
+              { from: 8, to: 9 },
+              { from: 9, to: 10 }
+            ]
+          }
+        },
+        "Super Complex: Research Agent Pipeline": {
+          description: "Multi-stage research agent: Search → Filter → Deep Analysis → Report Generation",
+          workflow: {
+            nodes: [
+              { 
+                id: 1, 
+                type: "memory", 
+                x: 60, 
+                y: 100, 
+                data: { 
+                  varname: "research_topic", 
+                  operation: "set", 
+                  value: "latest developments in renewable energy technology 2024" 
+                } 
+              },
+              { 
+                id: 2, 
+                type: "websearch", 
+                x: 300, 
+                y: 100, 
+                data: { 
+                  query: "{{research_topic}}", 
+                  engine: "duckduckgo", 
+                  count: 5 
+                } 
+              },
+              { 
+                id: 3, 
+                type: "transform", 
+                x: 540, 
+                y: 100, 
+                data: { 
+                  transform: "format", 
+                  template: "Research Topic: {{research_topic}}\n\nSearch Results:\n{{searchText}}" 
+                } 
+              },
+              { 
+                id: 4, 
+                type: "persona", 
+                x: 60, 
+                y: 280, 
+                data: { persona: "You are a senior research analyst specializing in technology and energy sectors." } 
+              },
+              { 
+                id: 5, 
+                type: "system", 
+                x: 60, 
+                y: 430, 
+                data: { system: "Analyze information critically. Identify key trends, breakthrough technologies, market implications, and future predictions. Structure your analysis professionally." } 
+              },
+              { 
+                id: 6, 
+                type: "prompt", 
+                x: 780, 
+                y: 200, 
+                data: { text: "Based on this research data, identify the 3 most significant developments and provide detailed analysis: {{transformed}}" } 
+              },
+              { 
+                id: 7, 
+                type: "memory", 
+                x: 1020, 
+                y: 300, 
+                data: { 
+                  varname: "key_findings", 
+                  operation: "set", 
+                  value: "{{llmResponse}}" 
+                } 
+              },
+              { 
+                id: 8, 
+                type: "urlscraper", 
+                x: 1260, 
+                y: 100, 
+                data: { 
+                  url: "https://en.wikipedia.org/wiki/Renewable_energy", 
+                  extract: "text" 
+                } 
+              },
+              { 
+                id: 9, 
+                type: "transform", 
+                x: 1500, 
+                y: 200, 
+                data: { 
+                  transform: "format", 
+                  template: "Key Findings:\n{{key_findings}}\n\nAdditional Context:\n{{scrapedContent}}" 
+                } 
+              },
+              { 
+                id: 10, 
+                type: "persona", 
+                x: 60, 
+                y: 580, 
+                data: { persona: "You are an executive report writer who creates comprehensive business intelligence reports." } 
+              },
+              { 
+                id: 11, 
+                type: "prompt", 
+                x: 1740, 
+                y: 300, 
+                data: { text: "Create an executive summary report with market implications, investment opportunities, and strategic recommendations based on: {{transformed}}" } 
+              },
+              { 
+                id: 12, 
+                type: "aggregator", 
+                x: 1980, 
+                y: 400, 
+                data: { 
+                  aggregate: "concat", 
+                  separator: "\n\n--- FINAL REPORT ---\n\n" 
+                } 
+              },
+              { 
+                id: 13, 
+                type: "output", 
+                x: 2220, 
+                y: 400, 
+                data: {} 
+              }
+            ],
+            edges: [
+              { from: 1, to: 2 },
+              { from: 2, to: 3 },
+              { from: 3, to: 6 },
+              { from: 4, to: 6 },
+              { from: 5, to: 6 },
+              { from: 6, to: 7 },
+              { from: 7, to: 8 },
+              { from: 8, to: 9 },
+              { from: 9, to: 11 },
+              { from: 10, to: 11 },
+              { from: 11, to: 12 },
+              { from: 12, to: 13 }
+            ]
+          }
         }
       };
       
