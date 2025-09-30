@@ -7,1901 +7,2151 @@
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        :root {
-            --primary: #2563eb;
-            --primary-dark: #1d4ed8;
-            --secondary: #64748b;
-            --accent: #8b5cf6;
-            --success: #10b981;
-            --warning: #f59e0b;
-            --error: #ef4444;
-            --background: #ffffff;
-            --surface: #f8fafc;
-            --surface-2: #f1f5f9;
-            --surface-3: #e2e8f0;
-            --border: #e2e8f0;
-            --text: #0f172a;
-            --text-muted: #64748b;
-            --text-light: #94a3b8;
-            --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
-            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
-            --radius: 8px;
-            --radius-lg: 12px;
-        }
-
-        .dark {
-            --primary: #3b82f6;
-            --primary-dark: #2563eb;
-            --secondary: #6b7280;
-            --accent: #a855f7;
-            --success: #10b981;
-            --warning: #f59e0b;
-            --error: #ef4444;
-            --background: #0f172a;
-            --surface: #1e293b;
-            --surface-2: #334155;
-            --surface-3: #475569;
-            --border: #334155;
-            --text: #f8fafc;
-            --text-muted: #94a3b8;
-            --text-light: #64748b;
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-            background: var(--background);
-            color: var(--text);
-            line-height: 1.5;
-            overflow: hidden;
-        }
-
-        /* Main Layout */
-        .designer-container {
-            display: flex;
-            flex-direction: column;
-            height: 100vh;
-            background: var(--background);
-        }
-
-        /* Header */
-        .designer-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 16px 24px;
-            background: var(--surface);
-            border-bottom: 1px solid var(--border);
-            box-shadow: var(--shadow);
-            z-index: 100;
-        }
-
-        .header-left {
-            display: flex;
-            align-items: center;
-            gap: 16px;
-        }
-
-        .logo {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-weight: 700;
-            font-size: 18px;
-            color: var(--primary);
-        }
-
-        .plan-title {
-            font-size: 16px;
-            font-weight: 600;
-            color: var(--text);
-        }
-
-        .header-actions {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .btn {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            padding: 8px 16px;
-            border: none;
-            border-radius: var(--radius);
-            font-size: 14px;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.2s;
-            text-decoration: none;
-        }
-
-        .btn-primary {
-            background: var(--primary);
-            color: white;
-        }
-
-        .btn-primary:hover {
-            background: var(--primary-dark);
-        }
-
-        .btn-secondary {
-            background: var(--surface-2);
-            color: var(--text);
-            border: 1px solid var(--border);
-        }
-
-        .btn-secondary:hover {
-            background: var(--surface-3);
-        }
-
-        .btn-icon {
-            padding: 8px;
-            background: transparent;
-            color: var(--text-muted);
-        }
-
-        .btn-icon:hover {
-            background: var(--surface-2);
-            color: var(--text);
-        }
-
-        /* Tab Navigation */
-        .tab-nav {
-            display: flex;
-            background: var(--surface);
-            border-bottom: 1px solid var(--border);
-            overflow-x: auto;
-        }
-
-        .tab-button {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            padding: 16px 24px;
-            border: none;
-            background: transparent;
-            color: var(--text-muted);
-            font-size: 14px;
-            font-weight: 500;
-            cursor: pointer;
-            border-bottom: 3px solid transparent;
-            transition: all 0.2s;
-            white-space: nowrap;
-        }
-
-        .tab-button:hover {
-            background: var(--surface-2);
-            color: var(--text);
-        }
-
-        .tab-button.active {
-            background: var(--surface-2);
-            color: var(--primary);
-            border-bottom-color: var(--primary);
-        }
-
-        .tab-badge {
-            background: var(--primary);
-            color: white;
-            font-size: 12px;
-            padding: 2px 6px;
-            border-radius: 10px;
-            min-width: 18px;
-            text-align: center;
-        }
-
-        /* Main Content Area */
-        .main-content {
-            flex: 1;
-            display: flex;
-            overflow: hidden;
-        }
-
-        .tab-content {
-            flex: 1;
-            display: none;
-            flex-direction: column;
-            overflow: hidden;
-        }
-
-        .tab-content.active {
-            display: flex;
-        }
-
-        /* Plan Overview Tab */
-        .plan-overview {
-            padding: 24px;
-            overflow-y: auto;
-        }
-
-        .overview-section {
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: var(--radius-lg);
-            padding: 24px;
-            margin-bottom: 24px;
-        }
-
-        .section-header {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            margin-bottom: 20px;
-        }
-
-        .section-icon {
-            width: 40px;
-            height: 40px;
-            background: var(--primary);
-            color: white;
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .section-title {
-            font-size: 18px;
-            font-weight: 600;
-            color: var(--text);
-        }
-
-        .form-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 20px;
-        }
-
-        .form-group {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-
-        .form-label {
-            font-size: 14px;
-            font-weight: 500;
-            color: var(--text);
-        }
-
-        .form-input, .form-textarea, .form-select {
-            padding: 12px;
-            border: 1px solid var(--border);
-            border-radius: var(--radius);
-            background: var(--background);
-            color: var(--text);
-            font-size: 14px;
-            transition: border-color 0.2s;
-        }
-
-        .form-input:focus, .form-textarea:focus, .form-select:focus {
-            outline: none;
-            border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgb(37 99 235 / 0.1);
-        }
-
-        .form-textarea {
-            min-height: 80px;
-            resize: vertical;
-        }
-
-        /* Stats Cards */
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 16px;
-            margin-top: 20px;
-        }
-
-        .stat-card {
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: var(--radius);
-            padding: 20px;
-            text-align: center;
-        }
-
-        .stat-value {
-            font-size: 24px;
-            font-weight: 700;
-            color: var(--primary);
-            margin-bottom: 4px;
-        }
-
-        .stat-label {
-            font-size: 12px;
-            color: var(--text-muted);
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        /* Agents Tab */
-        .agents-container {
-            display: flex;
-            flex: 1;
-            overflow: hidden;
-        }
-
-        .agents-sidebar {
-            width: 280px;
-            background: var(--surface);
-            border-right: 1px solid var(--border);
-            display: flex;
-            flex-direction: column;
-        }
-
-        .sidebar-header {
-            padding: 20px;
-            border-bottom: 1px solid var(--border);
-        }
-
-        .sidebar-title {
-            font-size: 16px;
-            font-weight: 600;
-            color: var(--text);
-            margin-bottom: 12px;
-        }
-
-        .agent-search {
-            width: 100%;
-            padding: 8px 12px;
-            border: 1px solid var(--border);
-            border-radius: var(--radius);
-            background: var(--background);
-            color: var(--text);
-            font-size: 14px;
-        }
-
-        .agents-list {
-            flex: 1;
-            overflow-y: auto;
-            padding: 16px;
-        }
-
-        .agent-item {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 12px;
-            border-radius: var(--radius);
-            cursor: pointer;
-            transition: background-color 0.2s;
-            margin-bottom: 8px;
-        }
-
-        .agent-item:hover {
-            background: var(--surface-2);
-        }
-
-        .agent-item.selected {
-            background: var(--primary);
-            color: white;
-        }
-
-        .agent-icon {
-            width: 32px;
-            height: 32px;
-            border-radius: 6px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 16px;
-        }
-
-        .agent-orchestrator { background: #8b5cf6; }
-        .agent-tool { background: #10b981; }
-        .agent-ai { background: #f59e0b; }
-        .agent-data { background: #3b82f6; }
-
-        .agent-details {
-            flex: 1;
-            min-width: 0;
-        }
-
-        .agent-name {
-            font-size: 14px;
-            font-weight: 500;
-            color: inherit;
-            margin-bottom: 2px;
-        }
-
-        .agent-purpose {
-            font-size: 12px;
-            color: var(--text-muted);
-        }
-
-        .agent-item.selected .agent-purpose {
-            color: rgba(255, 255, 255, 0.8);
-        }
-
-        .agents-workspace {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-        }
-
-        .workspace-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 20px;
-            border-bottom: 1px solid var(--border);
-            background: var(--surface);
-        }
-
-        .workspace-title {
-            font-size: 16px;
-            font-weight: 600;
-            color: var(--text);
-        }
-
-        .workspace-actions {
-            display: flex;
-            gap: 8px;
-        }
-
-        .agent-canvas {
-            flex: 1;
-            position: relative;
-            background: var(--background);
-            overflow: auto;
-            background-image: 
-                radial-gradient(circle, var(--border) 1px, transparent 1px);
-            background-size: 20px 20px;
-        }
-
-        /* Store Tab */
-        .store-container {
-            display: flex;
-            flex: 1;
-            overflow: hidden;
-        }
-
-        .store-tree {
-            width: 350px;
-            background: var(--surface);
-            border-right: 1px solid var(--border);
-            overflow-y: auto;
-        }
-
-        .tree-header {
-            padding: 20px;
-            border-bottom: 1px solid var(--border);
-        }
-
-        .tree-item {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            padding: 8px 16px;
-            cursor: pointer;
-            transition: background-color 0.2s;
-        }
-
-        .tree-item:hover {
-            background: var(--surface-2);
-        }
-
-        .tree-item.selected {
-            background: var(--primary);
-            color: white;
-        }
-
-        .tree-indent {
-            width: 20px;
-        }
-
-        .store-editor {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-        }
-
-        .editor-header {
-            padding: 20px;
-            border-bottom: 1px solid var(--border);
-            background: var(--surface);
-        }
-
-        .editor-content {
-            flex: 1;
-            padding: 20px;
-            overflow-y: auto;
-        }
-
-        /* Import/Export Tab */
-        .import-export {
-            padding: 24px;
-            overflow-y: auto;
-        }
-
-        .xml-editor {
-            width: 100%;
-            height: 400px;
-            font-family: 'Consolas', 'Monaco', monospace;
-            font-size: 14px;
-            border: 1px solid var(--border);
-            border-radius: var(--radius);
-            padding: 16px;
-            background: var(--surface);
-            color: var(--text);
-            resize: vertical;
-        }
-
-        /* Visual Components */
-        .node {
-            position: absolute;
-            background: var(--surface);
-            border: 2px solid var(--border);
-            border-radius: var(--radius);
-            min-width: 200px;
-            max-width: 300px;
-            box-shadow: var(--shadow);
-            cursor: move;
-            transition: all 0.2s;
-        }
-
-        .node:hover {
-            box-shadow: var(--shadow-lg);
-            transform: translateY(-2px);
-        }
-
-        .node.selected {
-            border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgb(37 99 235 / 0.1);
-        }
-
-        .node-header {
-            padding: 12px 16px;
-            background: var(--surface-2);
-            border-bottom: 1px solid var(--border);
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-
-        .node-title {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 14px;
-            font-weight: 500;
-        }
-
-        .node-body {
-            padding: 16px;
-        }
-
-        .node-field {
-            margin-bottom: 12px;
-        }
-
-        .node-field:last-child {
-            margin-bottom: 0;
-        }
-
-        .node-field label {
-            display: block;
-            font-size: 12px;
-            font-weight: 500;
-            color: var(--text-muted);
-            margin-bottom: 4px;
-        }
-
-        .node-field input,
-        .node-field textarea,
-        .node-field select {
-            width: 100%;
-            padding: 6px 8px;
-            border: 1px solid var(--border);
-            border-radius: 4px;
-            background: var(--background);
-            color: var(--text);
-            font-size: 13px;
-        }
-
-        .node-field textarea {
-            min-height: 60px;
-            resize: vertical;
-        }
-
-        /* Connection handles */
-        .handle {
-            position: absolute;
-            width: 12px;
-            height: 12px;
-            background: var(--primary);
-            border: 2px solid white;
-            border-radius: 50%;
-            cursor: crosshair;
-        }
-
-        .handle.in {
-            left: -6px;
-            top: 50%;
-            transform: translateY(-50%);
-        }
-
-        .handle.out {
-            right: -6px;
-            top: 50%;
-            transform: translateY(-50%);
-        }
-
-        /* Status indicators */
-        .status-indicator {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            padding: 4px 8px;
-            border-radius: 12px;
-            font-size: 12px;
-            font-weight: 500;
-        }
-
-        .status-ready {
-            background: var(--surface-2);
-            color: var(--text-muted);
-        }
-
-        .status-running {
-            background: #dbeafe;
-            color: #1d4ed8;
-        }
-
-        .status-completed {
-            background: #d1fae5;
-            color: #065f46;
-        }
-
-        .status-error {
-            background: #fee2e2;
-            color: #dc2626;
-        }
-
-        /* Visual Designer */
-        .visual-designer {
-            display: flex;
-            height: 100%;
-            background: var(--background);
-        }
-
-        .designer-palette {
-            width: 280px;
-            background: var(--surface);
-            border-right: 1px solid var(--border);
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-        }
-
-        .palette-header {
-            padding: 16px;
-            border-bottom: 1px solid var(--border);
-        }
-
-        .palette-header h4 {
-            font-size: 14px;
-            font-weight: 600;
-            color: var(--text);
-            margin-bottom: 12px;
-        }
-
-        .palette-search {
-            width: 100%;
-            padding: 8px 12px;
-            border: 1px solid var(--border);
-            border-radius: var(--radius);
-            background: var(--background);
-            color: var(--text);
-            font-size: 13px;
-        }
-
-        .palette-sections {
-            flex: 1;
-            overflow-y: auto;
-            padding: 16px;
-        }
-
-        .palette-section {
-            margin-bottom: 24px;
-        }
-
-        .section-title {
-            font-size: 12px;
-            font-weight: 600;
-            color: var(--text-muted);
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            margin-bottom: 12px;
-        }
-
-        .palette-item {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            padding: 10px 12px;
-            border-radius: var(--radius);
-            cursor: grab;
-            transition: all 0.2s;
-            margin-bottom: 4px;
-            border: 1px solid transparent;
-        }
-
-        .palette-item:hover {
-            background: var(--surface-2);
-            border-color: var(--border);
-        }
-
-        .palette-item:active {
-            cursor: grabbing;
-        }
-
-        .palette-item i {
-            font-size: 18px;
-            color: var(--primary);
-        }
-
-        .palette-item span {
-            font-size: 13px;
-            font-weight: 500;
-            color: var(--text);
-        }
-
-        .designer-workspace {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-        }
-
-        .workspace-toolbar {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 12px 16px;
-            background: var(--surface);
-            border-bottom: 1px solid var(--border);
-        }
-
-        .toolbar-divider {
-            width: 1px;
-            height: 20px;
-            background: var(--border);
-        }
-
-        .zoom-controls {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .zoom-level {
-            font-size: 13px;
-            color: var(--text-muted);
-            min-width: 40px;
-            text-align: center;
-        }
-
-        .canvas-container {
-            flex: 1;
-            position: relative;
-            background: var(--background);
-            overflow: hidden;
-            background-image: 
-                radial-gradient(circle, var(--border) 1px, transparent 1px);
-            background-size: 20px 20px;
-        }
-
-        .connection-svg {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            z-index: 1;
-        }
-
-        .statement-canvas {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 2;
-        }
-
-        .designer-inspector {
-            width: 320px;
-            background: var(--surface);
-            border-left: 1px solid var(--border);
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-        }
-
-        .inspector-header {
-            padding: 16px;
-            border-bottom: 1px solid var(--border);
-        }
-
-        .inspector-header h4 {
-            font-size: 14px;
-            font-weight: 600;
-            color: var(--text);
-        }
-
-        .inspector-content {
-            flex: 1;
-            overflow-y: auto;
-            padding: 16px;
-        }
-
-        .inspector-empty {
-            text-align: center;
-            color: var(--text-muted);
-            font-style: italic;
-            padding: 40px 20px;
-        }
-
-        .inspector-section {
-            border-top: 1px solid var(--border);
-            padding: 16px;
-        }
-
-        .inspector-section h5 {
-            font-size: 13px;
-            font-weight: 600;
-            color: var(--text);
-            margin-bottom: 12px;
-        }
-
-        /* Statement Nodes */
-        .statement-node {
-            position: absolute;
-            background: var(--background);
-            border: 2px solid var(--border);
-            border-radius: var(--radius);
-            min-width: 180px;
-            max-width: 280px;
-            box-shadow: var(--shadow);
-            cursor: move;
-            z-index: 10;
-            transition: all 0.2s;
-        }
-
-        .statement-node:hover {
-            box-shadow: var(--shadow-lg);
-            transform: translateY(-1px);
-        }
-
-        .statement-node.selected {
-            border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgb(37 99 235 / 0.1);
-        }
-
-        .statement-node.executing {
-            border-color: var(--warning);
-            box-shadow: 0 0 0 3px rgb(245 158 11 / 0.2);
-            animation: pulse 1.5s infinite;
-        }
-
-        .statement-node.completed {
-            border-color: var(--success);
-        }
-
-        .statement-node.error {
-            border-color: var(--error);
-        }
-
-        .node-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 10px 12px;
-            background: var(--surface);
-            border-bottom: 1px solid var(--border);
-            border-radius: var(--radius) var(--radius) 0 0;
-        }
-
-        .node-type {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 13px;
-            font-weight: 600;
-            color: var(--text);
-        }
-
-        .node-type i {
-            font-size: 16px;
-            color: var(--primary);
-        }
-
-        .node-actions {
-            display: flex;
-            gap: 4px;
-        }
-
-        .node-action {
-            width: 24px;
-            height: 24px;
-            border: none;
-            background: transparent;
-            color: var(--text-muted);
-            border-radius: 4px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.2s;
-        }
-
-        .node-action:hover {
-            background: var(--surface-2);
-            color: var(--text);
-        }
-
-        .node-action i {
-            font-size: 16px;
-        }
-
-        .node-body {
-            padding: 12px;
-        }
-
-        .node-summary {
-            font-size: 12px;
-            color: var(--text-muted);
-            line-height: 1.4;
-        }
-
-        .node-key {
-            font-size: 11px;
-            color: var(--primary);
-            font-weight: 500;
-            margin-bottom: 2px;
-        }
-
-        /* Connection Points */
-        .connection-point {
-            position: absolute;
-            width: 10px;
-            height: 10px;
-            background: var(--primary);
-            border: 2px solid var(--background);
-            border-radius: 50%;
-            cursor: crosshair;
-            z-index: 20;
-        }
-
-        .connection-point.input {
-            left: -5px;
-            top: 50%;
-            transform: translateY(-50%);
-        }
-
-        .connection-point.output {
-            right: -5px;
-            top: 50%;
-            transform: translateY(-50%);
-        }
-
-        .connection-point:hover {
-            background: var(--primary-dark);
-            transform: translateY(-50%) scale(1.2);
-        }
-
-        /* Property Forms */
-        .property-form {
-            display: flex;
-            flex-direction: column;
-            gap: 16px;
-        }
-
-        .property-group {
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
-        }
-
-        .property-label {
-            font-size: 12px;
-            font-weight: 500;
-            color: var(--text);
-        }
-
-        .property-input, .property-textarea, .property-select {
-            padding: 8px 10px;
-            border: 1px solid var(--border);
-            border-radius: 4px;
-            background: var(--background);
-            color: var(--text);
-            font-size: 13px;
-        }
-
-        .property-textarea {
-            min-height: 60px;
-            resize: vertical;
-        }
-
-        .property-help {
-            font-size: 11px;
-            color: var(--text-muted);
-            font-style: italic;
-        }
-
-        /* Variables List */
-        .variable-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 8px 12px;
-            background: var(--surface-2);
-            border-radius: 4px;
-            margin-bottom: 4px;
-        }
-
-        .variable-name {
-            font-size: 12px;
-            font-weight: 500;
-            color: var(--text);
-        }
-
-        .variable-type {
-            font-size: 11px;
-            color: var(--text-muted);
-            background: var(--surface-3);
-            padding: 2px 6px;
-            border-radius: 3px;
-        }
-
-        /* Responsive Design */
-        @media (max-width: 768px) {
-            .agents-sidebar {
-                width: 240px;
-            }
-            
-            .store-tree {
-                width: 280px;
-            }
-            
-            .form-grid {
-                grid-template-columns: 1fr;
-            }
-            
-            .stats-grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
-
-            .visual-designer {
-                flex-direction: column;
-            }
-
-            .designer-palette {
-                width: 100%;
-                height: 200px;
-                border-right: none;
-                border-bottom: 1px solid var(--border);
-            }
-
-            .designer-inspector {
-                width: 100%;
-                height: 200px;
-                border-left: none;
-                border-top: 1px solid var(--border);
-            }
-        }
-
-        /* Animation classes */
-        .fade-in {
-            animation: fadeIn 0.3s ease-out;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .pulse {
-            animation: pulse 2s infinite;
-        }
-
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.5; }
-        }
-
-        /* Context Menu */
-        .context-menu {
-            position: fixed;
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: var(--radius);
-            box-shadow: var(--shadow-lg);
-            padding: 8px 0;
-            z-index: 1000;
-            min-width: 160px;
-        }
-
-        .context-menu-item {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            padding: 8px 16px;
-            cursor: pointer;
-            font-size: 14px;
-            color: var(--text);
-            transition: background-color 0.2s;
-        }
-
-        .context-menu-item:hover {
-            background: var(--surface-2);
-        }
-
-        .context-menu-divider {
-            height: 1px;
-            background: var(--border);
-            margin: 4px 0;
-        }
-
-        /* Execution UI */
-        .execution-modal {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0, 0, 0, 0.7);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 10000;
-        }
-
-        .execution-dialog {
-            background: var(--surface);
-            border-radius: var(--radius-lg);
-            width: 80vw;
-            max-width: 900px;
-            height: 70vh;
-            box-shadow: var(--shadow-lg);
-            display: flex;
-            flex-direction: column;
-        }
-
-        .execution-header {
-            padding: 20px;
-            border-bottom: 1px solid var(--border);
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-
-        .execution-header h3 {
-            margin: 0;
-            color: var(--text);
-            font-size: 18px;
-        }
-
-        .execution-body {
-            flex: 1;
-            display: flex;
-            overflow: hidden;
-        }
-
-        .execution-log {
-            flex: 2;
-            padding: 16px;
-            overflow-y: auto;
-            background: var(--background);
-            border-right: 1px solid var(--border);
-            font-family: 'Consolas', 'Monaco', monospace;
-            font-size: 13px;
-            line-height: 1.4;
-        }
-
-        .execution-output {
-            flex: 1;
-            padding: 16px;
-            overflow-y: auto;
-            background: var(--surface-2);
-        }
-
-        .execution-footer {
-            padding: 20px;
-            border-top: 1px solid var(--border);
-            display: flex;
-            gap: 12px;
-            justify-content: flex-end;
-        }
-
-        /* Seed Editor Styles */
-        .seed-container {
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-        }
-
-        .seed-controls {
-            display: flex;
-            gap: 12px;
-            align-items: center;
-            flex-wrap: wrap;
-        }
-
-        .seed-items {
-            display: flex;
-            flex-direction: column;
-            gap: 16px;
-        }
-
-        .seed-item {
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: var(--radius);
-            overflow: hidden;
-        }
-
-        .seed-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 12px 16px;
-            background: var(--surface-2);
-            border-bottom: 1px solid var(--border);
-        }
-
-        .seed-key {
-            font-weight: 600;
-            font-family: 'JetBrains Mono', monospace;
-            color: var(--primary);
-        }
-
-        .seed-actions {
-            display: flex;
-            gap: 4px;
-        }
-
-        .seed-value {
-            padding: 16px;
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 13px;
-            background: var(--background);
-            white-space: pre-wrap;
-            overflow-x: auto;
-        }
-
-        .empty-state {
-            text-align: center;
-            color: var(--text-muted);
-            padding: 60px 20px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .empty-state .material-icons {
-            font-size: 64px;
-            opacity: 0.3;
-        }
-
-        .empty-title {
-            font-size: 18px;
-            font-weight: 600;
-        }
-
-        .empty-description {
-            font-size: 14px;
-            max-width: 400px;
-            line-height: 1.5;
-        }
-
-        .btn-icon {
-            background: none;
-            border: none;
-            padding: 6px;
-            border-radius: 4px;
-            cursor: pointer;
-            color: var(--text-muted);
-            transition: all 0.2s;
-        }
-
-        .btn-icon:hover {
-            background: var(--surface-3);
-            color: var(--text);
-        }
-
-        /* Canvas Styles */
-        .canvas-container {
-            display: flex;
-            flex-direction: column;
-            height: 100%;
-        }
-
-        .canvas-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 20px;
-            border-bottom: 1px solid var(--border);
-            background: var(--surface);
-        }
-
-        .canvas-title {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            font-size: 18px;
-            font-weight: 600;
-        }
-
-        .canvas-controls {
-            display: flex;
-            gap: 12px;
-        }
-
-        .canvas-workspace {
-            flex: 1;
-            position: relative;
-            background: var(--background);
-            background-image: radial-gradient(var(--border) 1px, transparent 1px);
-            background-size: 24px 24px;
-            overflow: hidden;
-        }
-
-        .canvas-viewport {
-            width: 100%;
-            height: 100%;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .canvas-toolbar {
-            position: absolute;
-            bottom: 20px;
-            left: 20px;
-            right: 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: var(--radius);
-            padding: 12px 16px;
-            backdrop-filter: blur(8px);
-        }
-
-        .canvas-status {
-            font-weight: 500;
-            color: var(--text);
-        }
-
-        .canvas-progress {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 14px;
-            color: var(--text-muted);
-        }
-
-        /* Canvas Node Styles */
-        .canvas-node {
-            position: absolute;
-            min-width: 200px;
-            min-height: 100px;
-            background: var(--surface);
-            border: 2px solid var(--border);
-            border-radius: var(--radius);
-            box-shadow: var(--shadow);
-            cursor: move;
-            transition: all 0.2s;
-            z-index: 10;
-        }
-
-        .canvas-node:hover {
-            box-shadow: var(--shadow-lg);
-            transform: translateY(-2px);
-        }
-
-        .canvas-node.active {
-            border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgb(37 99 235 / 0.1);
-        }
-
-        .canvas-node.completed {
-            border-color: var(--success);
-            background: var(--success-bg);
-        }
-
-        .canvas-node.error {
-            border-color: var(--error);
-            background: var(--error-bg);
-        }
-
-        .node-header {
-            padding: 12px 16px;
-            border-bottom: 1px solid var(--border);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background: var(--surface-2);
-        }
-
-        .node-title {
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .node-content {
-            padding: 16px;
-            min-height: 60px;
-        }
-
-        .node-type-badge {
-            background: var(--primary);
-            color: white;
-            padding: 2px 8px;
-            border-radius: 12px;
-            font-size: 12px;
-            font-weight: 500;
-        }
-
-        .connection-line {
-            position: absolute;
-            pointer-events: none;
-            z-index: 1;
-        }
-
-        .connection-path {
-            stroke: var(--primary);
-            stroke-width: 2;
-            fill: none;
-            marker-end: url(#arrowhead);
-        }
-
-        .connection-path.active {
-            stroke: var(--warning);
-            stroke-width: 3;
-            animation: dashFlow 2s linear infinite;
-
-        /* LLM Configuration Styles */
-        .llm-config-container {
-            padding: 24px;
-            max-width: 1400px;
-            margin: 0 auto;
-        }
-
-        .config-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 32px;
-            padding-bottom: 16px;
-            border-bottom: 2px solid var(--border);
-        }
-
-        .config-title {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            font-size: 24px;
-            font-weight: 700;
-            color: var(--primary);
-        }
-
-        .llm-status {
-            display: flex;
-            align-items: center;
-            gap: 16px;
-        }
-
-        .status-indicator {
-            padding: 4px 12px;
-            border-radius: 16px;
-            font-size: 12px;
-            font-weight: 600;
-            text-transform: uppercase;
-        }
-
-        .status-indicator.online {
-            background: #10b981;
-            color: white;
-        }
-
-        .status-indicator.offline {
-            background: #6b7280;
-            color: white;
-        }
-
-        .status-indicator.loading {
-            background: #f59e0b;
-            color: white;
-            animation: pulse 2s infinite;
-        }
-
-        .model-info {
-            font-size: 14px;
-            color: var(--text-muted);
-        }
-
-        .config-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
-            gap: 24px;
-            margin-bottom: 32px;
-        }
-
-        .config-panel {
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: var(--radius-lg);
-            overflow: hidden;
-            box-shadow: var(--shadow);
-        }
-
-        .panel-header {
-            padding: 16px 20px;
-            background: var(--surface-2);
-            border-bottom: 1px solid var(--border);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .panel-header h4 {
-            margin: 0;
-            font-size: 16px;
-            font-weight: 600;
-            color: var(--text);
-        }
-
-        .panel-content {
-            padding: 20px;
-        }
-
-        .model-source,
-        .model-selection {
-            margin-bottom: 20px;
-        }
-
-        .model-source label,
-        .model-selection label,
-        .param-group label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: 500;
-            color: var(--text);
-        }
-
-        .model-source select,
-        .model-selection select,
-        .model-selection input {
-            width: 100%;
-            padding: 10px 12px;
-            border: 1px solid var(--border);
-            border-radius: var(--radius);
-            background: var(--background);
-            color: var(--text);
-            font-size: 14px;
-        }
-
-        .model-actions {
-            display: flex;
-            gap: 12px;
-            margin: 20px 0;
-        }
-
-        .loading-progress {
-            margin-top: 20px;
-        }
-
-        .progress-bar {
-            width: 100%;
-            height: 8px;
-            background: var(--surface-3);
-            border-radius: 4px;
-            overflow: hidden;
-            margin-bottom: 8px;
-        }
-
-        .progress-fill {
-            height: 100%;
-            background: var(--primary);
-            width: 0%;
-            transition: width 0.3s ease;
-        }
-
-        .progress-text {
-            font-size: 12px;
-            color: var(--text-muted);
-        }
-
-        .param-group {
-            margin-bottom: 24px;
-        }
-
-        .param-group input[type="range"] {
-            width: 100%;
-            margin: 8px 0;
-        }
-
-        .param-group small {
-            color: var(--text-muted);
-            font-size: 12px;
-            display: block;
-            margin-top: 4px;
-        }
-
-        .param-group span {
-            font-weight: 600;
-            color: var(--primary);
-        }
-
-        .param-group textarea {
-            width: 100%;
-            padding: 10px 12px;
-            border: 1px solid var(--border);
-            border-radius: var(--radius);
-            background: var(--background);
-            color: var(--text);
-            font-family: inherit;
-            resize: vertical;
-            min-height: 80px;
-        }
-
-        .param-group input[type="checkbox"] {
-            margin-right: 8px;
-        }
-
-        .test-section {
-            margin-bottom: 24px;
-        }
-
-        .test-section textarea {
-            width: 100%;
-            padding: 12px;
-            border: 1px solid var(--border);
-            border-radius: var(--radius);
-            background: var(--background);
-            color: var(--text);
-            font-family: inherit;
-            margin-bottom: 12px;
-        }
-
-        .test-results {
-            margin-bottom: 24px;
-        }
-
-        .response-box {
-            background: var(--surface-2);
-            border: 1px solid var(--border);
-            border-radius: var(--radius);
-            padding: 16px;
-            min-height: 100px;
-            font-family: 'Monaco', 'Menlo', monospace;
-            font-size: 13px;
-            line-height: 1.4;
-            overflow-y: auto;
-            max-height: 200px;
-        }
-
-        .performance-metrics,
-        .model-health {
-            margin-bottom: 20px;
-        }
-
-        .performance-metrics h5,
-        .model-health h5 {
-            margin-bottom: 12px;
-            font-size: 14px;
-            font-weight: 600;
-            color: var(--text);
-        }
-
-        .metrics-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 12px;
-        }
-
-        .metric {
-            display: flex;
-            justify-content: space-between;
-            padding: 8px 12px;
-            background: var(--surface-2);
-            border-radius: var(--radius);
-            border: 1px solid var(--border);
-        }
-
-        .metric-label {
-            font-size: 12px;
-            color: var(--text-muted);
-        }
-
-        .metric-value {
-            font-weight: 600;
-            color: var(--primary);
-        }
-
-        .health-indicators {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-
-        .health-item {
-            display: flex;
-            justify-content: space-between;
-            padding: 8px 12px;
-            background: var(--surface-2);
-            border-radius: var(--radius);
-            border: 1px solid var(--border);
-        }
-
-        .health-label {
-            font-size: 12px;
-            color: var(--text-muted);
-        }
-
-        .health-status {
-            font-weight: 600;
-            font-size: 12px;
-        }
-
-        .health-status.healthy {
-            color: var(--success);
-        }
-
-        .health-status.warning {
-            color: var(--warning);
-        }
-
-        .health-status.error {
-            color: var(--error);
-        }
-
-        .config-actions {
-            display: flex;
-            gap: 12px;
-            justify-content: center;
-            padding: 24px 0;
-            border-top: 1px solid var(--border);
-        }
-
-        .tab-status {
-            margin-left: 8px;
-            font-size: 12px;
-        }
-
-        .tab-status.online {
-            color: var(--success);
-        }
-
-        .tab-status.offline {
-            color: var(--text-muted);
-        }
-
-        .hidden {
-            display: none !important;
-        }
-
-        /* Provider Configuration Styles */
-        .provider-config {
-            margin-bottom: 20px;
-            padding: 16px;
-            background: var(--surface-2);
-            border-radius: var(--radius);
-            border: 1px solid var(--border);
-        }
-
-        .api-key-section,
-        .org-id-section,
-        .endpoint-section {
-            margin-bottom: 16px;
-        }
-
-        .api-key-section.hidden,
-        .org-id-section.hidden,
-        .endpoint-section.hidden {
-            display: none;
-        }
-
-        .api-key-help {
-            display: block;
-            margin-top: 4px;
-            font-size: 11px;
-            color: var(--text-muted);
-            line-height: 1.3;
-        }
-
-        .model-loading {
-            padding: 8px 12px;
-            color: var(--text-muted);
-            font-size: 12px;
-            text-align: center;
-            background: var(--surface-2);
-            border-radius: var(--radius);
-            margin-top: 8px;
-        }
-
-        .model-loading.hidden {
-            display: none;
-        }
-
-        .provider-config input[type="password"],
-        .provider-config input[type="text"],
-        .provider-config input[type="url"] {
-            width: 100%;
-            padding: 8px 12px;
-            border: 1px solid var(--border);
-            border-radius: var(--radius);
-            background: var(--background);
-            color: var(--text);
-            font-size: 13px;
-            margin-bottom: 4px;
-        }
-
-        .provider-config input:focus {
-            outline: none;
-            border-color: var(--primary);
-            box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2);
-        }
-        }
-
-        @keyframes dashFlow {
-            to {
-                stroke-dashoffset: -20;
-            }
-        }
-
-        /* Empty Canvas State */
-        .empty-canvas-state {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            text-align: center;
-            color: var(--text-muted);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 16px;
-        }
-
-        .empty-canvas-state .material-icons {
-            font-size: 64px;
-            opacity: 0.3;
-        }
-
-        .empty-canvas-state .empty-title {
-            font-size: 18px;
-            font-weight: 600;
-        }
-
-        .empty-canvas-state .empty-description {
-            font-size: 14px;
-            max-width: 400px;
-            line-height: 1.5;
-        }
+         :root {
+       --primary: #2563eb;
+       --primary-dark: #1d4ed8;
+       --secondary: #64748b;
+       --accent: #8b5cf6;
+       --success: #10b981;
+       --warning: #f59e0b;
+       --error: #ef4444;
+       --background: #ffffff;
+       --surface: #f8fafc;
+       --surface-2: #f1f5f9;
+       --surface-3: #e2e8f0;
+       --border: #e2e8f0;
+       --text: #0f172a;
+       --text-muted: #64748b;
+       --text-light: #94a3b8;
+       --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+       --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+       --radius: 8px;
+       --radius-lg: 12px;
+   }
+
+   .dark {
+       --primary: #3b82f6;
+       --primary-dark: #2563eb;
+       --secondary: #6b7280;
+       --accent: #a855f7;
+       --success: #10b981;
+       --warning: #f59e0b;
+       --error: #ef4444;
+       --background: #0f172a;
+       --surface: #1e293b;
+       --surface-2: #334155;
+       --surface-3: #475569;
+       --border: #334155;
+       --text: #f8fafc;
+       --text-muted: #94a3b8;
+       --text-light: #64748b;
+   }
+
+   * {
+       margin: 0;
+       padding: 0;
+       box-sizing: border-box;
+   }
+
+   body {
+       font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+       background: var(--background);
+       color: var(--text);
+       line-height: 1.5;
+       overflow: hidden;
+   }
+
+   /* Main Layout */
+   .designer-container {
+       display: flex;
+       flex-direction: column;
+       height: 100vh;
+       background: var(--background);
+   }
+
+   /* Header */
+   .designer-header {
+       display: flex;
+       align-items: center;
+       justify-content: space-between;
+       padding: 16px 24px;
+       background: var(--surface);
+       border-bottom: 1px solid var(--border);
+       box-shadow: var(--shadow);
+       z-index: 100;
+   }
+
+   .header-left {
+       display: flex;
+       align-items: center;
+       gap: 16px;
+   }
+
+   .logo {
+       display: flex;
+       align-items: center;
+       gap: 8px;
+       font-weight: 700;
+       font-size: 18px;
+       color: var(--primary);
+   }
+
+   .plan-title {
+       font-size: 16px;
+       font-weight: 600;
+       color: var(--text);
+   }
+
+   .header-actions {
+       display: flex;
+       align-items: center;
+       gap: 12px;
+   }
+
+   .btn {
+       display: flex;
+       align-items: center;
+       gap: 8px;
+       padding: 8px 16px;
+       border: none;
+       border-radius: var(--radius);
+       font-size: 14px;
+       font-weight: 500;
+       cursor: pointer;
+       transition: all 0.2s;
+       text-decoration: none;
+   }
+
+   .btn-primary {
+       background: var(--primary);
+       color: white;
+   }
+
+   .btn-primary:hover {
+       background: var(--primary-dark);
+   }
+
+   .btn-secondary {
+       background: var(--surface-2);
+       color: var(--text);
+       border: 1px solid var(--border);
+   }
+
+   .btn-secondary:hover {
+       background: var(--surface-3);
+   }
+
+   .btn-icon {
+       padding: 8px;
+       background: transparent;
+       color: var(--text-muted);
+   }
+
+   .btn-icon:hover {
+       background: var(--surface-2);
+       color: var(--text);
+   }
+
+   /* Tab Navigation */
+   .tab-nav {
+       display: flex;
+       background: var(--surface);
+       border-bottom: 1px solid var(--border);
+       overflow-x: auto;
+   }
+
+   .tab-button {
+       display: flex;
+       align-items: center;
+       gap: 8px;
+       padding: 16px 24px;
+       border: none;
+       background: transparent;
+       color: var(--text-muted);
+       font-size: 14px;
+       font-weight: 500;
+       cursor: pointer;
+       border-bottom: 3px solid transparent;
+       transition: all 0.2s;
+       white-space: nowrap;
+   }
+
+   .tab-button:hover {
+       background: var(--surface-2);
+       color: var(--text);
+   }
+
+   .tab-button.active {
+       background: var(--surface-2);
+       color: var(--primary);
+       border-bottom-color: var(--primary);
+   }
+
+   .tab-badge {
+       background: var(--primary);
+       color: white;
+       font-size: 12px;
+       padding: 2px 6px;
+       border-radius: 10px;
+       min-width: 18px;
+       text-align: center;
+   }
+
+   /* Main Content Area */
+   .main-content {
+       flex: 1;
+       display: flex;
+       overflow: hidden;
+   }
+
+   .tab-content {
+       flex: 1;
+       display: none;
+       flex-direction: column;
+       overflow: hidden;
+   }
+
+   .tab-content.active {
+       display: flex;
+   }
+
+   /* Plan Overview Tab */
+   .plan-overview {
+       padding: 24px;
+       overflow-y: auto;
+   }
+
+   .overview-section {
+       background: var(--surface);
+       border: 1px solid var(--border);
+       border-radius: var(--radius-lg);
+       padding: 24px;
+       margin-bottom: 24px;
+   }
+
+   .section-header {
+       display: flex;
+       align-items: center;
+       gap: 12px;
+       margin-bottom: 20px;
+   }
+
+   .section-icon {
+       width: 40px;
+       height: 40px;
+       background: var(--primary);
+       color: white;
+       border-radius: 8px;
+       display: flex;
+       align-items: center;
+       justify-content: center;
+   }
+
+   .section-title {
+       font-size: 18px;
+       font-weight: 600;
+       color: var(--text);
+   }
+
+   .form-grid {
+       display: grid;
+       grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+       gap: 20px;
+   }
+
+   .form-group {
+       display: flex;
+       flex-direction: column;
+       gap: 8px;
+   }
+
+   .form-label {
+       font-size: 14px;
+       font-weight: 500;
+       color: var(--text);
+   }
+
+   .form-input,
+   .form-textarea,
+   .form-select {
+       padding: 12px;
+       border: 1px solid var(--border);
+       border-radius: var(--radius);
+       background: var(--background);
+       color: var(--text);
+       font-size: 14px;
+       transition: border-color 0.2s;
+   }
+
+   .form-input:focus,
+   .form-textarea:focus,
+   .form-select:focus {
+       outline: none;
+       border-color: var(--primary);
+       box-shadow: 0 0 0 3px rgb(37 99 235 / 0.1);
+   }
+
+   .form-textarea {
+       min-height: 80px;
+       resize: vertical;
+   }
+
+   /* Stats Cards */
+   .stats-grid {
+       display: grid;
+       grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+       gap: 16px;
+       margin-top: 20px;
+   }
+
+   .stat-card {
+       background: var(--surface);
+       border: 1px solid var(--border);
+       border-radius: var(--radius);
+       padding: 20px;
+       text-align: center;
+   }
+
+   .stat-value {
+       font-size: 24px;
+       font-weight: 700;
+       color: var(--primary);
+       margin-bottom: 4px;
+   }
+
+   .stat-label {
+       font-size: 12px;
+       color: var(--text-muted);
+       text-transform: uppercase;
+       letter-spacing: 0.5px;
+   }
+
+   /* Agents Tab */
+   .agents-container {
+       display: flex;
+       flex: 1;
+       overflow: hidden;
+   }
+
+   .agents-sidebar {
+       width: 280px;
+       background: var(--surface);
+       border-right: 1px solid var(--border);
+       display: flex;
+       flex-direction: column;
+   }
+
+   .sidebar-header {
+       padding: 20px;
+       border-bottom: 1px solid var(--border);
+   }
+
+   .sidebar-title {
+       font-size: 16px;
+       font-weight: 600;
+       color: var(--text);
+       margin-bottom: 12px;
+   }
+
+   .agent-search {
+       width: 100%;
+       padding: 8px 12px;
+       border: 1px solid var(--border);
+       border-radius: var(--radius);
+       background: var(--background);
+       color: var(--text);
+       font-size: 14px;
+   }
+
+   .agents-list {
+       flex: 1;
+       overflow-y: auto;
+       padding: 16px;
+   }
+
+   .agent-item {
+       display: flex;
+       align-items: center;
+       gap: 12px;
+       padding: 12px;
+       border-radius: var(--radius);
+       cursor: pointer;
+       transition: background-color 0.2s;
+       margin-bottom: 8px;
+   }
+
+   .agent-item:hover {
+       background: var(--surface-2);
+   }
+
+   .agent-item.selected {
+       background: var(--primary);
+       color: white;
+   }
+
+   .agent-icon {
+       width: 32px;
+       height: 32px;
+       border-radius: 6px;
+       display: flex;
+       align-items: center;
+       justify-content: center;
+       color: white;
+       font-size: 16px;
+   }
+
+   .agent-orchestrator {
+       background: #8b5cf6;
+   }
+
+   .agent-tool {
+       background: #10b981;
+   }
+
+   .agent-ai {
+       background: #f59e0b;
+   }
+
+   .agent-data {
+       background: #3b82f6;
+   }
+
+   .agent-details {
+       flex: 1;
+       min-width: 0;
+   }
+
+   .agent-name {
+       font-size: 14px;
+       font-weight: 500;
+       color: inherit;
+       margin-bottom: 2px;
+   }
+
+   .agent-purpose {
+       font-size: 12px;
+       color: var(--text-muted);
+   }
+
+   .agent-item.selected .agent-purpose {
+       color: rgba(255, 255, 255, 0.8);
+   }
+
+   .agents-workspace {
+       flex: 1;
+       display: flex;
+       flex-direction: column;
+       overflow: hidden;
+   }
+
+   .workspace-header {
+       display: flex;
+       align-items: center;
+       justify-content: space-between;
+       padding: 20px;
+       border-bottom: 1px solid var(--border);
+       background: var(--surface);
+   }
+
+   .workspace-title {
+       font-size: 16px;
+       font-weight: 600;
+       color: var(--text);
+   }
+
+   .workspace-actions {
+       display: flex;
+       gap: 8px;
+   }
+
+   .agent-canvas {
+       flex: 1;
+       position: relative;
+       background: var(--background);
+       overflow: auto;
+       background-image:
+           radial-gradient(circle, var(--border) 1px, transparent 1px);
+       background-size: 20px 20px;
+   }
+
+   /* Store Tab */
+   .store-container {
+       display: flex;
+       flex: 1;
+       overflow: hidden;
+   }
+
+   .store-tree {
+       width: 350px;
+       background: var(--surface);
+       border-right: 1px solid var(--border);
+       overflow-y: auto;
+   }
+
+   .tree-header {
+       padding: 20px;
+       border-bottom: 1px solid var(--border);
+   }
+
+   .tree-item {
+       display: flex;
+       align-items: center;
+       gap: 8px;
+       padding: 8px 16px;
+       cursor: pointer;
+       transition: background-color 0.2s;
+   }
+
+   .tree-item:hover {
+       background: var(--surface-2);
+   }
+
+   .tree-item.selected {
+       background: var(--primary);
+       color: white;
+   }
+
+   .tree-indent {
+       width: 20px;
+   }
+
+   .store-editor {
+       flex: 1;
+       display: flex;
+       flex-direction: column;
+       overflow: hidden;
+   }
+
+   .editor-header {
+       padding: 20px;
+       border-bottom: 1px solid var(--border);
+       background: var(--surface);
+   }
+
+   .editor-content {
+       flex: 1;
+       padding: 20px;
+       overflow-y: auto;
+   }
+
+   /* Import/Export Tab */
+   .import-export {
+       padding: 24px;
+       overflow-y: auto;
+   }
+
+   .xml-editor {
+       width: 100%;
+       height: 400px;
+       font-family: 'Consolas', 'Monaco', monospace;
+       font-size: 14px;
+       border: 1px solid var(--border);
+       border-radius: var(--radius);
+       padding: 16px;
+       background: var(--surface);
+       color: var(--text);
+       resize: vertical;
+   }
+
+   /* Visual Components */
+   .node {
+       position: absolute;
+       background: var(--surface);
+       border: 2px solid var(--border);
+       border-radius: var(--radius);
+       min-width: 200px;
+       max-width: 300px;
+       box-shadow: var(--shadow);
+       cursor: move;
+       transition: all 0.2s;
+   }
+
+   .node:hover {
+       box-shadow: var(--shadow-lg);
+       transform: translateY(-2px);
+   }
+
+   .node.selected {
+       border-color: var(--primary);
+       box-shadow: 0 0 0 3px rgb(37 99 235 / 0.1);
+   }
+
+   .node-header {
+       padding: 12px 16px;
+       background: var(--surface-2);
+       border-bottom: 1px solid var(--border);
+       display: flex;
+       align-items: center;
+       justify-content: space-between;
+   }
+
+   .node-title {
+       display: flex;
+       align-items: center;
+       gap: 8px;
+       font-size: 14px;
+       font-weight: 500;
+   }
+
+   .node-body {
+       padding: 16px;
+   }
+
+   .node-field {
+       margin-bottom: 12px;
+   }
+
+   .node-field:last-child {
+       margin-bottom: 0;
+   }
+
+   .node-field label {
+       display: block;
+       font-size: 12px;
+       font-weight: 500;
+       color: var(--text-muted);
+       margin-bottom: 4px;
+   }
+
+   .node-field input,
+   .node-field textarea,
+   .node-field select {
+       width: 100%;
+       padding: 6px 8px;
+       border: 1px solid var(--border);
+       border-radius: 4px;
+       background: var(--background);
+       color: var(--text);
+       font-size: 13px;
+   }
+
+   .node-field textarea {
+       min-height: 60px;
+       resize: vertical;
+   }
+
+   /* Connection handles */
+   .handle {
+       position: absolute;
+       width: 12px;
+       height: 12px;
+       background: var(--primary);
+       border: 2px solid white;
+       border-radius: 50%;
+       cursor: crosshair;
+   }
+
+   .handle.in {
+       left: -6px;
+       top: 50%;
+       transform: translateY(-50%);
+   }
+
+   .handle.out {
+       right: -6px;
+       top: 50%;
+       transform: translateY(-50%);
+   }
+
+   /* Status indicators */
+   .status-indicator {
+       display: inline-flex;
+       align-items: center;
+       gap: 6px;
+       padding: 4px 8px;
+       border-radius: 12px;
+       font-size: 12px;
+       font-weight: 500;
+   }
+
+   .status-ready {
+       background: var(--surface-2);
+       color: var(--text-muted);
+   }
+
+   .status-running {
+       background: #dbeafe;
+       color: #1d4ed8;
+   }
+
+   .status-completed {
+       background: #d1fae5;
+       color: #065f46;
+   }
+
+   .status-error {
+       background: #fee2e2;
+       color: #dc2626;
+   }
+
+   /* Visual Designer */
+   .visual-designer {
+       display: flex;
+       height: 100%;
+       background: var(--background);
+   }
+
+   .designer-palette {
+       width: 280px;
+       background: var(--surface);
+       border-right: 1px solid var(--border);
+       display: flex;
+       flex-direction: column;
+       overflow: hidden;
+   }
+
+   .palette-header {
+       padding: 16px;
+       border-bottom: 1px solid var(--border);
+   }
+
+   .palette-header h4 {
+       font-size: 14px;
+       font-weight: 600;
+       color: var(--text);
+       margin-bottom: 12px;
+   }
+
+   .palette-search {
+       width: 100%;
+       padding: 8px 12px;
+       border: 1px solid var(--border);
+       border-radius: var(--radius);
+       background: var(--background);
+       color: var(--text);
+       font-size: 13px;
+   }
+
+   .palette-sections {
+       flex: 1;
+       overflow-y: auto;
+       padding: 16px;
+   }
+
+   .palette-section {
+       margin-bottom: 24px;
+   }
+
+   .section-title {
+       font-size: 12px;
+       font-weight: 600;
+       color: var(--text-muted);
+       text-transform: uppercase;
+       letter-spacing: 0.5px;
+       margin-bottom: 12px;
+   }
+
+   .palette-item {
+       display: flex;
+       align-items: center;
+       gap: 10px;
+       padding: 10px 12px;
+       border-radius: var(--radius);
+       cursor: grab;
+       transition: all 0.2s;
+       margin-bottom: 4px;
+       border: 1px solid transparent;
+   }
+
+   .palette-item:hover {
+       background: var(--surface-2);
+       border-color: var(--border);
+   }
+
+   .palette-item:active {
+       cursor: grabbing;
+   }
+
+   .palette-item i {
+       font-size: 18px;
+       color: var(--primary);
+   }
+
+   .palette-item span {
+       font-size: 13px;
+       font-weight: 500;
+       color: var(--text);
+   }
+
+   .designer-workspace {
+       flex: 1;
+       display: flex;
+       flex-direction: column;
+       overflow: hidden;
+   }
+
+   .workspace-toolbar {
+       display: flex;
+       align-items: center;
+       gap: 12px;
+       padding: 12px 16px;
+       background: var(--surface);
+       border-bottom: 1px solid var(--border);
+   }
+
+   .toolbar-divider {
+       width: 1px;
+       height: 20px;
+       background: var(--border);
+   }
+
+   .zoom-controls {
+       display: flex;
+       align-items: center;
+       gap: 8px;
+   }
+
+   .zoom-level {
+       font-size: 13px;
+       color: var(--text-muted);
+       min-width: 40px;
+       text-align: center;
+   }
+
+   .canvas-container {
+       flex: 1;
+       position: relative;
+       background: var(--background);
+       overflow: hidden;
+       background-image:
+           radial-gradient(circle, var(--border) 1px, transparent 1px);
+       background-size: 20px 20px;
+   }
+
+   .connection-svg {
+       position: absolute;
+       top: 0;
+       left: 0;
+       width: 100%;
+       height: 100%;
+       pointer-events: none;
+       z-index: 1;
+   }
+
+   .statement-canvas {
+       position: absolute;
+       top: 0;
+       left: 0;
+       width: 100%;
+       height: 100%;
+       z-index: 2;
+   }
+
+   .designer-inspector {
+       width: 320px;
+       background: var(--surface);
+       border-left: 1px solid var(--border);
+       display: flex;
+       flex-direction: column;
+       overflow: hidden;
+   }
+
+   .inspector-header {
+       padding: 16px;
+       border-bottom: 1px solid var(--border);
+   }
+
+   .inspector-header h4 {
+       font-size: 14px;
+       font-weight: 600;
+       color: var(--text);
+   }
+
+   .inspector-content {
+       flex: 1;
+       overflow-y: auto;
+       padding: 16px;
+   }
+
+   .inspector-empty {
+       text-align: center;
+       color: var(--text-muted);
+       font-style: italic;
+       padding: 40px 20px;
+   }
+
+   .inspector-section {
+       border-top: 1px solid var(--border);
+       padding: 16px;
+   }
+
+   .inspector-section h5 {
+       font-size: 13px;
+       font-weight: 600;
+       color: var(--text);
+       margin-bottom: 12px;
+   }
+
+   /* Statement Nodes */
+   .statement-node {
+       position: absolute;
+       background: var(--background);
+       border: 2px solid var(--border);
+       border-radius: var(--radius);
+       min-width: 180px;
+       max-width: 280px;
+       box-shadow: var(--shadow);
+       cursor: move;
+       z-index: 10;
+       transition: all 0.2s;
+   }
+
+   .statement-node:hover {
+       box-shadow: var(--shadow-lg);
+       transform: translateY(-1px);
+   }
+
+   .statement-node.selected {
+       border-color: var(--primary);
+       box-shadow: 0 0 0 3px rgb(37 99 235 / 0.1);
+   }
+
+   .statement-node.executing {
+       border-color: var(--warning);
+       box-shadow: 0 0 0 3px rgb(245 158 11 / 0.2);
+       animation: pulse 1.5s infinite;
+   }
+
+   .statement-node.completed {
+       border-color: var(--success);
+   }
+
+   .statement-node.error {
+       border-color: var(--error);
+   }
+
+   .node-header {
+       display: flex;
+       align-items: center;
+       justify-content: space-between;
+       padding: 10px 12px;
+       background: var(--surface);
+       border-bottom: 1px solid var(--border);
+       border-radius: var(--radius) var(--radius) 0 0;
+   }
+
+   .node-type {
+       display: flex;
+       align-items: center;
+       gap: 8px;
+       font-size: 13px;
+       font-weight: 600;
+       color: var(--text);
+   }
+
+   .node-type i {
+       font-size: 16px;
+       color: var(--primary);
+   }
+
+   .node-actions {
+       display: flex;
+       gap: 4px;
+   }
+
+   .node-action {
+       width: 24px;
+       height: 24px;
+       border: none;
+       background: transparent;
+       color: var(--text-muted);
+       border-radius: 4px;
+       cursor: pointer;
+       display: flex;
+       align-items: center;
+       justify-content: center;
+       transition: all 0.2s;
+   }
+
+   .node-action:hover {
+       background: var(--surface-2);
+       color: var(--text);
+   }
+
+   .node-action i {
+       font-size: 16px;
+   }
+
+   .node-body {
+       padding: 12px;
+   }
+
+   .node-summary {
+       font-size: 12px;
+       color: var(--text-muted);
+       line-height: 1.4;
+   }
+
+   .node-key {
+       font-size: 11px;
+       color: var(--primary);
+       font-weight: 500;
+       margin-bottom: 2px;
+   }
+
+   /* Connection Points */
+   .connection-point {
+       position: absolute;
+       width: 10px;
+       height: 10px;
+       background: var(--primary);
+       border: 2px solid var(--background);
+       border-radius: 50%;
+       cursor: crosshair;
+       z-index: 20;
+   }
+
+   .connection-point.input {
+       left: -5px;
+       top: 50%;
+       transform: translateY(-50%);
+   }
+
+   .connection-point.output {
+       right: -5px;
+       top: 50%;
+       transform: translateY(-50%);
+   }
+
+   .connection-point:hover {
+       background: var(--primary-dark);
+       transform: translateY(-50%) scale(1.2);
+   }
+
+   /* Property Forms */
+   .property-form {
+       display: flex;
+       flex-direction: column;
+       gap: 16px;
+   }
+
+   .property-group {
+       display: flex;
+       flex-direction: column;
+       gap: 6px;
+   }
+
+   .property-label {
+       font-size: 12px;
+       font-weight: 500;
+       color: var(--text);
+   }
+
+   .property-input,
+   .property-textarea,
+   .property-select {
+       padding: 8px 10px;
+       border: 1px solid var(--border);
+       border-radius: 4px;
+       background: var(--background);
+       color: var(--text);
+       font-size: 13px;
+   }
+
+   .property-textarea {
+       min-height: 60px;
+       resize: vertical;
+   }
+
+   .property-help {
+       font-size: 11px;
+       color: var(--text-muted);
+       font-style: italic;
+   }
+
+   /* Variables List */
+   .variable-item {
+       display: flex;
+       justify-content: space-between;
+       align-items: center;
+       padding: 8px 12px;
+       background: var(--surface-2);
+       border-radius: 4px;
+       margin-bottom: 4px;
+   }
+
+   .variable-name {
+       font-size: 12px;
+       font-weight: 500;
+       color: var(--text);
+   }
+
+   .variable-type {
+       font-size: 11px;
+       color: var(--text-muted);
+       background: var(--surface-3);
+       padding: 2px 6px;
+       border-radius: 3px;
+   }
+
+   /* Responsive Design */
+   @media (max-width: 768px) {
+       .agents-sidebar {
+           width: 240px;
+       }
+
+       .store-tree {
+           width: 280px;
+       }
+
+       .form-grid {
+           grid-template-columns: 1fr;
+       }
+
+       .stats-grid {
+           grid-template-columns: repeat(2, 1fr);
+       }
+
+       .visual-designer {
+           flex-direction: column;
+       }
+
+       .designer-palette {
+           width: 100%;
+           height: 200px;
+           border-right: none;
+           border-bottom: 1px solid var(--border);
+       }
+
+       .designer-inspector {
+           width: 100%;
+           height: 200px;
+           border-left: none;
+           border-top: 1px solid var(--border);
+       }
+   }
+
+   /* Animation classes */
+   .fade-in {
+       animation: fadeIn 0.3s ease-out;
+   }
+
+   @keyframes fadeIn {
+       from {
+           opacity: 0;
+           transform: translateY(10px);
+       }
+
+       to {
+           opacity: 1;
+           transform: translateY(0);
+       }
+   }
+
+   .pulse {
+       animation: pulse 2s infinite;
+   }
+
+   @keyframes pulse {
+
+       0%,
+       100% {
+           opacity: 1;
+       }
+
+       50% {
+           opacity: 0.5;
+       }
+   }
+
+   /* Context Menu */
+   .context-menu {
+       position: fixed;
+       background: var(--surface);
+       border: 1px solid var(--border);
+       border-radius: var(--radius);
+       box-shadow: var(--shadow-lg);
+       padding: 8px 0;
+       z-index: 1000;
+       min-width: 160px;
+   }
+
+   .context-menu-item {
+       display: flex;
+       align-items: center;
+       gap: 8px;
+       padding: 8px 16px;
+       cursor: pointer;
+       font-size: 14px;
+       color: var(--text);
+       transition: background-color 0.2s;
+   }
+
+   .context-menu-item:hover {
+       background: var(--surface-2);
+   }
+
+   .context-menu-divider {
+       height: 1px;
+       background: var(--border);
+       margin: 4px 0;
+   }
+
+   /* Execution UI */
+   .execution-modal {
+       position: fixed;
+       top: 0;
+       left: 0;
+       right: 0;
+       bottom: 0;
+       background: rgba(0, 0, 0, 0.7);
+       display: flex;
+       align-items: center;
+       justify-content: center;
+       z-index: 10000;
+   }
+
+   .execution-dialog {
+       background: var(--surface);
+       border-radius: var(--radius-lg);
+       width: 80vw;
+       max-width: 900px;
+       height: 70vh;
+       box-shadow: var(--shadow-lg);
+       display: flex;
+       flex-direction: column;
+   }
+
+   .execution-header {
+       padding: 20px;
+       border-bottom: 1px solid var(--border);
+       display: flex;
+       align-items: center;
+       justify-content: space-between;
+   }
+
+   .execution-header h3 {
+       margin: 0;
+       color: var(--text);
+       font-size: 18px;
+   }
+
+   .execution-body {
+       flex: 1;
+       display: flex;
+       overflow: hidden;
+   }
+
+   .execution-log {
+       flex: 2;
+       padding: 16px;
+       overflow-y: auto;
+       background: var(--background);
+       border-right: 1px solid var(--border);
+       font-family: 'Consolas', 'Monaco', monospace;
+       font-size: 13px;
+       line-height: 1.4;
+   }
+
+   .execution-output {
+       flex: 1;
+       padding: 16px;
+       overflow-y: auto;
+       background: var(--surface-2);
+   }
+
+   .execution-footer {
+       padding: 20px;
+       border-top: 1px solid var(--border);
+       display: flex;
+       gap: 12px;
+       justify-content: flex-end;
+   }
+
+   /* Seed Editor Styles */
+   .seed-container {
+       display: flex;
+       flex-direction: column;
+       gap: 20px;
+   }
+
+   .seed-controls {
+       display: flex;
+       gap: 12px;
+       align-items: center;
+       flex-wrap: wrap;
+   }
+
+   .seed-items {
+       display: flex;
+       flex-direction: column;
+       gap: 16px;
+   }
+
+   .seed-item {
+       background: var(--surface);
+       border: 1px solid var(--border);
+       border-radius: var(--radius);
+       overflow: hidden;
+   }
+
+   .seed-header {
+       display: flex;
+       justify-content: space-between;
+       align-items: center;
+       padding: 12px 16px;
+       background: var(--surface-2);
+       border-bottom: 1px solid var(--border);
+   }
+
+   .seed-key {
+       font-weight: 600;
+       font-family: 'JetBrains Mono', monospace;
+       color: var(--primary);
+   }
+
+   .seed-actions {
+       display: flex;
+       gap: 4px;
+   }
+
+   .seed-value {
+       padding: 16px;
+       font-family: 'JetBrains Mono', monospace;
+       font-size: 13px;
+       background: var(--background);
+       white-space: pre-wrap;
+       overflow-x: auto;
+   }
+
+   .empty-state {
+       text-align: center;
+       color: var(--text-muted);
+       padding: 60px 20px;
+       display: flex;
+       flex-direction: column;
+       align-items: center;
+       gap: 12px;
+   }
+
+   .empty-state .material-icons {
+       font-size: 64px;
+       opacity: 0.3;
+   }
+
+   .empty-title {
+       font-size: 18px;
+       font-weight: 600;
+   }
+
+   .empty-description {
+       font-size: 14px;
+       max-width: 400px;
+       line-height: 1.5;
+   }
+
+   .btn-icon {
+       background: none;
+       border: none;
+       padding: 6px;
+       border-radius: 4px;
+       cursor: pointer;
+       color: var(--text-muted);
+       transition: all 0.2s;
+   }
+
+   .btn-icon:hover {
+       background: var(--surface-3);
+       color: var(--text);
+   }
+
+   /* Canvas Styles */
+   .canvas-container {
+       display: flex;
+       flex-direction: column;
+       height: 100%;
+   }
+
+   .canvas-header {
+       display: flex;
+       justify-content: space-between;
+       align-items: center;
+       padding: 20px;
+       border-bottom: 1px solid var(--border);
+       background: var(--surface);
+   }
+
+   .canvas-title {
+       display: flex;
+       align-items: center;
+       gap: 12px;
+       font-size: 18px;
+       font-weight: 600;
+   }
+
+   .canvas-controls {
+       display: flex;
+       gap: 12px;
+   }
+
+   .canvas-workspace {
+       flex: 1;
+       position: relative;
+       background: var(--background);
+       background-image: radial-gradient(var(--border) 1px, transparent 1px);
+       background-size: 24px 24px;
+       overflow: hidden;
+   }
+
+   .canvas-viewport {
+       width: 100%;
+       height: 100%;
+       position: relative;
+       overflow: hidden;
+   }
+
+   .canvas-toolbar {
+       position: absolute;
+       bottom: 20px;
+       left: 20px;
+       right: 20px;
+       display: flex;
+       justify-content: space-between;
+       align-items: center;
+       background: var(--surface);
+       border: 1px solid var(--border);
+       border-radius: var(--radius);
+       padding: 12px 16px;
+       backdrop-filter: blur(8px);
+   }
+
+   .canvas-status {
+       font-weight: 500;
+       color: var(--text);
+   }
+
+   .canvas-progress {
+       display: flex;
+       align-items: center;
+       gap: 8px;
+       font-size: 14px;
+       color: var(--text-muted);
+   }
+
+   /* Canvas Node Styles */
+   .canvas-node {
+       position: absolute;
+       min-width: 200px;
+       min-height: 100px;
+       background: var(--surface);
+       border: 2px solid var(--border);
+       border-radius: var(--radius);
+       box-shadow: var(--shadow);
+       cursor: move;
+       transition: all 0.2s;
+       z-index: 10;
+   }
+
+   .canvas-node:hover {
+       box-shadow: var(--shadow-lg);
+       transform: translateY(-2px);
+   }
+
+   .canvas-node.active {
+       border-color: var(--primary);
+       box-shadow: 0 0 0 3px rgb(37 99 235 / 0.1);
+   }
+
+   .canvas-node.completed {
+       border-color: var(--success);
+       background: var(--success-bg);
+   }
+
+   .canvas-node.error {
+       border-color: var(--error);
+       background: var(--error-bg);
+   }
+
+   .node-header {
+       padding: 12px 16px;
+       border-bottom: 1px solid var(--border);
+       display: flex;
+       justify-content: space-between;
+       align-items: center;
+       background: var(--surface-2);
+   }
+
+   .node-title {
+       font-weight: 600;
+       display: flex;
+       align-items: center;
+       gap: 8px;
+   }
+
+   .node-content {
+       padding: 16px;
+       min-height: 60px;
+   }
+
+   .node-type-badge {
+       background: var(--primary);
+       color: white;
+       padding: 2px 8px;
+       border-radius: 12px;
+       font-size: 12px;
+       font-weight: 500;
+   }
+
+   .connection-line {
+       position: absolute;
+       pointer-events: none;
+       z-index: 1;
+   }
+
+   .connection-path {
+       stroke: var(--primary);
+       stroke-width: 2;
+       fill: none;
+       marker-end: url(#arrowhead);
+   }
+
+   .connection-path.active {
+       stroke: var(--warning);
+       stroke-width: 3;
+       animation: dashFlow 2s linear infinite;
+   }
+
+   /* LLM Configuration Styles */
+   .llm-config-container {
+       padding: 24px;
+       width:100%;
+       
+   }
+
+   .config-header {
+       display: flex;
+       justify-content: space-between;
+       align-items: center;
+       margin-bottom: 32px;
+       padding-bottom: 16px;
+       border-bottom: 2px solid var(--border);
+   }
+
+   .config-title {
+       display: flex;
+       align-items: center;
+       gap: 12px;
+       font-size: 24px;
+       font-weight: 700;
+       color: var(--primary);
+   }
+
+   .llm-status {
+       display: flex;
+       align-items: center;
+       gap: 16px;
+   }
+
+   .status-indicator {
+       padding: 4px 12px;
+       border-radius: 16px;
+       font-size: 12px;
+       font-weight: 600;
+       text-transform: uppercase;
+   }
+
+   .status-indicator.online {
+       background: #10b981;
+       color: white;
+   }
+
+   .status-indicator.offline {
+       background: #6b7280;
+       color: white;
+   }
+
+   .status-indicator.loading {
+       background: #f59e0b;
+       color: white;
+       animation: pulse 2s infinite;
+   }
+
+   .model-info {
+       font-size: 14px;
+       color: var(--text-muted);
+   }
+
+   .config-grid {
+       display: grid;
+       grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+       gap: 24px;
+       max-height: 55%;
+       width: 100%;
+       overflow-y: auto;
+       margin-bottom: 32px;
+   }
+
+   .config-panel {
+       background: var(--surface);
+       border: 1px solid var(--border);
+       border-radius: var(--radius-lg);
+       overflow: hidden;
+       box-shadow: var(--shadow);
+   }
+
+   .panel-header {
+       padding: 16px 20px;
+       background: var(--surface-2);
+       border-bottom: 1px solid var(--border);
+       display: flex;
+       justify-content: space-between;
+       align-items: center;
+   }
+
+   .panel-header h4 {
+       margin: 0;
+       font-size: 16px;
+       font-weight: 600;
+       color: var(--text);
+   }
+
+   .panel-content {
+       padding: 20px;
+   }
+
+   .model-source,
+   .model-selection {
+       margin-bottom: 20px;
+   }
+
+   .model-source label,
+   .model-selection label,
+   .param-group label {
+       display: block;
+       margin-bottom: 8px;
+       font-weight: 500;
+       color: var(--text);
+   }
+
+   .model-source select,
+   .model-selection select,
+   .model-selection input {
+       width: 100%;
+       padding: 10px 12px;
+       border: 1px solid var(--border);
+       border-radius: var(--radius);
+       background: var(--background);
+       color: var(--text);
+       font-size: 14px;
+   }
+
+   .model-actions {
+       display: flex;
+       gap: 12px;
+       margin: 20px 0;
+   }
+
+   .loading-progress {
+       margin: 20px 0;
+       padding: 24px;
+       background: var(--surface-2);
+       border-radius: 12px;
+       border: 1px solid var(--border);
+       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+   }
+
+   .loading-header {
+       display: flex;
+       align-items: center;
+       gap: 12px;
+       margin-bottom: 20px;
+   }
+
+   .loading-icon {
+       width: 32px;
+       height: 32px;
+       display: flex;
+       align-items: center;
+       justify-content: center;
+       background: var(--primary);
+       border-radius: 50%;
+       color: white;
+   }
+
+   .loading-icon .spinning {
+       animation: spin 2s linear infinite;
+   }
+
+   @keyframes spin {
+       from {
+           transform: rotate(0deg);
+       }
+
+       to {
+           transform: rotate(360deg);
+       }
+   }
+
+   .loading-title {
+       font-size: 16px;
+       font-weight: 600;
+       color: var(--text-primary);
+   }
+
+   .progress-bar {
+       position: relative;
+       width: 100%;
+       height: 12px;
+       background: var(--surface-3);
+       border-radius: 6px;
+       overflow: hidden;
+       margin-bottom: 12px;
+   }
+
+   .progress-fill {
+       height: 100%;
+       background: linear-gradient(90deg, var(--primary), var(--accent));
+       width: 0%;
+       transition: width 0.5s ease;
+       border-radius: 6px;
+   }
+
+   .progress-percentage {
+       position: absolute;
+       top: 50%;
+       right: 8px;
+       transform: translateY(-50%);
+       font-size: 10px;
+       font-weight: 600;
+       color: var(--text-primary);
+       text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+   }
+
+   .progress-text {
+       font-size: 14px;
+       color: var(--text-secondary);
+       text-align: center;
+       margin-bottom: 16px;
+       font-weight: 500;
+   }
+
+   .loading-details {
+       display: grid;
+       grid-template-columns: 1fr 1fr 1fr;
+       gap: 16px;
+   }
+
+   .detail-item {
+       display: flex;
+       flex-direction: column;
+       gap: 4px;
+   }
+
+   .detail-label {
+       font-size: 12px;
+       color: var(--text-muted);
+       text-transform: uppercase;
+       letter-spacing: 0.5px;
+   }
+
+   .detail-value {
+       font-size: 14px;
+       font-weight: 600;
+       color: var(--text-primary);
+   }
+
+   .param-group {
+       margin-bottom: 24px;
+   }
+
+   .param-group input[type="range"] {
+       width: 100%;
+       margin: 8px 0;
+   }
+
+   .param-group small {
+       color: var(--text-muted);
+       font-size: 12px;
+       display: block;
+       margin-top: 4px;
+   }
+
+   .param-group span {
+       font-weight: 600;
+       color: var(--primary);
+   }
+
+   .param-group textarea {
+       width: 100%;
+       padding: 10px 12px;
+       border: 1px solid var(--border);
+       border-radius: var(--radius);
+       background: var(--background);
+       color: var(--text);
+       font-family: inherit;
+       resize: vertical;
+       min-height: 80px;
+   }
+
+   .param-group input[type="checkbox"] {
+       margin-right: 8px;
+   }
+
+   .test-section {
+       margin-bottom: 24px;
+   }
+
+   .test-section textarea {
+       width: 100%;
+       padding: 12px;
+       border: 1px solid var(--border);
+       border-radius: var(--radius);
+       background: var(--background);
+       color: var(--text);
+       font-family: inherit;
+       margin-bottom: 12px;
+   }
+
+   .test-results {
+       margin-bottom: 24px;
+   }
+
+   .response-box {
+       background: var(--surface-2);
+       border: 1px solid var(--border);
+       border-radius: var(--radius);
+       padding: 16px;
+       min-height: 100px;
+       font-family: 'Monaco', 'Menlo', monospace;
+       font-size: 13px;
+       line-height: 1.4;
+       overflow-y: auto;
+       max-height: 200px;
+   }
+
+   .performance-metrics,
+   .model-health {
+       margin-bottom: 20px;
+   }
+
+   .performance-metrics h5,
+   .model-health h5 {
+       margin-bottom: 12px;
+       font-size: 14px;
+       font-weight: 600;
+       color: var(--text);
+   }
+
+   .metrics-grid {
+       display: grid;
+       grid-template-columns: 1fr 1fr;
+       gap: 12px;
+   }
+
+   .metric {
+       display: flex;
+       justify-content: space-between;
+       padding: 8px 12px;
+       background: var(--surface-2);
+       border-radius: var(--radius);
+       border: 1px solid var(--border);
+   }
+
+   .metric-label {
+       font-size: 12px;
+       color: var(--text-muted);
+   }
+
+   .metric-value {
+       font-weight: 600;
+       color: var(--primary);
+   }
+
+   .health-indicators {
+       display: flex;
+       flex-direction: column;
+       gap: 8px;
+   }
+
+   .health-item {
+       display: flex;
+       justify-content: space-between;
+       padding: 8px 12px;
+       background: var(--surface-2);
+       border-radius: var(--radius);
+       border: 1px solid var(--border);
+   }
+
+   .health-label {
+       font-size: 12px;
+       color: var(--text-muted);
+   }
+
+   .health-status {
+       font-weight: 600;
+       font-size: 12px;
+   }
+
+   .health-status.healthy {
+       color: var(--success);
+   }
+
+   .health-status.warning {
+       color: var(--warning);
+   }
+
+   .health-status.error {
+       color: var(--error);
+   }
+
+   /* Notification System */
+   .notification {
+       position: fixed;
+       top: 20px;
+       right: 20px;
+       z-index: 10000;
+       min-width: 300px;
+       max-width: 500px;
+       padding: 16px;
+       border-radius: 8px;
+       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+       display: flex;
+       align-items: center;
+       justify-content: space-between;
+       animation: slideIn 0.3s ease;
+   }
+
+   .notification-success {
+       background: var(--success);
+       color: white;
+   }
+
+   .notification-error {
+       background: var(--error);
+       color: white;
+   }
+
+   .notification-info {
+       background: var(--primary);
+       color: white;
+   }
+
+   .notification-content {
+       display: flex;
+       align-items: center;
+       gap: 12px;
+       flex: 1;
+   }
+
+   .notification-close {
+       background: none;
+       border: none;
+       color: inherit;
+       cursor: pointer;
+       padding: 4px;
+       border-radius: 4px;
+       opacity: 0.8;
+   }
+
+   .notification-close:hover {
+       opacity: 1;
+       background: rgba(255, 255, 255, 0.1);
+   }
+
+   @keyframes slideIn {
+       from {
+           transform: translateX(100%);
+           opacity: 0;
+       }
+
+       to {
+           transform: translateX(0);
+           opacity: 1;
+       }
+   }
+
+   /* Notification System */
+   .notification {
+       position: fixed;
+       top: 20px;
+       right: 20px;
+       z-index: 10000;
+       min-width: 300px;
+       max-width: 500px;
+       padding: 16px;
+       border-radius: 8px;
+       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+       display: flex;
+       align-items: center;
+       justify-content: space-between;
+       animation: slideIn 0.3s ease;
+   }
+
+   .notification-success {
+       background: var(--success);
+       color: white;
+   }
+
+   .notification-error {
+       background: var(--error);
+       color: white;
+   }
+
+   .notification-info {
+       background: var(--primary);
+       color: white;
+   }
+
+   .notification-content {
+       display: flex;
+       align-items: center;
+       gap: 12px;
+       flex: 1;
+   }
+
+   .notification-close {
+       background: none;
+       border: none;
+       color: inherit;
+       cursor: pointer;
+       padding: 4px;
+       border-radius: 4px;
+       opacity: 0.8;
+   }
+
+   .notification-close:hover {
+       opacity: 1;
+       background: rgba(255, 255, 255, 0.1);
+   }
+
+   @keyframes slideIn {
+       from {
+           transform: translateX(100%);
+           opacity: 0;
+       }
+
+       to {
+           transform: translateX(0);
+           opacity: 1;
+       }
+   }
+
+   .config-actions {
+       display: flex;
+       gap: 12px;
+       justify-content: center;
+       padding: 24px 0;
+       border-top: 1px solid var(--border);
+   }
+
+   .tab-status {
+       margin-left: 8px;
+       font-size: 12px;
+   }
+
+   .tab-status.online {
+       color: var(--success);
+   }
+
+   .tab-status.offline {
+       color: var(--text-muted);
+   }
+
+   .hidden {
+       display: none !important;
+   }
+
+   /* Provider Configuration Styles */
+   .provider-config {
+       margin-bottom: 20px;
+       padding: 16px;
+       background: var(--surface-2);
+       border-radius: var(--radius);
+       border: 1px solid var(--border);
+   }
+
+   .api-key-section,
+   .org-id-section,
+   .endpoint-section {
+       margin-bottom: 16px;
+   }
+
+   .api-key-section.hidden,
+   .org-id-section.hidden,
+   .endpoint-section.hidden {
+       display: none;
+   }
+
+   .api-key-help {
+       display: block;
+       margin-top: 4px;
+       font-size: 11px;
+       color: var(--text-muted);
+       line-height: 1.3;
+   }
+
+   .model-loading {
+       padding: 8px 12px;
+       color: var(--text-muted);
+       font-size: 12px;
+       text-align: center;
+       background: var(--surface-2);
+       border-radius: var(--radius);
+       margin-top: 8px;
+   }
+
+   .model-loading.hidden {
+       display: none;
+   }
+
+   .provider-config input[type="password"],
+   .provider-config input[type="text"],
+   .provider-config input[type="url"] {
+       width: 100%;
+       padding: 8px 12px;
+       border: 1px solid var(--border);
+       border-radius: var(--radius);
+       background: var(--background);
+       color: var(--text);
+       font-size: 13px;
+       margin-bottom: 4px;
+   }
+
+   .provider-config input:focus {
+       outline: none;
+       border-color: var(--primary);
+       box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2);
+   }
+
+
+   @keyframes dashFlow {
+       to {
+           stroke-dashoffset: -20;
+       }
+   }
+
+   /* Empty Canvas State */
+   .empty-canvas-state {
+       position: absolute;
+       top: 50%;
+       left: 50%;
+       transform: translate(-50%, -50%);
+       text-align: center;
+       color: var(--text-muted);
+       display: flex;
+       flex-direction: column;
+       align-items: center;
+       gap: 16px;
+   }
+
+   .empty-canvas-state .material-icons {
+       font-size: 64px;
+       opacity: 0.3;
+   }
+
+   .empty-canvas-state .empty-title {
+       font-size: 18px;
+       font-weight: 600;
+   }
+
+   .empty-canvas-state .empty-description {
+       font-size: 14px;
+       max-width: 400px;
+       line-height: 1.5;
+   }
     </style>
     
-    <!-- WebLLM Script -->
-    <script src="https://cdn.jsdelivr.net/npm/@mlc-ai/web-llm@0.2.46/lib/web-llm.js"></script>
+    <!-- WebLLM will be imported via ES6 modules in the script below -->
 </head>
 <body>
     <div class="designer-container">
@@ -2282,11 +2532,32 @@
                                 </div>
 
                                 <div class="model-info" id="modelDetails">
-                                    <div class="loading-progress" id="loadingProgress" class="hidden">
+                                    <div class="loading-progress" id="loadingProgress" style="display: none;">
+                                        <div class="loading-header">
+                                            <div class="loading-icon">
+                                                <i class="material-icons spinning">sync</i>
+                                            </div>
+                                            <div class="loading-title" id="loadingTitle">Loading WebLLM Model...</div>
+                                        </div>
                                         <div class="progress-bar">
                                             <div class="progress-fill" id="progressFill"></div>
+                                            <div class="progress-percentage" id="progressPercentage">0%</div>
                                         </div>
-                                        <div class="progress-text" id="progressText">Preparing model download...</div>
+                                        <div class="progress-text" id="progressText">Initializing...</div>
+                                        <div class="loading-details" id="loadingDetails">
+                                            <div class="detail-item">
+                                                <span class="detail-label">Model:</span>
+                                                <span class="detail-value" id="loadingModelName">-</span>
+                                            </div>
+                                            <div class="detail-item">
+                                                <span class="detail-label">Status:</span>
+                                                <span class="detail-value" id="loadingStatus">Preparing</span>
+                                            </div>
+                                            <div class="detail-item">
+                                                <span class="detail-label">Time:</span>
+                                                <span class="detail-value" id="loadingTime">0s</span>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -2355,7 +2626,7 @@
                                 <div class="test-section">
                                     <label>Test Prompt:</label>
                                     <textarea id="testPrompt" rows="3" placeholder="Enter test prompt...">Generate a simple greeting message for testing the LLM configuration.</textarea>
-                                    <button class="btn btn-primary" onclick="testProviderConfiguration()" id="testLLMBtn" disabled>
+                                    <button class="btn btn-primary" onclick="testLLMConfiguration()" id="testLLMBtn" disabled>
                                         <i class="material-icons">send</i>
                                         Test Configuration
                                     </button>
@@ -2485,8 +2756,15 @@
     </div>
 
     <script type="module">
+        import { CreateMLCEngine } from "https://esm.run/@mlc-ai/web-llm";
+        
         console.log('🏗️ Enterprise DSL Designer Loading...');
         
+        // ============================================================================
+        // DSL STATEMENT CLASS DEFINITIONS
+        // ============================================================================
+        
+      
         // Core State Management
         let currentPlan = {
             key: '',
@@ -2509,524 +2787,35 @@
             updateStatistics();
             
             // Create demo data for Canvas testing
-            createDemoData();
+            // Ready for XML file loading - no demo data created
             
             console.log('✅ Enterprise DSL Designer Ready');
         }
         
-        // Create comprehensive demo data showcasing all DSL features
+        // Create empty demo data ready for XML loading
         function createDemoData() {
-            // Set plan info
-            currentPlan.key = 'SmartBusinessAnalyzer';
-            currentPlan.description = 'Comprehensive AI-driven business intelligence and report generation system with data analysis, visualization, and automated insights';
-            currentPlan.author = 'Enterprise DSL Designer';
+            // Clear all plan data
+            currentPlan.key = '';
+            currentPlan.description = '';
+            currentPlan.author = '';
             
-            // Add comprehensive seed data
-            currentPlan.seed.set('companyName', 'Acme Corporation');
-            currentPlan.seed.set('reportType', 'quarterly');
-            currentPlan.seed.set('dataSource', 'sales_database');
-            currentPlan.seed.set('analysisDepth', 'detailed');
-            currentPlan.seed.set('outputFormat', 'pdf');
-            currentPlan.seed.set('emailRecipients', ['ceo@acme.com', 'analytics@acme.com']);
-            currentPlan.seed.set('thresholds', { revenue: 1000000, growth: 15 });
-            currentPlan.seed.set('chartTypes', ['bar', 'line', 'pie']);
+            // Clear all collections
+            currentPlan.agents.clear();
+            currentPlan.stores.clear();
+            currentPlan.schemas.clear();
+            currentPlan.seed.clear();
             
-            // Add complex agent workflow
-            const orchestrator = {
-                purpose: 'Orchestrator',
-                description: 'Master orchestrator that coordinates the entire business analysis workflow'
-            };
-            currentPlan.agents.set('MasterOrchestrator', orchestrator);
-            
-            const dataCollector = {
-                purpose: 'Collector',
-                description: 'Fetches and validates data from multiple business sources'
-            };
-            currentPlan.agents.set('DataCollector', dataCollector);
-            
-            const dataAnalyzer = {
-                purpose: 'Analyzer', 
-                description: 'Performs statistical analysis and identifies business trends'
-            };
-            currentPlan.agents.set('DataAnalyzer', dataAnalyzer);
-            
-            const insightGenerator = {
-                purpose: 'Generator',
-                description: 'Uses AI to generate business insights and recommendations'
-            };
-            currentPlan.agents.set('InsightGenerator', insightGenerator);
-            
-            const reportBuilder = {
-                purpose: 'Builder',
-                description: 'Creates comprehensive reports with charts and visualizations'
-            };
-            currentPlan.agents.set('ReportBuilder', reportBuilder);
-            
-            const qualityChecker = {
-                purpose: 'Validator',
-                description: 'Validates report accuracy and completeness'
-            };
-            currentPlan.agents.set('QualityChecker', qualityChecker);
-            
-            const notificationService = {
-                purpose: 'Notifier',
-                description: 'Distributes reports and sends alerts based on findings'
-            };
-            currentPlan.agents.set('NotificationService', notificationService);
-            
-            // Add complex visual designer nodes for MasterOrchestrator
-            visualDesignerState.currentAgent = 'MasterOrchestrator';
-            
-            // Create sophisticated node workflow
-            const nodes = new Map();
-            
-            // 1. Initialize variables
-            nodes.set('init_vars', {
-                template: statementTemplates.declare,
-                data: {
-                    Key: 'reportConfig',
-                    Type: 'AUTO',
-                    Expression: '{"status": "initializing", "timestamp": "' + new Date().toISOString() + '"}'
-                },
-                position: { x: 100, y: 100 }
-            });
-            
-            // 2. Get user input
-            nodes.set('user_input', {
-                template: statementTemplates.in,
-                data: {
-                    Key: 'userRequirements',
-                    Template: 'Please specify the report parameters (date range, metrics, format)'
-                },
-                position: { x: 400, y: 100 }
-            });
-            
-            // 3. Fetch data
-            nodes.set('fetch_data', {
-                template: statementTemplates.fetch,
-                data: {
-                    Key: 'businessData',
-                    Url: 'https://api.acme.com/business-metrics',
-                    Method: 'GET',
-                    Headers: '{"Authorization": "Bearer token123"}'
-                },
-                position: { x: 700, y: 100 }
-            });
-            
-            // 4. SQL analysis
-            nodes.set('sql_analysis', {
-                template: statementTemplates.sql,
-                data: {
-                    Key: 'salesAnalysis',
-                    Connection: 'business_warehouse',
-                    Query: 'SELECT product_category, SUM(revenue) as total_revenue, COUNT(*) as sales_count FROM sales WHERE date_range = ? GROUP BY product_category ORDER BY total_revenue DESC'
-                },
-                position: { x: 1000, y: 100 }
-            });
-            
-            // 5. Data analysis
-            nodes.set('analyze_trends', {
-                template: statementTemplates.analyze,
-                data: {
-                    Key: 'trendAnalysis',
-                    Data: 'salesAnalysis',
-                    Type: 'TREND',
-                    Criteria: 'identify growth patterns and seasonal variations'
-                },
-                position: { x: 100, y: 300 }
-            });
-            
-            // 6. AI insight generation
-            nodes.set('generate_insights', {
-                template: statementTemplates.generate,
-                data: {
-                    Key: 'businessInsights',
-                    Keys: 'trendAnalysis,salesAnalysis',
-                    MaxTokens: 1000,
-                    Creativity: 'Balanced'
-                },
-                position: { x: 400, y: 300 }
-            });
-            
-            // 7. Conditional logic for recommendations
-            nodes.set('check_performance', {
-                template: statementTemplates.if,
-                data: {
-                    Condition: 'trendAnalysis.growth > 15'
-                },
-                position: { x: 700, y: 300 }
-            });
-            
-            // 8. Loop through data sources
-            nodes.set('process_sources', {
-                template: statementTemplates.foreach,
-                data: {
-                    Variable: 'currentSource',
-                    Collection: 'dataSources'
-                },
-                position: { x: 1000, y: 300 }
-            });
-            
-            // 9. Call sub-agent for report building
-            nodes.set('call_report_builder', {
-                template: statementTemplates.call,
-                data: {
-                    From: 'MasterOrchestrator',
-                    To: 'ReportBuilder',
-                    Message: 'Build comprehensive report with insights and visualizations'
-                },
-                position: { x: 100, y: 500 }
-            });
-            
-            // 10. Design report template
-            nodes.set('design_template', {
-                template: statementTemplates.design,
-                data: {
-                    Type: 'UI',
-                    Key: 'reportTemplate',
-                    Template: 'Create a professional business report template with executive summary, detailed analysis, charts, and recommendations sections'
-                },
-                position: { x: 400, y: 500 }
-            });
-            
-            // 11. Write report to file
-            nodes.set('write_report', {
-                template: statementTemplates.write,
-                data: {
-                    Key: 'finalReport',
-                    FileKey: 'business_report_' + new Date().getTime() + '.pdf'
-                },
-                position: { x: 700, y: 500 }
-            });
-            
-            // 12. Send notifications
-            nodes.set('notify_stakeholders', {
-                template: statementTemplates.actuate,
-                data: {
-                    Device: 'email_service',
-                    Action: 'send_report',
-                    Parameters: '{"recipients": ["ceo@acme.com", "analytics@acme.com"], "subject": "Quarterly Business Report Ready"}'
-                },
-                position: { x: 1000, y: 500 }
-            });
-            
-            // 13. Final output
-            nodes.set('output_summary', {
-                template: statementTemplates.out,
-                data: {
-                    Key: 'executionSummary',
-                    Template: 'Business analysis completed successfully. Report generated and distributed to stakeholders.'
-                },
-                position: { x: 550, y: 700 }
-            });
-            
-            // Store nodes in visual designer state for MasterOrchestrator
-            agentNodes.set('MasterOrchestrator', nodes);
-            
-            // Create simpler workflows for other agents
-            createAgentWorkflows();
-            
-            // Add some stores for data management
-            currentPlan.stores.set('BusinessMetrics', {
-                type: 'database',
-                description: 'Core business metrics and KPIs'
-            });
-            
-            currentPlan.stores.set('ReportTemplates', {
-                type: 'file_system',
-                description: 'Reusable report templates and layouts'
-            });
-            
-            currentPlan.stores.set('AnalysisCache', {
-                type: 'memory',
-                description: 'Cached analysis results for performance'
-            });
-            
-            // Add schema definitions
-            currentPlan.schemas.set('BusinessMetric', {
-                fields: {
-                    metric_name: 'STRING',
-                    value: 'DOUBLE',
-                    timestamp: 'DATETIME',
-                    category: 'ENUM'
-                }
-            });
-            
-            currentPlan.schemas.set('Report', {
-                fields: {
-                    title: 'STRING',
-                    content: 'TEXT',
-                    format: 'ENUMSTR',
-                    created_date: 'DATETIME'
-                }
-            });
+            // Clear visual designer state
+            visualDesignerState.nodes.clear();
+            visualDesignerState.connections.clear();
+            agentNodes.clear();
             
             // Update the overview display
             updateStatistics();
             
-            console.log('� Comprehensive demo data created with:');
-            console.log(`   📊 ${currentPlan.agents.size} agents`);
-            console.log(`   🌱 ${currentPlan.seed.size} seed values`);
-            console.log(`   📁 ${currentPlan.stores.size} stores`);
-            console.log(`   📋 ${currentPlan.schemas.size} schemas`);
-            console.log(`   🎯 ${nodes.size} visual workflow nodes`);
+            console.log('✅ Empty plan created, ready for XML file loading');
         }
         
-        // Create visual workflows for all other agents
-        function createAgentWorkflows() {
-            // DataCollector workflow
-            const dataCollectorNodes = new Map();
-            dataCollectorNodes.set('init_connection', {
-                template: statementTemplates.declare,
-                data: {
-                    Key: 'dbConnection',
-                    Type: 'STRING',
-                    Expression: 'business_warehouse'
-                },
-                position: { x: 100, y: 100 }
-            });
-            
-            dataCollectorNodes.set('fetch_metrics', {
-                template: statementTemplates.fetch,
-                data: {
-                    Key: 'rawData',
-                    Url: 'https://api.acme.com/metrics',
-                    Method: 'GET'
-                },
-                position: { x: 400, y: 100 }
-            });
-            
-            dataCollectorNodes.set('validate_data', {
-                template: statementTemplates.if,
-                data: {
-                    Condition: 'rawData.length > 0'
-                },
-                position: { x: 700, y: 100 }
-            });
-            
-            dataCollectorNodes.set('output_data', {
-                template: statementTemplates.out,
-                data: {
-                    Key: 'validatedData',
-                    Template: 'Data collection completed: #rawData.count# records processed'
-                },
-                position: { x: 400, y: 300 }
-            });
-            
-            agentNodes.set('DataCollector', dataCollectorNodes);
-            
-            // DataAnalyzer workflow
-            const dataAnalyzerNodes = new Map();
-            dataAnalyzerNodes.set('load_data', {
-                template: statementTemplates.in,
-                data: {
-                    Key: 'inputData',
-                    Template: 'Enter data to analyze'
-                },
-                position: { x: 100, y: 100 }
-            });
-            
-            dataAnalyzerNodes.set('analyze_trends', {
-                template: statementTemplates.analyze,
-                data: {
-                    Key: 'trendResults',
-                    Data: 'inputData',
-                    Type: 'TREND',
-                    Criteria: 'quarterly growth patterns'
-                },
-                position: { x: 400, y: 100 }
-            });
-            
-            dataAnalyzerNodes.set('analyze_stats', {
-                template: statementTemplates.analyze,
-                data: {
-                    Key: 'statResults',
-                    Data: 'inputData',
-                    Type: 'STATISTICAL',
-                    Criteria: 'mean, median, standard deviation'
-                },
-                position: { x: 700, y: 100 }
-            });
-            
-            dataAnalyzerNodes.set('combine_results', {
-                template: statementTemplates.assign,
-                data: {
-                    Key: 'finalAnalysis',
-                    Template: 'Trends: #trendResults# | Stats: #statResults#'
-                },
-                position: { x: 400, y: 300 }
-            });
-            
-            agentNodes.set('DataAnalyzer', dataAnalyzerNodes);
-            
-            // InsightGenerator workflow
-            const insightGeneratorNodes = new Map();
-            insightGeneratorNodes.set('prepare_context', {
-                template: statementTemplates.declare,
-                data: {
-                    Key: 'aiContext',
-                    Type: 'STRING',
-                    Expression: 'Generate business insights from data analysis'
-                },
-                position: { x: 100, y: 100 }
-            });
-            
-            insightGeneratorNodes.set('generate_insights', {
-                template: statementTemplates.generate,
-                data: {
-                    Key: 'insights',
-                    Keys: 'aiContext,finalAnalysis',
-                    MaxTokens: 500,
-                    Creativity: 'Creative'
-                },
-                position: { x: 400, y: 100 }
-            });
-            
-            insightGeneratorNodes.set('validate_insights', {
-                template: statementTemplates.if,
-                data: {
-                    Condition: 'insights.length > 100'
-                },
-                position: { x: 700, y: 100 }
-            });
-            
-            insightGeneratorNodes.set('output_insights', {
-                template: statementTemplates.out,
-                data: {
-                    Key: 'finalInsights',
-                    Template: 'AI Generated Insights: #insights#'
-                },
-                position: { x: 400, y: 300 }
-            });
-            
-            agentNodes.set('InsightGenerator', insightGeneratorNodes);
-            
-            // ReportBuilder workflow
-            const reportBuilderNodes = new Map();
-            reportBuilderNodes.set('design_layout', {
-                template: statementTemplates.design,
-                data: {
-                    Type: 'UI',
-                    Key: 'reportLayout',
-                    Template: 'Professional business report with executive summary and charts'
-                },
-                position: { x: 100, y: 100 }
-            });
-            
-            reportBuilderNodes.set('process_data', {
-                template: statementTemplates.foreach,
-                data: {
-                    Variable: 'dataPoint',
-                    Collection: 'businessData'
-                },
-                position: { x: 400, y: 100 }
-            });
-            
-            reportBuilderNodes.set('write_report', {
-                template: statementTemplates.write,
-                data: {
-                    Key: 'reportContent',
-                    FileKey: 'business_report.pdf'
-                },
-                position: { x: 700, y: 100 }
-            });
-            
-            reportBuilderNodes.set('confirm_output', {
-                template: statementTemplates.out,
-                data: {
-                    Key: 'reportStatus',
-                    Template: 'Report generated successfully and saved to #FileKey#'
-                },
-                position: { x: 400, y: 300 }
-            });
-            
-            agentNodes.set('ReportBuilder', reportBuilderNodes);
-            
-            // QualityChecker workflow
-            const qualityCheckerNodes = new Map();
-            qualityCheckerNodes.set('read_report', {
-                template: statementTemplates.read,
-                data: {
-                    Key: 'reportContent',
-                    FileKey: 'business_report.pdf'
-                },
-                position: { x: 100, y: 100 }
-            });
-            
-            qualityCheckerNodes.set('validate_completeness', {
-                template: statementTemplates.if,
-                data: {
-                    Condition: 'reportContent.sections.length >= 5'
-                },
-                position: { x: 400, y: 100 }
-            });
-            
-            qualityCheckerNodes.set('check_accuracy', {
-                template: statementTemplates.analyze,
-                data: {
-                    Key: 'accuracyScore',
-                    Data: 'reportContent',
-                    Type: 'PATTERN',
-                    Criteria: 'data consistency and logical flow'
-                },
-                position: { x: 700, y: 100 }
-            });
-            
-            qualityCheckerNodes.set('quality_result', {
-                template: statementTemplates.out,
-                data: {
-                    Key: 'qualityReport',
-                    Template: 'Quality Check: Accuracy Score #accuracyScore# - Report approved'
-                },
-                position: { x: 400, y: 300 }
-            });
-            
-            agentNodes.set('QualityChecker', qualityCheckerNodes);
-            
-            // NotificationService workflow
-            const notificationNodes = new Map();
-            notificationNodes.set('prepare_recipients', {
-                template: statementTemplates.declare,
-                data: {
-                    Key: 'recipients',
-                    Type: 'CSV',
-                    Expression: 'ceo@acme.com,analytics@acme.com,board@acme.com'
-                },
-                position: { x: 100, y: 100 }
-            });
-            
-            notificationNodes.set('send_emails', {
-                template: statementTemplates.actuate,
-                data: {
-                    Device: 'email_service',
-                    Action: 'send_notification',
-                    Parameters: '{"subject": "Business Report Ready", "priority": "high"}'
-                },
-                position: { x: 400, y: 100 }
-            });
-            
-            notificationNodes.set('log_notifications', {
-                template: statementTemplates.write,
-                data: {
-                    Key: 'notificationLog',
-                    FileKey: 'notification_log.txt'
-                },
-                position: { x: 700, y: 100 }
-            });
-            
-            notificationNodes.set('confirm_sent', {
-                template: statementTemplates.out,
-                data: {
-                    Key: 'notificationStatus',
-                    Template: 'Notifications sent to #recipients.count# recipients successfully'
-                },
-                position: { x: 400, y: 300 }
-            });
-            
-            agentNodes.set('NotificationService', notificationNodes);
-            
-            console.log(`✅ Created visual workflows for ${agentNodes.size} agents`);
-        }
         
         // Tab Navigation
         function setupTabNavigation() {
@@ -4262,72 +4051,222 @@
             if (!selectedModel || !selectedModel.value || isModelLoading) return;
 
             isModelLoading = true;
+            
+            // Update button states
+            const loadBtn = document.getElementById('loadModelBtn');
+            const unloadBtn = document.getElementById('unloadModelBtn');
+            const testBtn = document.getElementById('testLLMBtn');
+            
+            if (loadBtn) {
+                loadBtn.disabled = true;
+                loadBtn.innerHTML = '<i class="material-icons spinning">sync</i>Loading...';
+            }
+            if (unloadBtn) unloadBtn.disabled = true;
+            if (testBtn) testBtn.disabled = true;
+            
             updateLLMStatus();
 
             const progressContainer = document.getElementById('loadingProgress');
             const progressFill = document.getElementById('progressFill');
             const progressText = document.getElementById('progressText');
+            const progressPercentage = document.getElementById('progressPercentage');
+            const loadingModelName = document.getElementById('loadingModelName');
+            const loadingStatus = document.getElementById('loadingStatus');
+            const loadingTime = document.getElementById('loadingTime');
+            
+            const startTime = Date.now();
+            let timeInterval;
 
             try {
                 if (progressContainer) progressContainer.style.display = 'block';
-                if (progressText) progressText.textContent = 'Initializing WebLLM...';
-                if (progressFill) progressFill.style.width = '10%';
+                if (loadingModelName) loadingModelName.textContent = selectedModel.value;
+                if (loadingStatus) loadingStatus.textContent = 'Initializing';
+                
+                // Start time counter
+                timeInterval = setInterval(() => {
+                    const elapsed = Math.floor((Date.now() - startTime) / 1000);
+                    if (loadingTime) loadingTime.textContent = `${elapsed}s`;
+                }, 1000);
+                
+                if (progressText) progressText.textContent = 'Checking WebLLM availability...';
+                if (progressFill) progressFill.style.width = '5%';
+                if (progressPercentage) progressPercentage.textContent = '5%';
+                
+                await sleep(500); // Give UI time to update
 
-                // Check if WebLLM is available
-                if (typeof CreateMLCEngine === 'undefined') {
-                    throw new Error('WebLLM is not available. Please include the WebLLM script.');
+                if (progressText) progressText.textContent = 'Creating WebLLM engine...';
+                if (progressFill) progressFill.style.width = '10%';
+                if (progressPercentage) progressPercentage.textContent = '10%';
+                if (loadingStatus) loadingStatus.textContent = 'Initializing';
+
+                try {
+                    // Create engine with progress callback (using imported CreateMLCEngine)
+                    currentEngine = await CreateMLCEngine(selectedModel.value, {
+                        initProgressCallback: (progress) => {
+                            const percentage = Math.round(progress.progress * 100);
+                            const overallProgress = 10 + (percentage * 0.85); // 10% to 95%
+                            
+                            if (progressFill) progressFill.style.width = `${overallProgress}%`;
+                            if (progressPercentage) progressPercentage.textContent = `${Math.round(overallProgress)}%`;
+                            if (progressText) progressText.textContent = progress.text || `Loading... (${percentage}%)`;
+                            
+                            // Update status based on progress
+                            if (percentage < 25) {
+                                if (loadingStatus) loadingStatus.textContent = 'Downloading';
+                            } else if (percentage < 75) {
+                                if (loadingStatus) loadingStatus.textContent = 'Loading';
+                            } else {
+                                if (loadingStatus) loadingStatus.textContent = 'Initializing';
+                            }
+                        }
+                    });
+                } catch (webllmError) {
+                    console.warn('WebLLM initialization failed, using simulation mode:', webllmError);
+                    
+                    if (loadingStatus) loadingStatus.textContent = 'Simulation Mode';
+                    if (progressText) progressText.textContent = 'WebLLM unavailable - activating simulation mode...';
+                    if (progressFill) progressFill.style.width = '50%';
+                    if (progressPercentage) progressPercentage.textContent = '50%';
+                    
+                    await sleep(1000);
+                    
+                    // Fallback: simulate WebLLM for demonstration
+                    currentEngine = {
+                        chat: {
+                            completions: {
+                                create: async (options) => {
+                                    const prompt = options.messages?.find(m => m.role === 'user')?.content || '';
+                                    const mockResponse = generateContextualContent(prompt, 'Balanced', 'WebLLM-Simulation');
+                                    return {
+                                        choices: [{ message: { content: mockResponse } }]
+                                    };
+                                }
+                            }
+                        }
+                    };
+                    
+                    currentLLMConfig.model = selectedModel.value + ' (Simulation)';
+                    window.webLLMEngine = currentEngine;
+                    
+                    if (progressFill) progressFill.style.width = '100%';
+                    if (progressPercentage) progressPercentage.textContent = '100%';
+                    if (progressText) progressText.textContent = 'WebLLM simulation mode ready!';
+                    if (loadingStatus) loadingStatus.textContent = 'Ready (Simulation)';
+                    
+                    // Show simulation notification
+                    showNotification('WebLLM Simulation Mode Activated - Real WebLLM unavailable', 'info');
+                    
+                    setTimeout(() => {
+                        if (progressContainer) progressContainer.style.display = 'none';
+                        if (progressFill) progressFill.style.width = '0%';
+                        if (progressPercentage) progressPercentage.textContent = '0%';
+                    }, 3000);
+                    
+                    console.log('WebLLM simulation mode activated:', selectedModel.value);
+                    return;
                 }
 
-                if (progressText) progressText.textContent = 'Creating engine...';
-                if (progressFill) progressFill.style.width = '30%';
-
-                // Create engine with progress callback
-                currentEngine = await CreateMLCEngine(selectedModel.value, {
-                    initProgressCallback: (progress) => {
-                        const percentage = Math.round(progress.progress * 100);
-                        if (progressFill) progressFill.style.width = `${30 + (percentage * 0.6)}%`;
-                        if (progressText) progressText.textContent = `${progress.text} (${percentage}%)`;
-                    }
-                });
-
                 if (progressFill) progressFill.style.width = '100%';
+                if (progressPercentage) progressPercentage.textContent = '100%';
                 if (progressText) progressText.textContent = 'Model loaded successfully!';
+                if (loadingStatus) loadingStatus.textContent = 'Ready';
 
                 currentLLMConfig.model = selectedModel.value;
                 window.webLLMEngine = currentEngine; // Make available globally
+                
+                // Show success notification
+                showNotification(`WebLLM Model Loaded: ${selectedModel.value}`, 'success');
+                
+                // Update model info display
+                const modelInfoElement = document.getElementById('llmModelInfo');
+                if (modelInfoElement) {
+                    modelInfoElement.textContent = `${selectedModel.value} (Ready)`;
+                }
 
                 setTimeout(() => {
                     if (progressContainer) progressContainer.style.display = 'none';
                     if (progressFill) progressFill.style.width = '0%';
-                }, 2000);
+                    if (progressPercentage) progressPercentage.textContent = '0%';
+                }, 3000);
 
                 console.log('WebLLM model loaded:', selectedModel.value);
 
             } catch (error) {
                 if (progressText) progressText.textContent = `Error: ${error.message}`;
                 if (progressFill) progressFill.style.width = '0%';
+                if (progressPercentage) progressPercentage.textContent = '0%';
+                if (loadingStatus) loadingStatus.textContent = 'Failed';
+                
+                // Show error notification
+                showNotification(`Failed to load model: ${error.message}`, 'error');
+                
                 console.error('Failed to load WebLLM model:', error);
 
                 setTimeout(() => {
                     if (progressContainer) progressContainer.style.display = 'none';
-                }, 3000);
+                }, 5000);
             } finally {
+                // Clear time interval
+                if (timeInterval) clearInterval(timeInterval);
+                
+                // Reset button states
+                if (loadBtn) {
+                    loadBtn.disabled = false;
+                    loadBtn.innerHTML = '<i class="material-icons">download</i>Load Model';
+                }
+                
                 isModelLoading = false;
                 updateLLMStatus();
                 onModelChange();
                 checkSystemCapabilities();
             }
         }
+        
+        // Notification system for better user feedback
+        function showNotification(message, type = 'info') {
+            const notification = document.createElement('div');
+            notification.className = `notification notification-${type}`;
+            notification.innerHTML = `
+                <div class="notification-content">
+                    <i class="material-icons">${type === 'success' ? 'check_circle' : type === 'error' ? 'error' : 'info'}</i>
+                    <span>${message}</span>
+                </div>
+                <button class="notification-close" onclick="this.parentElement.remove()">
+                    <i class="material-icons">close</i>
+                </button>
+            `;
+            
+            document.body.appendChild(notification);
+            
+            // Auto-remove after 5 seconds
+            setTimeout(() => {
+                if (notification.parentElement) {
+                    notification.remove();
+                }
+            }, 5000);
+        }
 
         function unloadCurrentModel() {
             if (currentEngine) {
                 try {
+                    const modelName = currentLLMConfig.model;
                     currentEngine = null;
                     window.webLLMEngine = null;
                     currentLLMConfig.model = '';
+                    
+                    // Show unload notification
+                    showNotification(`Model Unloaded: ${modelName}`, 'info');
+                    
+                    // Update model info display
+                    const modelInfoElement = document.getElementById('llmModelInfo');
+                    if (modelInfoElement) {
+                        modelInfoElement.textContent = 'No model loaded';
+                    }
+                    
                     console.log('WebLLM model unloaded');
                 } catch (error) {
                     console.error('Error unloading model:', error);
+                    showNotification(`Error unloading model: ${error.message}`, 'error');
                 }
             }
             
@@ -4354,8 +4293,7 @@
                         { role: 'system', content: currentLLMConfig.systemPrompt },
                         { role: 'user', content: testPrompt.value }
                     ],
-                    temperature: currentLLMConfig.temperature,
-                    top_p: currentLLMConfig.topP,
+                    temperature: Number(currentLLMConfig.temperature),
                     max_tokens: Math.min(currentLLMConfig.maxTokens, 1000),
                     stream: currentLLMConfig.enableStreaming
                 });
@@ -4471,6 +4409,24 @@
                 }
             }
         }
+
+        // Make LLM functions available globally for onclick handlers
+        window.loadSelectedModel = loadSelectedModel;
+        window.unloadCurrentModel = unloadCurrentModel;
+        window.refreshAvailableModels = refreshAvailableModels;
+        window.resetToDefaults = resetToDefaults;
+        window.testLLMConfiguration = testLLMConfiguration;
+        window.saveConfiguration = saveConfiguration;
+        window.loadConfiguration = loadConfiguration;
+        window.exportConfiguration = exportConfiguration;
+        window.resetConfiguration = resetConfiguration;
+        window.onModelChange = onModelChange;
+        window.showNotification = showNotification;
+        
+        // Other functions used in onclick handlers
+        window.editSeedItem = editSeedItem;
+        window.deleteSeedItem = deleteSeedItem;
+        // Note: closeExecutionUI and stopPlanExecution are defined later in the file as window functions
 
         // Provider Model Definitions (based on SimpleLLMService)
         const providerModels = {
@@ -7300,26 +7256,6 @@ This approach ensures a comprehensive solution that meets both immediate needs a
             document.body.appendChild(modal);
         }
 
-        function showNotification(message, type = 'info') {
-            const notification = document.createElement('div');
-            notification.className = `notification notification-${type}`;
-            notification.textContent = message;
-            notification.style.cssText = `
-                position: fixed; top: 20px; right: 20px; z-index: 10001;
-                background: var(--surface); border: 1px solid var(--border);
-                border-radius: var(--radius); padding: 12px 16px; box-shadow: var(--shadow-lg);
-                max-width: 300px; animation: slideIn 0.3s ease-out;
-            `;
-            
-            document.body.appendChild(notification);
-            
-            setTimeout(() => {
-                if (notification.parentNode) {
-                    document.body.removeChild(notification);
-                }
-            }, 3000);
-        }
-
         // Action Handler Functions
         function importXML() {
             document.getElementById('fileInput').click();
@@ -7823,6 +7759,50 @@ This approach ensures a comprehensive solution that meets both immediate needs a
                                 addPlanExecutionLog(`📤 Agent returning: ${JSON.stringify(returnValue)}`);
                                 break;
                                 
+                            case 'DO':
+                                await executeDSLDo(props, statement);
+                                break;
+                                
+                            case 'FOREACH':
+                                await executeDSLForeach(props, statement);
+                                break;
+                                
+                            case 'FOR':
+                                await executeDSLFor(props, statement);
+                                break;
+                                
+                            case 'DESIGN':
+                                await executeDSLDesign(props, statement);
+                                break;
+                                
+                            case 'SQL':
+                                await executeDSLSql(props);
+                                break;
+                                
+                            case 'NOTE':
+                                await executeDSLNote(props);
+                                break;
+                                
+                            case 'INJEST':
+                                await executeDSLInjest(props);
+                                break;
+                                
+                            case 'ACTUATE':
+                                await executeDSLActuate(props);
+                                break;
+                                
+                            case 'ANALYZE':
+                                await executeDSLAnalyze(props);
+                                break;
+                                
+                            case 'SENSE':
+                                await executeDSLSense(props);
+                                break;
+                                
+                            case 'FETCH':
+                                await executeDSLFetch(props);
+                                break;
+                                
                             default:
                                 addPlanExecutionLog(`⚠️ Unknown statement type: ${type}`);
                         }
@@ -8130,10 +8110,7 @@ This approach ensures a comprehensive solution that meets both immediate needs a
                             }
                         ],
                         max_tokens: Math.min(maxTokens, currentLLMConfig.maxTokens || 512),
-                        temperature: currentLLMConfig.temperature || (creativity === 'Creative' ? 0.9 : creativity === 'Focused' ? 0.3 : 0.7),
-                        top_p: currentLLMConfig.topP || 0.9,
-                        frequency_penalty: currentLLMConfig.frequencyPenalty || 0.0,
-                        presence_penalty: currentLLMConfig.presencePenalty || 0.0,
+                        temperature: Number(currentLLMConfig.temperature) || (creativity === 'Creative' ? 0.9 : creativity === 'Focused' ? 0.3 : 0.7),
                         stream: currentLLMConfig.enableStreaming || false
                     });
                     
@@ -8468,21 +8445,54 @@ This sophisticated AI-generated content demonstrates contextual awareness and in
                 return;
             }
             
-            // PROP acts like DECLARE but for agent parameters
-            let value = null;
-            if (props.Expression) {
-                value = interpolateDSLTemplate(props.Expression);
-                
-                // Type conversion
-                switch (type) {
+            // Check if the value was already passed from the calling agent
+            let value = planExecutionState.variables.get(key);
+            
+            // If no value was passed and there's an expression, use it
+            if (value === null || value === undefined) {
+                if (props.Expression) {
+                    value = interpolateDSLTemplate(props.Expression);
+                } else {
+                    // Set appropriate default value based on type
+                    switch (type.toUpperCase()) {
+                        case 'INTEGER':
+                        case 'NUMBER':
+                            value = 0;
+                            break;
+                        case 'DOUBLE':
+                        case 'FLOAT':
+                            value = 0.0;
+                            break;
+                        case 'BOOL':
+                        case 'BOOLEAN':
+                            value = false;
+                            break;
+                        case 'ARRAY':
+                            value = [];
+                            break;
+                        case 'OBJECT':
+                            value = {};
+                            break;
+                        default:
+                            value = '';
+                    }
+                }
+            }
+            
+            // Type conversion for passed values
+            if (value !== null && value !== undefined) {
+                switch (type.toUpperCase()) {
                     case 'INTEGER':
+                    case 'NUMBER':
                         value = parseInt(value, 10) || 0;
                         break;
                     case 'DOUBLE':
+                    case 'FLOAT':
                         value = parseFloat(value) || 0.0;
                         break;
                     case 'BOOL':
-                        value = value === 'true' || value === '1';
+                    case 'BOOLEAN':
+                        value = value === 'true' || value === true || value === '1' || value === 1;
                         break;
                     default:
                         value = String(value);
@@ -8674,6 +8684,371 @@ This sophisticated AI-generated content demonstrates contextual awareness and in
             addPlanExecutionLog(`🔀 No matching CASE found for "${switchValue}"`);
         }
 
+        // Missing DSL Statement Implementations
+        async function executeDSLDo(props, statement) {
+            const key = props.Key;
+            const template = props.Template;
+            
+            addPlanExecutionLog(`🔄 DO: ${key} - ${template}`);
+            
+            // DO is essentially a simple execution block
+            // Execute child statements if any
+            if (statement.children && statement.children.length > 0) {
+                for (const child of statement.children) {
+                    await executeChildStatement(child);
+                }
+            }
+        }
+        
+        async function executeDSLForeach(props, statement) {
+            const key = props.Key;
+            const collectionKey = props.CollectionKey;
+            
+            if (!collectionKey) {
+                throw new Error('FOREACH: CollectionKey is required');
+            }
+            
+            const collection = planExecutionState.variables.get(collectionKey);
+            if (!Array.isArray(collection)) {
+                addPlanExecutionLog(`⚠️ FOREACH: ${collectionKey} is not an array, skipping`);
+                return;
+            }
+            
+            addPlanExecutionLog(`🔁 FOREACH: Iterating over ${collection.length} items in ${collectionKey}`);
+            
+            for (let i = 0; i < collection.length; i++) {
+                if (!planExecutionState.isRunning) break;
+                
+                // Set loop variable
+                planExecutionState.variables.set(key, collection[i]);
+                planExecutionState.variables.set(`${key}_index`, i);
+                
+                // Execute child statements
+                if (statement.children && statement.children.length > 0) {
+                    for (const child of statement.children) {
+                        await executeChildStatement(child);
+                    }
+                }
+                
+                await sleep(10); // Small delay for visual feedback
+            }
+        }
+        
+        async function executeDSLFor(props, statement) {
+            const key = props.Key;
+            const start = parseInt(props.Start || '0', 10);
+            const increment = parseInt(props.Increment || '1', 10);
+            const template = props.Template;
+            
+            // Evaluate end condition
+            const endValue = interpolateDSLTemplate(template);
+            const end = parseInt(endValue, 10);
+            
+            addPlanExecutionLog(`🔢 FOR: ${key} from ${start} to ${end} by ${increment}`);
+            
+            for (let i = start; i <= end; i += increment) {
+                if (!planExecutionState.isRunning) break;
+                
+                // Set loop variable
+                planExecutionState.variables.set(key, i);
+                
+                // Execute child statements
+                if (statement.children && statement.children.length > 0) {
+                    for (const child of statement.children) {
+                        await executeChildStatement(child);
+                    }
+                }
+                
+                await sleep(10); // Small delay for visual feedback
+            }
+        }
+        
+        async function executeDSLDesign(props, statement) {
+            const key = props.Key;
+            
+            addPlanExecutionLog(`🎨 DESIGN: Creating design ${key}`);
+            
+            // Generate design specification
+            let designSpec = 'Design Specification:\n';
+            
+            // Process ELEMENT children
+            if (statement.children) {
+                for (const child of statement.children) {
+                    if (child.type === 'ELEMENT') {
+                        designSpec += await processDesignElement(child);
+                    }
+                }
+            }
+            
+            planExecutionState.variables.set(key, designSpec);
+            addPlanExecutionLog(`✨ DESIGN ${key} created with ${designSpec.length} characters`);
+        }
+        
+        async function processDesignElement(element) {
+            const key = element.properties.Key;
+            const type = element.properties.Type;
+            
+            let elementSpec = `Element: ${key} (${type})\n`;
+            
+            // Process TRANSFORM, STYLE, BIND children
+            if (element.children) {
+                for (const child of element.children) {
+                    switch (child.type) {
+                        case 'TRANSFORM':
+                            elementSpec += `  Transform: tx=${child.properties.Tx || 0}, ty=${child.properties.Ty || 0}\n`;
+                            break;
+                        case 'STYLE':
+                            elementSpec += `  Style: Applied\n`;
+                            break;
+                        case 'BIND':
+                            elementSpec += `  Bind: ${child.properties.Key}\n`;
+                            break;
+                        case 'ELEMENT':
+                            elementSpec += await processDesignElement(child);
+                            break;
+                    }
+                }
+            }
+            
+            return elementSpec;
+        }
+        
+        async function executeDSLSql(props) {
+            const key = props.Key;
+            const query = props.Query;
+            const returns = props.Returns || 'ONE';
+            const tableKey = props.TableKey;
+            
+            addPlanExecutionLog(`🗃️ SQL: Executing query for ${key}`);
+            
+            // Interpolate variables in query
+            const interpolatedQuery = interpolateDSLTemplate(query);
+            
+            // Simulate SQL execution
+            let result;
+            if (returns === 'MANY') {
+                result = `[{"id": 1, "data": "Sample record 1"}, {"id": 2, "data": "Sample record 2"}]`;
+            } else {
+                result = `{"id": 1, "data": "Sample record"}`;
+            }
+            
+            planExecutionState.variables.set(key, result);
+            addPlanExecutionLog(`📊 SQL result stored in ${key}: ${result.substring(0, 100)}...`);
+        }
+        
+        async function executeDSLNote(props) {
+            const template = props.Template;
+            const note = interpolateDSLTemplate(template);
+            
+            addPlanExecutionLog(`📝 NOTE: ${note}`);
+            // Notes are just comments, no action needed
+        }
+        
+        async function executeDSLInjest(props) {
+            const fromKey = props.FromKey;
+            const model = props.Model || 'default-embedding';
+            const chunkSize = parseInt(props.ChunkSize || '1000', 10);
+            const toKey = props.ToKey;
+            const fileKey = props.FileKey;
+            
+            addPlanExecutionLog(`📥 INJEST: Processing ${fromKey} with ${model}`);
+            
+            const sourceData = planExecutionState.variables.get(fromKey) || '';
+            
+            // Simulate embedding/vectorization
+            const chunks = [];
+            for (let i = 0; i < sourceData.length; i += chunkSize) {
+                chunks.push({
+                    text: sourceData.substring(i, i + chunkSize),
+                    embedding: `vector_${i}_${Math.random().toString(36).substr(2, 9)}`
+                });
+            }
+            
+            const injestResult = {
+                model: model,
+                chunks: chunks.length,
+                processed: new Date().toISOString()
+            };
+            
+            if (toKey) {
+                planExecutionState.variables.set(toKey, JSON.stringify(injestResult));
+            }
+            
+            if (fileKey) {
+                planExecutionState.fileSystem.set(fileKey, JSON.stringify(injestResult));
+                addPlanExecutionLog(`💾 INJEST result written to ${fileKey}`);
+            }
+            
+            addPlanExecutionLog(`✅ INJEST completed: ${chunks.length} chunks processed`);
+        }
+        
+        async function executeDSLActuate(props) {
+            const key = props.Key;
+            const template = props.Template;
+            const endpoint = props.Endpoint;
+            const parameters = props.Parameters;
+            const duration = props.Duration;
+            const safety = props.Safety || 'SAFE';
+            
+            addPlanExecutionLog(`⚡ ACTUATE: ${endpoint} with safety level ${safety}`);
+            
+            const instructions = interpolateDSLTemplate(template);
+            
+            // Simulate actuator action
+            const actuationResult = {
+                endpoint: endpoint,
+                instructions: instructions,
+                parameters: parameters,
+                duration: duration,
+                safety: safety,
+                status: 'executed',
+                timestamp: new Date().toISOString()
+            };
+            
+            planExecutionState.variables.set(key, JSON.stringify(actuationResult));
+            addPlanExecutionLog(`🎯 ACTUATE completed on ${endpoint}`);
+        }
+        
+        async function executeDSLAnalyze(props) {
+            const key = props.Key;
+            const dataSource = props.DataSource;
+            const analysisType = props.AnalysisType;
+            const algorithm = props.Algorithm;
+            const confidence = parseFloat(props.Confidence || '0.8');
+            
+            addPlanExecutionLog(`🔍 ANALYZE: ${analysisType} analysis using ${algorithm}`);
+            
+            // Get data sources
+            const dataSources = dataSource.split(',').map(ds => ds.trim());
+            const analysisData = {};
+            
+            dataSources.forEach(ds => {
+                const data = planExecutionState.variables.get(ds);
+                if (data) {
+                    analysisData[ds] = data;
+                }
+            });
+            
+            // Simulate analysis
+            const analysisResult = {
+                type: analysisType,
+                algorithm: algorithm,
+                confidence: confidence,
+                findings: `Analysis completed using ${algorithm} on ${dataSources.length} data sources`,
+                data: analysisData,
+                timestamp: new Date().toISOString()
+            };
+            
+            planExecutionState.variables.set(key, JSON.stringify(analysisResult));
+            addPlanExecutionLog(`📊 ANALYZE result stored in ${key} with ${confidence} confidence`);
+        }
+        
+        async function executeDSLSense(props) {
+            const key = props.Key;
+            const template = props.Template;
+            const sensorType = props.SensorType;
+            const frequency = props.Frequency || 'ON_DEMAND';
+            const precision = props.Precision || 'MEDIUM';
+            const units = props.Units;
+            const endpoint = props.Endpoint;
+            
+            addPlanExecutionLog(`📡 SENSE: Reading ${sensorType} sensor at ${endpoint}`);
+            
+            // Simulate sensor reading
+            let sensorValue;
+            switch (sensorType) {
+                case 'TEMPERATURE':
+                    sensorValue = (Math.random() * 40 + 10).toFixed(1); // 10-50°C
+                    break;
+                case 'HUMIDITY':
+                    sensorValue = (Math.random() * 100).toFixed(1); // 0-100%
+                    break;
+                case 'MOTION':
+                    sensorValue = Math.random() > 0.5 ? 'detected' : 'none';
+                    break;
+                default:
+                    sensorValue = (Math.random() * 100).toFixed(2);
+            }
+            
+            const sensorResult = {
+                sensorType: sensorType,
+                value: sensorValue,
+                units: units,
+                precision: precision,
+                frequency: frequency,
+                endpoint: endpoint,
+                timestamp: new Date().toISOString()
+            };
+            
+            planExecutionState.variables.set(key, JSON.stringify(sensorResult));
+            addPlanExecutionLog(`🌡️ SENSE reading: ${sensorValue} ${units || ''}`);
+        }
+        
+        async function executeDSLFetch(props) {
+            const key = props.Key;
+            const inputs = props.Inputs;
+            const verb = props.Verb || 'ONE';
+            const endpoint = props.Endpoint;
+            
+            addPlanExecutionLog(`🌐 FETCH: ${verb} from ${endpoint}`);
+            
+            // Prepare input data
+            const inputData = {};
+            if (inputs) {
+                inputs.split(',').forEach(input => {
+                    const trimmed = input.trim();
+                    const value = planExecutionState.variables.get(trimmed);
+                    if (value !== undefined) {
+                        inputData[trimmed] = value;
+                    }
+                });
+            }
+            
+            // Simulate API call
+            let fetchResult;
+            switch (verb) {
+                case 'MANY':
+                    fetchResult = `[{"id": 1, "data": "Item 1"}, {"id": 2, "data": "Item 2"}]`;
+                    break;
+                case 'POST':
+                case 'PUT':
+                    fetchResult = `{"id": 1, "status": "success", "message": "Operation completed"}`;
+                    break;
+                case 'DELETE':
+                    fetchResult = `{"status": "deleted", "message": "Resource removed"}`;
+                    break;
+                default: // ONE
+                    fetchResult = `{"id": 1, "data": "Fetched item", "endpoint": "${endpoint}"}`;
+            }
+            
+            planExecutionState.variables.set(key, fetchResult);
+            addPlanExecutionLog(`📦 FETCH result stored in ${key}: ${fetchResult.substring(0, 100)}...`);
+        }
+        
+        async function executeChildStatement(statement) {
+            // Helper function to execute child statements
+            const type = statement.type;
+            const props = statement.properties || {};
+            
+            switch (type) {
+                case 'DECLARE':
+                    await executeDSLDeclare(props);
+                    break;
+                case 'ASSIGN':
+                    await executeDSLAssign(props);
+                    break;
+                case 'OUT':
+                    await executeDSLOut(props);
+                    break;
+                case 'CALL':
+                    await executeDSLCall(props);
+                    break;
+                // Add more cases as needed
+                default:
+                    addPlanExecutionLog(`⚠️ Child statement type '${type}' not implemented`);
+            }
+        }
+        
         // Choice Modal
         function showChoiceModal(key, options) {
             return new Promise((resolve, reject) => {
