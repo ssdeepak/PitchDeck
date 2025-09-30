@@ -1,0 +1,1994 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>LLMCanvas – Visual LLM Workflow Automation</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #f6f7fb;
+      --panel: #ffffff;
+      --text: #222;
+      --muted: #6b7280;
+      --accent: #4f46e5;
+      --accent-2: #22c55e;
+      --accent-3: #f59e0b;
+      --border: #e5e7eb;
+      --shadow: 0 8px 24px rgba(0,0,0,0.08);
+      --grid-1: rgba(0,0,0,0.04);
+      --grid-2: rgba(0,0,0,0.05);
+    }
+    .dark {
+      --bg: #0f1218;
+      --panel: #171a22;
+      --text: #e5e7eb;
+      --muted: #9aa0a6;
+      --accent: #8b5cf6;
+      --accent-2: #22c55e;
+      --accent-3: #f59e0b;
+      --border: #222631;
+      --shadow: 0 10px 24px rgba(0,0,0,0.35);
+      --grid-1: rgba(255,255,255,0.04);
+      --grid-2: rgba(255,255,255,0.06);
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body {
+      margin: 0;
+      font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      display: grid;
+      grid-template-rows: auto 1fr;
+    }
+
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--border);
+      background: var(--panel);
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      box-shadow: var(--shadow);
+    }
+    .brand {
+      display: flex; align-items: center; gap: 12px;
+    }
+    .brand h1 { font-size: 18px; margin: 0; }
+    .toolbar {
+      display: flex; gap: 8px; align-items: center; flex-wrap: wrap;
+    }
+    .btn, select, input[type="number"] {
+      border: 1px solid var(--border);
+      background: var(--panel);
+      color: var(--text);
+      padding: 8px 12px;
+      border-radius: 8px;
+      font-size: 14px;
+      cursor: pointer;
+      box-shadow: var(--shadow);
+    }
+    .btn.primary { background: var(--accent); color: #fff; border-color: transparent; }
+    .btn.green { background: var(--accent-2); color: #041b0e; border-color: transparent; }
+    .btn.orange { background: var(--accent-3); color: #1f1506; border-color: transparent; }
+    .btn.icon { display: inline-flex; align-items: center; gap: 8px; }
+    .btn:disabled { opacity: 0.6; cursor: not-allowed; }
+    .material-icons { font-size: 18px; }
+    .palette-item .material-icons { font-size: 16px; }
+    .node-title .material-icons { font-size: 20px; }
+
+    .workspace {
+      display: grid;
+      grid-template-columns: 280px 1fr;
+      height: calc(100vh - 64px);
+      gap: 0;
+    }
+
+    /* Sidebar */
+    .sidebar {
+      border-right: 1px solid var(--border);
+      background: var(--panel);
+      padding: 12px;
+      overflow-y: auto;
+    }
+    .section-title {
+      font-weight: 600; font-size: 13px; color: var(--muted);
+      margin: 12px 0 8px;
+    }
+    .block-palette {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+    .palette-item {
+      padding: 10px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: var(--bg);
+      cursor: pointer;
+      box-shadow: var(--shadow);
+      display: flex; align-items: center; gap: 8px;
+      transition: transform 0.05s ease;
+    }
+    .palette-item:hover { transform: translateY(-2px); }
+
+    /* Canvas */
+    .canvas-wrapper {
+      position: relative;
+      overflow: hidden;
+    }
+    .grid {
+      position: absolute; inset: 0;
+      background-image:
+        linear-gradient(var(--grid-1) 1px, transparent 1px),
+        linear-gradient(to right, var(--grid-1) 1px, transparent 1px);
+      background-size: 24px 24px;
+    }
+    .grid::after {
+      content: '';
+      position: absolute; inset: 0;
+      background-image:
+        linear-gradient(var(--grid-2) 1px, transparent 1px),
+        linear-gradient(to right, var(--grid-2) 1px, transparent 1px);
+      background-size: 120px 120px;
+    }
+    .canvas {
+      position: absolute; inset: 0;
+      transform-origin: 0 0;
+    }
+    .nodes {
+      position: absolute; inset: 0;
+    }
+    .edges {
+      position: absolute; 
+      inset: 0; 
+      pointer-events: none;
+      z-index: 1;
+      width: 100%;
+      height: 100%;
+    }
+    
+    .edges path {
+      filter: drop-shadow(1px 1px 2px rgba(0,0,0,0.2));
+    }
+
+    /* Node Cards */
+    .node {
+      position: absolute;
+      min-width: 260px;
+      max-width: 340px;
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      box-shadow: var(--shadow);
+      padding: 12px;
+      user-select: none;
+    }
+    .node.executing {
+      border: 3px solid var(--accent);
+      box-shadow: 0 0 18px rgba(79, 70, 229, 0.35);
+      background: linear-gradient(135deg, var(--panel) 0%, rgba(79, 70, 229, 0.12) 100%);
+    }
+    .node.completed {
+      border: 2px solid var(--accent-2);
+      box-shadow: 0 0 12px rgba(34, 197, 94, 0.2);
+      background: linear-gradient(135deg, var(--panel) 0%, rgba(34, 197, 94, 0.08) 100%);
+    }
+    .node.completed::after {
+      content: '\2713';
+      position: absolute;
+      top: 10px;
+      right: 14px;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--accent-2);
+    }
+    .node-header {
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 8px; margin-bottom: 8px;
+    }
+    .node-title {
+      display: inline-flex; align-items: center; gap: 8px;
+      font-weight: 600;
+    }
+    .node-actions { display: flex; gap: 6px; }
+    .node-body textarea, .node-body select, .node-body input, .node-body .output {
+      width: 100%;
+      border: 1px solid var(--border);
+      background: var(--bg);
+      color: var(--text);
+      border-radius: 10px;
+      padding: 8px;
+      font-size: 14px;
+    }
+    .node-body textarea { resize: vertical; min-height: 80px; }
+    .output {
+      min-height: 120px;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+    .badge {
+      font-size: 12px; color: var(--muted);
+    }
+    .handle {
+      width: 18px; height: 18px; border-radius: 50%;
+      background: var(--accent);
+      border: 3px solid var(--panel);
+      position: absolute;
+      top: 50%; transform: translateY(-50%);
+      cursor: crosshair;
+      z-index: 100;
+      transition: all 0.2s ease;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    }
+    .handle:hover {
+      transform: translateY(-50%) scale(1.4);
+      box-shadow: 0 0 12px var(--accent);
+    }
+    .handle.in { left: -9px; background: var(--accent-2); }
+    .handle.out { right: -9px; background: var(--accent); }
+    .handle.connecting { background: var(--accent-3); box-shadow: 0 0 16px var(--accent-3); }
+    
+    .node.connecting-source { box-shadow: 0 0 20px var(--accent); }
+    .node.connecting-target { box-shadow: 0 0 20px var(--accent-2); }
+
+    .statusbar {
+      position: absolute;
+      right: 16px; bottom: 16px;
+      padding: 8px 12px;
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      box-shadow: var(--shadow);
+      font-size: 13px; color: var(--muted);
+    }
+    .model-progress { color: var(--text); }
+    .demo-mode { 
+      display: none; 
+      color: var(--accent-3); 
+      font-weight: 600; 
+    }
+
+    .zoom-controls {
+      position: absolute; left: 16px; bottom: 16px;
+      display: inline-flex; gap: 8px;
+    }
+
+    /* Modal */
+    .modal {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.4);
+      display: none; align-items: center; justify-content: center;
+      z-index: 2000;
+    }
+    .modal-content {
+      width: min(720px, 90vw);
+      background: var(--panel);
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow);
+      border-radius: 12px; padding: 16px;
+    }
+    .modal-content textarea {
+      width: 100%; min-height: 220px;
+      background: var(--bg); color: var(--text);
+      border: 1px solid var(--border); border-radius: 10px; padding: 10px;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="brand">
+      <i class="material-icons" style="font-size:24px">psychology</i>
+      <h1>LLMCanvas</h1>
+      <span class="badge">Visual LLM Workflow Automation • n8n for AI</span>
+    </div>
+    <div class="toolbar">
+      <select id="modelSelect" title="Model">
+        <option value="Qwen2.5-1.5B-Instruct-q4f32_1-MLC">Qwen2.5‑1.5B‑Instruct</option>
+        <option value="TinyLlama-1.1B-Chat-v1.0-q4f32_1-MLC">TinyLlama‑1.1B‑Chat</option>
+      </select>
+      <label class="badge">Temp</label>
+      <input id="tempInput" type="number" min="0" max="1" step="0.1" value="0.7" style="width:80px" />
+      <button id="connectModeBtn" class="btn icon">
+        <i class="material-icons">link</i> Connect
+      </button>
+      <button id="runBtn" class="btn primary icon">
+        <i class="material-icons">play_arrow</i> Run
+      </button>
+      <button id="saveBtn" class="btn icon"><i class="material-icons">save</i> Save</button>
+      <button id="loadBtn" class="btn icon"><i class="material-icons">folder_open</i> Load</button>
+      <button id="exportBtn" class="btn icon"><i class="material-icons">download</i> Export</button>
+      <button id="importBtn" class="btn icon"><i class="material-icons">upload</i> Import</button>
+      <button id="themeBtn" class="btn icon"><i class="material-icons">brightness_6</i> Theme</button>
+      <button id="examplesBtn" class="btn icon"><i class="material-icons">library_books</i> Examples</button>
+      <button id="refreshEdgesBtn" class="btn icon"><i class="material-icons">refresh</i> Refresh Lines</button>
+    </div>
+  </header>
+
+  <div class="workspace">
+    <aside class="sidebar">
+      <div class="section-title">LLM Blocks</div>
+      <div class="block-palette">
+        <div class="palette-item" data-type="prompt"><i class="material-icons">chat</i> Prompt</div>
+        <div class="palette-item" data-type="persona"><i class="material-icons">person</i> Persona</div>
+        <div class="palette-item" data-type="system"><i class="material-icons">settings</i> System</div>
+        <div class="palette-item" data-type="params"><i class="material-icons">tune</i> Params</div>
+        <div class="palette-item" data-type="output"><i class="material-icons">receipt</i> Output</div>
+      </div>
+      
+      <div class="section-title">Data Sources</div>
+      <div class="block-palette">
+        <div class="palette-item" data-type="websearch"><i class="material-icons">search</i> Web Search</div>
+        <div class="palette-item" data-type="urlscraper"><i class="material-icons">language</i> URL Scraper</div>
+        <div class="palette-item" data-type="file"><i class="material-icons">insert_drive_file</i> File</div>
+        <div class="palette-item" data-type="apicall"><i class="material-icons">api</i> API Call</div>
+        <div class="palette-item" data-type="memory"><i class="material-icons">storage</i> Memory</div>
+      </div>
+      
+      <div class="section-title">Processing</div>
+      <div class="block-palette">
+        <div class="palette-item" data-type="transform"><i class="material-icons">transform</i> Transform</div>
+        <div class="palette-item" data-type="conditional"><i class="material-icons">call_split</i> If/Then</div>
+        <div class="palette-item" data-type="loop"><i class="material-icons">loop</i> Loop</div>
+        <div class="palette-item" data-type="aggregator"><i class="material-icons">assessment</i> Aggregator</div>
+        <div class="palette-item" data-type="textprocess"><i class="material-icons">text_fields</i> Text Process</div>
+      </div>
+      
+      <div class="section-title">Utilities</div>
+      <div class="block-palette">
+        <div class="palette-item" data-type="delay"><i class="material-icons">schedule</i> Delay</div>
+        <div class="palette-item" data-type="notes"><i class="material-icons">note</i> Notes</div>
+        <div class="palette-item" data-type="webhook"><i class="material-icons">webhook</i> Webhook</div>
+      </div>
+
+      <div class="section-title">Tips</div>
+      <div style="font-size:13px; color:var(--muted)">
+        - Click "Connect" to link nodes with arrows
+        <br/>- Use {{variable}} syntax for dynamic templates  
+        <br/>- Memory nodes store data between executions
+        <br/>- Web Search & URL Scraper work via CORS proxy
+        <br/>- Conditional nodes use JavaScript expressions
+        <br/>- Workflow starts from nodes with no inputs
+        <br/>- Save/Load stores entire workflows
+      </div>
+    </aside>
+
+    <main class="canvas-wrapper">
+      <div class="grid"></div>
+      <div id="canvas" class="canvas" style="transform: scale(1) translate(0px, 0px)">
+        <svg id="edges" class="edges"></svg>
+        <div id="nodes" class="nodes"></div>
+      </div>
+
+      <div class="statusbar">
+        <div>Model: <span id="modelName">Qwen2.5‑1.5B‑Instruct</span></div>
+        <div class="model-progress" id="progress">Initializing…</div>
+        <div id="demoMode" class="demo-mode">🔬 Demo Mode</div>
+      </div>
+      <div class="zoom-controls">
+        <button id="zoomOut" class="btn">−</button>
+        <button id="zoomReset" class="btn">100%</button>
+        <button id="zoomIn" class="btn">+</button>
+      </div>
+    </main>
+  </div>
+
+  <div id="modal" class="modal">
+    <div class="modal-content">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px">
+        <strong id="modalTitle">Export / Import</strong>
+        <button id="modalClose" class="btn">✖</button>
+      </div>
+      <textarea id="modalTextarea"></textarea>
+      <div style="margin-top:8px; display:flex; gap:8px">
+        <button id="modalApply" class="btn green">Apply</button>
+        <button id="modalCopy" class="btn">Copy</button>
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { CreateMLCEngine } from "https://esm.run/@mlc-ai/web-llm";
+
+    // --- State ---
+    const nodesEl = document.getElementById("nodes");
+    const edgesEl = document.getElementById("edges");
+    const canvasEl = document.getElementById("canvas");
+    const progressEl = document.getElementById("progress");
+    const modelSelect = document.getElementById("modelSelect");
+    const modelNameEl = document.getElementById("modelName");
+    const tempInput = document.getElementById("tempInput");
+    const connectBtn = document.getElementById("connectModeBtn");
+    const runBtn = document.getElementById("runBtn");
+    const saveBtn = document.getElementById("saveBtn");
+    const loadBtn = document.getElementById("loadBtn");
+    const exportBtn = document.getElementById("exportBtn");
+    const importBtn = document.getElementById("importBtn");
+    const themeBtn = document.getElementById("themeBtn");
+    const zoomOutBtn = document.getElementById("zoomOut");
+    const zoomInBtn = document.getElementById("zoomIn");
+    const zoomResetBtn = document.getElementById("zoomReset");
+    const modal = document.getElementById("modal");
+    const modalTitle = document.getElementById("modalTitle");
+    const modalTextarea = document.getElementById("modalTextarea");
+    const modalApply = document.getElementById("modalApply");
+    const modalCopy = document.getElementById("modalCopy");
+    const modalClose = document.getElementById("modalClose");
+
+    let engine = null;
+    let graph = { nodes: [], edges: [] }; // edges: {from, to}
+    let nodeIdSeq = 0;
+    let connecting = false;
+    let connectSource = null;
+    let zoom = 1, panX = 0, panY = 0;
+    let panning = false;
+    let startX = 0, startY = 0;
+    
+    // Workflow execution state
+    let workflowMemory = new Map(); // Global memory store
+    let executionState = { running: false, currentNode: null };
+    let activeNodeEl = null;
+
+    function clearActiveNode() {
+      if (activeNodeEl) {
+        activeNodeEl.classList.remove('executing');
+        activeNodeEl = null;
+      }
+    }
+
+    function resetNodeVisualState() {
+      document.querySelectorAll('.node').forEach(el => el.classList.remove('executing', 'completed'));
+      activeNodeEl = null;
+    }
+
+    function setActiveNode(node) {
+      const nextEl = node?.el ?? null;
+      if (activeNodeEl && activeNodeEl !== nextEl) {
+        activeNodeEl.classList.remove('executing');
+      }
+      activeNodeEl = nextEl;
+      if (nextEl) {
+        nextEl.classList.add('executing');
+        nextEl.classList.remove('completed');
+      }
+    }
+
+    function markNodeCompleted(node) {
+      const el = node?.el;
+      if (!el) return;
+      el.classList.remove('executing');
+      el.classList.add('completed');
+      if (activeNodeEl === el) {
+        activeNodeEl = null;
+      }
+    }
+
+    // --- Engine init ---
+    async function initEngine(modelId) {
+      try {
+        progressEl.textContent = "⏳ Initializing " + modelId + "…";
+        engine = await CreateMLCEngine(modelId, {
+          initProgressCallback: (report) => {
+            progressEl.textContent = report.text || "Loading…";
+          }
+        });
+        progressEl.textContent = "✅ Ready";
+      } catch (error) {
+        console.warn('WebLLM initialization failed:', error);
+        progressEl.textContent = "⚠️ WebLLM not available (demo mode)";
+        engine = null;
+      }
+    }
+    initEngine(modelSelect.value);
+
+    // --- UI helpers ---
+    function makeNode(type, x = 120, y = 100) {
+      const id = ++nodeIdSeq;
+      const node = { id, type, x, y, data: {} };
+      graph.nodes.push(node);
+
+      const el = document.createElement("div");
+      el.className = "node";
+      el.dataset.id = id;
+      el.style.left = x + "px";
+      el.style.top = y + "px";
+      node.el = el; // Cache element reference
+
+      const titleIcon = {
+        prompt: "chat", persona: "person", system: "settings", params: "tune",
+        output: "receipt", notes: "note", file: "insert_drive_file",
+        websearch: "search", urlscraper: "language", apicall: "api", memory: "storage",
+        transform: "transform", conditional: "call_split", loop: "loop", 
+        aggregator: "assessment", textprocess: "text_fields", delay: "schedule", webhook: "webhook"
+      }[type];
+
+      el.innerHTML = `
+        <div class="node-header">
+          <div class="node-title"><i class="material-icons">${titleIcon}</i> ${type[0].toUpperCase() + type.slice(1)}</div>
+          <div class="node-actions">
+            <button class="btn" data-action="delete"><i class="material-icons">delete</i></button>
+          </div>
+        </div>
+        <div class="node-body">
+          ${renderNodeBody(type)}
+        </div>
+        <div class="handle in" title="input"></div>
+        <div class="handle out" title="output"></div>
+      `;
+      nodesEl.appendChild(el);
+
+      let drag = false, dx = 0, dy = 0;
+      el.addEventListener("mousedown", (e) => {
+        const target = e.target;
+        if (target instanceof HTMLElement && (target.closest("textarea, select, input, button") || target.closest(".handle"))) return;
+        drag = true;
+        dx = (e.clientX / zoom) - node.x;
+        dy = (e.clientY / zoom) - node.y;
+      });
+      window.addEventListener("mousemove", (e) => {
+        if (!drag) return;
+        node.x = (e.clientX / zoom) - dx;
+        node.y = (e.clientY / zoom) - dy;
+        el.style.left = node.x + "px";
+        el.style.top = node.y + "px";
+        requestAnimationFrame(drawEdges);
+      });
+      window.addEventListener("mouseup", () => drag = false);
+
+      el.querySelector('[data-action="delete"]').addEventListener("click", () => {
+        graph.nodes = graph.nodes.filter(n => n.id !== id);
+        graph.edges = graph.edges.filter(e => e.from !== id && e.to !== id);
+        el.remove();
+        drawEdges();
+      });
+
+      const inHandle = el.querySelector('.handle.in');
+      const outHandle = el.querySelector('.handle.out');
+      
+      function handleConnection(e, isOutput = false) {
+        if (!connecting) return;
+        e.stopPropagation();
+        if (!connectSource) {
+          if (isOutput) {
+            connectSource = id;
+            el.classList.add('connecting-source');
+            connectBtn.innerHTML = '<i class="material-icons">link</i> Pick target...';
+            document.querySelectorAll('.handle.in').forEach(h => h.classList.add('connecting'));
+          }
+        } else {
+          if (!isOutput && connectSource !== id) {
+            graph.edges.push({ from: connectSource, to: id });
+            document.querySelectorAll('.node').forEach(n => n.classList.remove('connecting-source', 'connecting-target'));
+            document.querySelectorAll('.handle').forEach(h => h.classList.remove('connecting'));
+            connectSource = null;
+            connecting = false;
+            connectBtn.classList.remove("orange");
+            connectBtn.innerHTML = '<i class="material-icons">link</i> Connect';
+            document.querySelector(".canvas-wrapper").style.cursor = "grab";
+            drawEdges();
+          }
+        }
+      }
+      
+      outHandle.addEventListener('click', (e) => handleConnection(e, true));
+      inHandle.addEventListener('click', (e) => handleConnection(e, false));
+      
+      inHandle.addEventListener('mouseenter', () => { if (connecting && connectSource && connectSource !== id) el.classList.add('connecting-target'); });
+      inHandle.addEventListener('mouseleave', () => el.classList.remove('connecting-target'));
+
+      wireNodeInputs(el, node);
+      return node;
+    }
+
+    function renderNodeBody(type) {
+      switch (type) {
+        case "prompt": return `<textarea placeholder="Enter your prompt..."></textarea>`;
+        case "persona": return `<select><option value="">Neutral</option><option value="You are a helpful teacher.">Teacher</option><option value="You are a pragmatic startup mentor.">Startup Mentor</option><option value="You speak in vivid poetic language.">Poet</option><option value="You are a technical expert.">Technical Expert</option></select>`;
+        case "system": return `<textarea placeholder="System instructions (e.g., 'Always answer concisely.')"></textarea>`;
+        case "params": return `<label class="badge">Temperature</label><input type="number" step="0.1" min="0" max="1" value="${tempInput.value}" /><label class="badge">Max Tokens</label><input type="number" min="1" max="4000" value="1000" data-param="maxTokens" />`;
+        case "output": return `<div class="output">[Result will appear here]</div>`;
+        case "websearch": return `<input type="text" placeholder="Search query..." data-query /><select data-engine><option value="duckduckgo">DuckDuckGo</option></select><input type="number" min="1" max="20" value="5" placeholder="Results" data-count /><div class="output">Search results...</div>`;
+        case "urlscraper": return `<input type="url" placeholder="https://example.com" data-url /><div class="output">Scraped content...</div>`;
+        case "file": return `<input type="file" accept=".txt,.md,.csv,.json" /><div class="badge">Loaded: <span data-file-name>None</span> | <span data-file-size>0 bytes</span></div><select data-parse><option value="text">As Text</option><option value="json">Parse JSON</option><option value="csv">Parse CSV</option><option value="lines">Split Lines</option></select><textarea placeholder="File preview..." readonly></textarea>`;
+        case "apicall": return `<select data-method><option value="GET">GET</option><option value="POST">POST</option></select><input type="url" placeholder="API URL" data-url /><textarea placeholder="Headers (JSON)" data-headers></textarea><textarea placeholder="Body (JSON)" data-body></textarea><div class="output">API response...</div>`;
+        case "memory": return `<input type="text" placeholder="Variable name" data-varname /><select data-operation><option value="set">Set Value</option><option value="get">Get Value</option><option value="append">Append</option></select><textarea placeholder="Value to store/retrieve" data-value></textarea><div class="output">Memory result...</div>`;
+        case "transform": return `<select data-transform><option value="format">Format Template</option><option value="split">Split Text</option><option value="join">Join Array</option></select><input type="text" placeholder="Parameters (e.g., delimiter)" data-params /><textarea placeholder="Template or pattern" data-template></textarea><div class="output">Transformed data...</div>`;
+        case "conditional": return `<textarea placeholder="Condition (JavaScript expression)" data-condition></textarea><div class="badge">Available: input, memory</div><div class="output">Condition result: pending</div>`;
+        case "loop": return `<select data-looptype><option value="array">For Each Item</option></select><input type="text" placeholder="Array variable name" data-source /><div class="badge">Iteration: <span data-iteration>0</span></div><div class="output">Loop status...</div>`;
+        case "aggregator": return `<select data-aggregate><option value="collect">Collect All</option><option value="concat">Concatenate Text</option></select><input type="text" placeholder="Field to concatenate" data-separator /><div class="output">Aggregated result...</div>`;
+        case "textprocess": return `<select data-operation><option value="regex">RegEx Extract</option></select><input type="text" placeholder="Pattern with named group: (?<name>...)" data-pattern /><div class="output">Processed text...</div>`;
+        case "delay": return `<input type="number" min="100" max="30000" value="1000" placeholder="Milliseconds" data-duration /><div class="badge">Delay: <span data-delay-display>1s</span></div><div class="output">Delay complete</div>`;
+        case "notes": return `<textarea placeholder="Notes…"></textarea>`;
+        default: return "";
+      }
+    }
+
+    function wireNodeInputs(el, node) {
+        console.log('[WIRE] Wiring inputs for node type:', node.type, 'id:', node.id);
+        const outputEl = el.querySelector(".output");
+        if (outputEl) {
+            node.data.outputEl = outputEl;
+            console.log('[WIRE] Output element found and assigned:', !!outputEl);
+        }
+
+        el.querySelectorAll("input, textarea, select").forEach(input => {
+            // Determine the key for storing the input value
+            let key = input.dataset.param || input.dataset.query || input.dataset.url || Object.keys(input.dataset)[0];
+            
+            // Special handling for specific node types and input elements
+            if (!key) {
+                if (input.tagName === 'TEXTAREA') {
+                    if (node.type === 'prompt') key = 'text';
+                    else if (node.type === 'system') key = 'system';
+                    else if (node.type === 'notes') key = 'notes';
+                    else if (node.type === 'conditional') key = 'condition';
+                    else if (node.type === 'transform') key = 'template';
+                    else if (node.type === 'memory') key = 'value';
+                    else key = 'text'; // default fallback
+                } else if (input.tagName === 'SELECT') {
+                    if (node.type === 'persona') key = 'persona';
+                    else key = 'selection';
+                }
+            }
+            
+            console.log('[WIRE] Input element:', input.tagName, 'assigned key:', key, 'current value:', input.value);
+            
+            if(!key) {
+                console.log('[WIRE] WARNING: No key assigned for input element');
+                return;
+            }
+            
+            // Set initial value if input already has content
+            if (input.value) {
+                node.data[key] = input.type === 'number' ? Number(input.value) : input.value;
+                console.log('[WIRE] Set initial value:', key, '=', node.data[key]);
+            }
+            
+            const eventType = input.tagName === 'SELECT' ? 'change' : 'input';
+            input.addEventListener(eventType, () => {
+                node.data[key] = input.type === 'number' ? Number(input.value) : input.value;
+                console.log('[WIRE] Updated node data:', key, '=', node.data[key]);
+            });
+        });
+        if (node.type === "file") {
+            const fileInput = el.querySelector('input[type="file"]');
+            fileInput.addEventListener("change", async () => {
+                const f = fileInput.files[0];
+                if (!f) return;
+                node.data.fileName = f.name;
+                el.querySelector('[data-file-name]').textContent = f.name;
+                el.querySelector('[data-file-size]').textContent = formatFileSize(f.size);
+                node.data.text = await f.text();
+                parseFileContent(node);
+            });
+            el.querySelector('[data-parse]').addEventListener('change', () => parseFileContent(node));
+        }
+    }
+    
+    function parseFileContent(node) {
+        if (!node || !node.data || !node.data.text) return;
+        const parseMode = node.el.querySelector('[data-parse]').value;
+        const ta = node.el.querySelector('textarea');
+        const txt = node.data.text;
+        try {
+            if (parseMode === "json") node.data.parsedData = JSON.parse(txt);
+            else if (parseMode === "csv") {
+                const lines = txt.split('\n').filter(line => line.trim());
+                const headers = lines[0].split(',').map(h => h.trim());
+                node.data.parsedData = lines.slice(1).map(line => {
+                    const values = line.split(',');
+                    return headers.reduce((obj, header, i) => ({ ...obj, [header]: values[i].trim() }), {});
+                });
+            } 
+            else if (parseMode === 'lines') node.data.parsedData = txt.split('\n').filter(line => line.trim());
+            else node.data.parsedData = txt;
+            ta.value = typeof node.data.parsedData === 'string' ? node.data.parsedData.slice(0, 2000) : JSON.stringify(node.data.parsedData, null, 2).slice(0, 2000);
+        } catch(e) { ta.value = "Error parsing file: " + e.message; }
+    }
+
+    function drawEdges() {
+      edgesEl.innerHTML = "";
+      edgesEl.setAttribute('width', nodesEl.scrollWidth);
+      edgesEl.setAttribute('height', nodesEl.scrollHeight);
+      
+      for (const e of graph.edges) {
+        const src = graph.nodes.find(n => n.id === e.from);
+        const tgt = graph.nodes.find(n => n.id === e.to);
+        if (!src || !tgt || !src.el || !tgt.el) continue;
+
+        const nodeWidth = src.el.offsetWidth;
+        const nodeHeight = src.el.offsetHeight;
+        const sx = src.x + nodeWidth;
+        const sy = src.y + nodeHeight / 2;
+        const tx = tgt.x;
+        const ty = tgt.y + tgt.el.offsetHeight / 2;
+
+        const c1x = sx + Math.max(50, Math.abs(tx - sx) * 0.5);
+        const c1y = sy;
+        const c2x = tx - Math.max(50, Math.abs(tx - sx) * 0.5);
+        const c2y = ty;
+
+        const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+        path.setAttribute("d", `M ${sx} ${sy} C ${c1x} ${c1y}, ${c2x} ${c2y}, ${tx} ${ty}`);
+        path.setAttribute("stroke", "var(--accent)");
+        path.setAttribute("fill", "none");
+        path.setAttribute("stroke-width", "3");
+        path.setAttribute("marker-end", "url(#arrow)");
+        path.setAttribute("opacity", "0.8");
+        edgesEl.appendChild(path);
+      }
+
+      if (!edgesEl.querySelector('#arrow')) {
+        const defs = document.createElementNS("http://www.w3.org/2000/svg", "defs");
+        const marker = document.createElementNS("http://www.w3.org/2000/svg", "marker");
+        marker.setAttribute("id", "arrow");
+        marker.setAttribute("viewBox", "0 0 10 10");
+        marker.setAttribute("refX", "8");
+        marker.setAttribute("refY", "5");
+        marker.setAttribute("markerWidth", "6");
+        marker.setAttribute("markerHeight", "6");
+        marker.setAttribute("orient", "auto-start-reverse");
+        const p = document.createElementNS("http://www.w3.org/2000/svg", "path");
+        p.setAttribute("d", "M 0 0 L 10 5 L 0 10 z");
+        p.setAttribute("fill", "var(--accent)");
+        marker.appendChild(p);
+        defs.appendChild(marker);
+        edgesEl.appendChild(defs);
+      }
+    }
+
+    document.querySelectorAll(".palette-item").forEach(item => {
+      item.addEventListener("click", () => {
+        const type = item.dataset.type;
+        const nodeX = (-panX) + 100 + Math.random() * 50;
+        const nodeY = (-panY) + 100 + Math.random() * 50;
+        makeNode(type, nodeX, nodeY);
+      });
+    });
+
+    connectBtn.addEventListener("click", () => {
+      connecting = !connecting;
+      connectSource = null;
+      document.querySelectorAll('.node').forEach(n => n.classList.remove('connecting-source', 'connecting-target'));
+      document.querySelectorAll('.handle').forEach(h => h.classList.remove('connecting'));
+      connectBtn.classList.toggle("orange", connecting);
+      connectBtn.innerHTML = connecting ? '<i class="material-icons">link</i> Pick target...' : '<i class="material-icons">link</i> Connect';
+      document.querySelector(".canvas-wrapper").style.cursor = connecting ? "crosshair" : "grab";
+    });
+
+    runBtn.addEventListener("click", async () => {
+      if (executionState.running) {
+        executionState.running = false;
+        runBtn.innerHTML = '<i class="material-icons">play_arrow</i> Run';
+        clearActiveNode();
+        document.querySelectorAll('.node.executing').forEach(el => el.classList.remove('executing'));
+        return;
+      }
+      resetNodeVisualState();
+      executionState.running = true;
+      runBtn.innerHTML = '<i class="material-icons">stop</i> Stop';
+      
+      try {
+        let startNodes = graph.nodes.filter(node => !graph.edges.some(edge => edge.to === node.id));
+        if (startNodes.length === 0 && graph.nodes.length > 0) startNodes = [graph.nodes[0]];
+        if (startNodes.length === 0) throw new Error("No starting nodes found.");
+        
+        workflowMemory.clear();
+        const globalVisited = new Set();
+        const sharedContext = {};
+        for (const startNode of startNodes) {
+          if (!executionState.running) break;
+          await executeNodeChain(startNode, globalVisited, sharedContext);
+        }
+        
+      } catch (error) {
+        console.error("Workflow execution error:", error);
+        alert("Workflow execution failed: " + error.message);
+      } finally {
+        executionState.running = false;
+        executionState.currentNode = null;
+        runBtn.innerHTML = '<i class="material-icons">play_arrow</i> Run';
+        clearActiveNode();
+        document.querySelectorAll('.node.executing').forEach(el => el.classList.remove('executing'));
+      }
+    });
+    
+    async function executeNodeChain(startNode, visited = new Set(), context = {}) {
+      console.log('[CHAIN] Starting executeNodeChain for node:', startNode.type, 'id:', startNode.id);
+      console.log('[CHAIN] Initial context:', context);
+      
+      if (visited.has(startNode.id) || !executionState.running) {
+        console.log('[CHAIN] Skipping node (already visited or execution stopped)');
+        return context;
+      }
+      visited.add(startNode.id);
+      
+      executionState.currentNode = startNode;
+      setActiveNode(startNode);
+      
+      console.log('[CHAIN] About to execute node:', startNode.type);
+      let result;
+      try {
+        result = await executeNode(startNode, context);
+      } catch (error) {
+        if (startNode.el) {
+          startNode.el.classList.remove('executing');
+          if (activeNodeEl === startNode.el) {
+            activeNodeEl = null;
+          }
+        }
+        throw error;
+      }
+      console.log('[CHAIN] Node execution result:', result);
+      
+      if (startNode.type === 'loop') {
+        console.log('[CHAIN] Loop node - returning early');
+        if (executionState.running) {
+          markNodeCompleted(startNode);
+        } else if (startNode.el) {
+          startNode.el.classList.remove('executing');
+          if (activeNodeEl === startNode.el) activeNodeEl = null;
+        }
+        return; // Loop node handles its own downstream execution.
+      }
+      
+      if (result && typeof result === 'object') {
+        Object.assign(context, result);
+      }
+      console.log('[CHAIN] Merged context after execution:', context);
+      
+      const downstreamEdges = graph.edges.filter(edge => edge.from === startNode.id);
+      console.log('[CHAIN] Found downstream edges:', downstreamEdges.length);
+      
+      for (const edge of downstreamEdges) {
+        if (!executionState.running) break;
+        const nextNode = graph.nodes.find(n => n.id === edge.to);
+        console.log('[CHAIN] Executing downstream node:', nextNode?.type, 'id:', nextNode?.id);
+        if (nextNode) await executeNodeChain(nextNode, visited, context);
+      }
+      if (executionState.running) {
+        markNodeCompleted(startNode);
+      } else if (startNode.el) {
+        startNode.el.classList.remove('executing');
+        if (activeNodeEl === startNode.el) activeNodeEl = null;
+      }
+      return context;
+    }
+    
+    async function executeNode(node, context) {
+      try {
+        const upstreamData = collectUpstreamData(node);
+        const localContext = { ...context, ...upstreamData };
+
+        const nodeFunctions = {
+          prompt: executePromptNode, websearch: executeWebSearchNode, urlscraper: executeUrlScraperNode,
+          file: executeFileNode, apicall: executeApiCallNode, memory: executeMemoryNode,
+          transform: executeTransformNode, conditional: executeConditionalNode, loop: executeLoopNode,
+          aggregator: executeAggregatorNode, textprocess: executeTextProcessNode, delay: executeDelayNode,
+          output: executeOutputNode,
+        };
+        const func = nodeFunctions[node.type];
+        if (func) return await func(node, localContext);
+        return {};
+      } catch (error) {
+        if (node.data.outputEl) node.data.outputEl.textContent = "⚠️ Error: " + error.message;
+        throw error;
+      }
+    }
+    
+    function interpolateTemplate(template, context) {
+      if (!template) return "";
+      return template.replace(/\{\{(.*?)\}\}/g, (match, key) => {
+        const trimmedKey = key.trim();
+        const value = context[trimmedKey] || workflowMemory.get(trimmedKey);
+        if (typeof value === 'object') return JSON.stringify(value, null, 2);
+        return value !== undefined && value !== null ? value : match;
+      });
+    }
+
+    function getDirectOutputNodes(sourceNode) {
+      if (!sourceNode) return [];
+      return graph.edges
+        .filter(edge => edge.from === sourceNode.id)
+        .map(edge => graph.nodes.find(n => n.id === edge.to))
+        .filter(node => node && node.type === 'output' && node.data?.outputEl);
+    }
+
+    function streamTextToOutputs(outputNodes, text) {
+      for (const outNode of outputNodes) {
+        if (outNode?.data?.outputEl) {
+          outNode.data.outputEl.textContent = text;
+          outNode.data.outputEl.scrollTop = outNode.data.outputEl.scrollHeight;
+        }
+      }
+    }
+
+    async function executePromptNode(node, context) {
+      console.log('[PROMPT] Starting executePromptNode');
+      console.log('[PROMPT] Node data:', node.data);
+      console.log('[PROMPT] Context received:', context);
+      
+      const promptText = interpolateTemplate(node.data.text || "", context);
+      console.log('[PROMPT] Interpolated prompt text:', promptText);
+
+      const followerOutputs = getDirectOutputNodes(node);
+      const showStatus = (text, { inProgress = false } = {}) => {
+        const suffix = inProgress ? ' ▌' : '';
+        const displayText = text ? `${text}${suffix}` : (inProgress ? '🧠 Generating…' : '');
+        if (node.data.outputEl) {
+          node.data.outputEl.textContent = displayText;
+          node.data.outputEl.scrollTop = node.data.outputEl.scrollHeight;
+        }
+        streamTextToOutputs(followerOutputs, displayText);
+      };
+      showStatus('', { inProgress: true });
+      
+      if (!engine) {
+        // Simulate streaming in demo mode
+        const demoResponse = `[DEMO MODE] AI response for:\n"${promptText.slice(0, 150)}..."`;
+        const words = demoResponse.split(' ');
+        let streamedText = "";
+        
+        for (let i = 0; i < words.length; i++) {
+          if (!executionState.running) break;
+          
+          streamedText += (i > 0 ? ' ' : '') + words[i];
+          
+          // Update every few words for streaming effect
+          if (i % 3 === 0 || i < 3) {
+            showStatus(streamedText + (i < words.length - 1 ? '…' : ''), { inProgress: i < words.length - 1 });
+            await new Promise(resolve => setTimeout(resolve, 100)); // Simulate streaming delay
+          }
+        }
+        
+        showStatus(demoResponse);
+        console.log('[PROMPT] Demo mode streaming response:', demoResponse);
+        const result = { llmResponse: demoResponse };
+        console.log('[PROMPT] Returning demo result:', result);
+        return result;
+      }
+      
+      const messages = [{ role: "user", content: [context.persona, promptText].filter(Boolean).join("\n\n") }];
+      if (context.system) messages.unshift({ role: "system", content: context.system });
+      console.log('[PROMPT] Messages for LLM:', messages);
+      
+      // Use streaming for real-time output
+      const stream = await engine.chat.completions.create({
+        messages, stream: true, 
+        temperature: context.temperature ?? Number(tempInput.value),
+        max_tokens: context.maxtokens ?? 1000
+      });
+      
+      let responseText = "";
+      let chunkCount = 0;
+      
+      // Process streaming chunks
+      for await (const chunk of stream) {
+        if (!executionState.running) break; // Allow stopping mid-stream
+        
+        const delta = chunk.choices[0]?.delta?.content || "";
+        if (delta) {
+          responseText += delta;
+          chunkCount++;
+          
+          // Update output in real-time (throttle updates for performance)
+          if (chunkCount % 3 === 0 || chunkCount < 5) { // Update every 3rd chunk or first few
+            showStatus(responseText, { inProgress: true });
+          }
+          
+          console.log(`[PROMPT] Streaming chunk ${chunkCount}:`, delta);
+        }
+      }
+      
+  // Final update with complete response
+  const finalResponse = responseText && responseText.trim() ? responseText : "[No response]";
+  showStatus(finalResponse);
+  console.log('[PROMPT] Final streaming response:', finalResponse);
+      
+  const result = { llmResponse: finalResponse };
+      console.log('[PROMPT] Returning result:', result);
+      return result;
+    }
+
+    async function executeWebSearchNode(node, context) {
+      const query = interpolateTemplate(node.data.query || "", context);
+      console.log('[WEBSEARCH] Searching for:', query);
+      if(node.data.outputEl) node.data.outputEl.textContent = `🔍 Searching for "${query}"...`;
+      
+      try {
+        const searchUrl = `https://api.duckduckgo.com/?q=${encodeURIComponent(query)}&format=json&no_html=1&skip_disambig=1`;
+        console.log('[WEBSEARCH] Search URL:', searchUrl);
+        
+        // Try multiple CORS proxies in case one fails
+        const proxies = [
+          `https://corsproxy.io/?${encodeURIComponent(searchUrl)}`,
+          `https://api.allorigins.win/get?url=${encodeURIComponent(searchUrl)}`,
+          `https://thingproxy.freeboard.io/fetch/${encodeURIComponent(searchUrl)}`
+        ];
+        
+        let data = null;
+        let lastError = null;
+        
+        for (const proxyUrl of proxies) {
+          try {
+            console.log('[WEBSEARCH] Trying proxy:', proxyUrl);
+            const response = await fetch(proxyUrl);
+            if (!response.ok) {
+              throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+            }
+            
+            const text = await response.text();
+            console.log('[WEBSEARCH] Response text preview:', text.slice(0, 200));
+            
+            // Handle different proxy response formats
+            if (proxyUrl.includes('allorigins.win')) {
+              const wrapper = JSON.parse(text);
+              data = JSON.parse(wrapper.contents);
+            } else {
+              data = JSON.parse(text);
+            }
+            
+            console.log('[WEBSEARCH] Parsed data:', data);
+            break; // Success, exit the loop
+          } catch (error) {
+            console.warn('[WEBSEARCH] Proxy failed:', proxyUrl, error.message);
+            lastError = error;
+          }
+        }
+        
+        if (!data) {
+          throw new Error(`All proxies failed. Last error: ${lastError?.message}`);
+        }
+        
+        const results = (data.RelatedTopics || [])
+          .map(item => ({ title: item.Text, url: item.FirstURL, snippet: item.Text }))
+          .filter(r => r.url && r.title)
+          .slice(0, node.data.count || 5);
+        
+        if (results.length === 0) {
+          // Fallback with mock data if no results
+          const mockResults = [
+            { title: `AI Trends 2024: ${query}`, url: 'https://example.com/ai-trends', snippet: `Latest developments in ${query}` },
+            { title: `${query} Research Report`, url: 'https://example.com/research', snippet: `Comprehensive analysis of ${query}` },
+            { title: `Industry Insights: ${query}`, url: 'https://example.com/insights', snippet: `Expert perspectives on ${query}` }
+          ];
+          const formatted = mockResults.map(r => `Title: ${r.title}\nURL: ${r.url}\nSnippet: ${r.snippet}`).join("\n\n");
+          if(node.data.outputEl) node.data.outputEl.textContent = `📋 Mock Search Results:\n\n${formatted}`;
+          return { searchResults: mockResults, searchText: formatted };
+        }
+        
+        const formatted = results.map(r => `Title: ${r.title}\nURL: ${r.url}`).join("\n\n");
+        if(node.data.outputEl) node.data.outputEl.textContent = formatted;
+        return { searchResults: results, searchText: formatted };
+        
+      } catch (error) {
+        console.error('[WEBSEARCH] Search failed:', error);
+        const errorMsg = `❌ Search failed: ${error.message}`;
+        if(node.data.outputEl) node.data.outputEl.textContent = errorMsg;
+        
+        // Return mock data so the workflow can continue
+        const mockResults = [
+          { title: `AI Trends 2024: ${query}`, url: 'https://example.com/ai-trends', snippet: `Latest developments in ${query}` },
+          { title: `${query} Research Report`, url: 'https://example.com/research', snippet: `Comprehensive analysis of ${query}` },
+          { title: `Industry Insights: ${query}`, url: 'https://example.com/insights', snippet: `Expert perspectives on ${query}` }
+        ];
+        const formatted = mockResults.map(r => `Title: ${r.title}\nURL: ${r.url}\nSnippet: ${r.snippet}`).join("\n\n");
+        return { searchResults: mockResults, searchText: `[MOCK DATA - Search API unavailable]\n\n${formatted}` };
+      }
+    }
+    
+    async function executeUrlScraperNode(node, context) {
+        const url = interpolateTemplate(node.data.url || "", context);
+        if (!url) throw new Error("URL is required");
+        console.log('[URLSCRAPER] Scraping URL:', url);
+        if(node.data.outputEl) node.data.outputEl.textContent = `🌐 Scraping ${url}...`;
+        
+        try {
+          // Try multiple CORS proxies
+          const proxies = [
+            `https://corsproxy.io/?${encodeURIComponent(url)}`,
+            `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`,
+            `https://thingproxy.freeboard.io/fetch/${encodeURIComponent(url)}`
+          ];
+          
+          let html = null;
+          let lastError = null;
+          
+          for (const proxyUrl of proxies) {
+            try {
+              console.log('[URLSCRAPER] Trying proxy:', proxyUrl);
+              const response = await fetch(proxyUrl);
+              if (!response.ok) {
+                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+              }
+              
+              const text = await response.text();
+              
+              // Handle different proxy response formats
+              if (proxyUrl.includes('allorigins.win')) {
+                const wrapper = JSON.parse(text);
+                html = wrapper.contents;
+              } else {
+                html = text;
+              }
+              
+              break; // Success, exit the loop
+            } catch (error) {
+              console.warn('[URLSCRAPER] Proxy failed:', proxyUrl, error.message);
+              lastError = error;
+            }
+          }
+          
+          if (!html) {
+            throw new Error(`All proxies failed. Last error: ${lastError?.message}`);
+          }
+          
+          const doc = new DOMParser().parseFromString(html, 'text/html');
+          const result = (doc.body?.innerText || doc.documentElement?.textContent || "No text found").trim().replace(/\s\s+/g, ' ');
+          console.log('[URLSCRAPER] Scraped content length:', result.length);
+          
+          if(node.data.outputEl) node.data.outputEl.textContent = result.slice(0, 2000);
+          return { scrapedContent: result };
+          
+        } catch (error) {
+          console.error('[URLSCRAPER] Scraping failed:', error);
+          const errorMsg = `❌ Scraping failed: ${error.message}`;
+          if(node.data.outputEl) node.data.outputEl.textContent = errorMsg;
+          
+          // Return mock content so the workflow can continue
+          const mockContent = `[MOCK CONTENT - URL scraping unavailable for ${url}]\n\nThis is sample content that would have been scraped from the website. It includes information about artificial intelligence, machine learning trends, and technological developments that would be relevant for analysis.`;
+          return { scrapedContent: mockContent };
+        }
+    }
+    
+    async function executeApiCallNode(node, context) {
+        const url = interpolateTemplate(node.data.url || "", context);
+        if (!url) throw new Error("API URL is required");
+        const response = await fetch(url);
+        const result = await response.text();
+        if(node.data.outputEl) node.data.outputEl.textContent = result.slice(0, 2000);
+        return { apiResponse: result };
+    }
+
+    async function executeFileNode(node, context) {
+      if (!node.data.text && !node.data.parsedData) throw new Error("No file or data loaded");
+      return { fileContent: node.data.text, fileData: node.data.parsedData };
+    }
+
+    async function executeMemoryNode(node, context) {
+        const varname = node.data.varname || "temp";
+        const value = interpolateTemplate(node.data.value || "", context);
+        if (node.data.operation === 'set') workflowMemory.set(varname, value);
+        else if (node.data.operation === 'append') workflowMemory.set(varname, (workflowMemory.get(varname) || '') + value);
+        const stored = workflowMemory.get(varname) || "";
+        if(node.data.outputEl) node.data.outputEl.textContent = String(stored).slice(0, 500);
+        return { ...context, [varname]: stored, memoryData: stored }; // Include both variable name and generic memoryData
+    }
+    
+    async function executeTransformNode(node, context) {
+        const inputData = context.fileData || context.searchResults || context[Object.keys(context).pop()];
+        let result = interpolateTemplate(node.data.template, context);
+        if(node.data.outputEl) node.data.outputEl.textContent = result;
+        return { transformed: result };
+    }
+    
+    async function executeConditionalNode(node, context) {
+        const condition = node.data.condition || 'false';
+        let result = false;
+        try {
+            const func = new Function('input', 'memory', `return ${condition}`);
+            result = !!func(context, Object.fromEntries(workflowMemory));
+        } catch (e) { throw new Error("Invalid conditional expression: " + e.message); }
+        if(node.data.outputEl) node.data.outputEl.textContent = `Condition result: ${result}`;
+        const downstream = graph.edges.filter(e => e.from === node.id).map(e => graph.nodes.find(n => n.id === e.to));
+        const trueNode = downstream.find(n => n.data.notes === 'true_branch');
+        const falseNode = downstream.find(n => n.data.notes === 'false_branch');
+        if(result && trueNode) await executeNodeChain(trueNode, new Set(), context);
+        if(!result && falseNode) await executeNodeChain(falseNode, new Set(), context);
+    }
+
+    async function executeLoopNode(node, context) {
+        const sourceVar = node.data.source;
+        const itemsToLoop = context[sourceVar] || [];
+        if (!Array.isArray(itemsToLoop)) throw new Error(`Loop source "${sourceVar}" is not an array.`);
+        
+        const nextNode = graph.nodes.find(n => graph.edges.some(e => e.from === node.id && e.to === n.id));
+        if (!nextNode) return;
+
+        const allIterationResults = [];
+        for (let i = 0; i < itemsToLoop.length; i++) {
+            if (!executionState.running) break;
+            const iterationContext = { ...context, currentItem: itemsToLoop[i], currentIndex: i };
+            if(node.data.outputEl) node.el.querySelector('[data-iteration]').textContent = `${i + 1} / ${itemsToLoop.length}`;
+            const iterationResult = await executeNodeChain(nextNode, new Set([node.id]), iterationContext);
+            allIterationResults.push(iterationResult);
+        }
+        if(node.data.outputEl) node.data.outputEl.textContent = `Loop finished. Processed ${allIterationResults.length} items.`;
+        return { loopResults: allIterationResults };
+    }
+
+    async function executeAggregatorNode(node, context) {
+        const inputArray = context.loopResults || [];
+        const field = node.data.separator || 'llmResponse';
+        const result = inputArray.map(item => item[field] || '').join('\n\n');
+        if(node.data.outputEl) node.data.outputEl.textContent = result.slice(0, 1000);
+        return { aggregatedResult: result };
+    }
+    
+    async function executeTextProcessNode(node, context) {
+        const pattern = node.data.pattern || '';
+        const inputData = context.apiResponse || context.llmResponse || '';
+        const match = inputData.match(new RegExp(pattern, 's'));
+        const result = match ? match.groups : {};
+        if(node.data.outputEl) node.data.outputEl.textContent = JSON.stringify(result, null, 2);
+        return { ...context, ...result };
+    }
+    
+    async function executeDelayNode(node, context) {
+      const duration = node.data.duration || 1000;
+      if(node.data.outputEl) node.data.outputEl.textContent = `⏱️ Waiting ${duration}ms...`;
+      await new Promise(resolve => setTimeout(resolve, duration));
+      if(node.data.outputEl) node.data.outputEl.textContent = "✅ Delay complete";
+      return context; // Pass through existing context data
+    }
+    
+    async function executeOutputNode(node, context) {
+      console.log('[OUTPUT] Starting executeOutputNode');
+      console.log('[OUTPUT] Full context received:', context);
+      console.log('[OUTPUT] Context keys:', Object.keys(context));
+      
+      let output = "";
+      
+      // Prioritize showing LLM response in a readable format
+      if (context.llmResponse) {
+        output = context.llmResponse;
+        console.log('[OUTPUT] Using llmResponse:', context.llmResponse);
+      } else if (context.searchText) {
+        output = "SEARCH RESULTS:\n" + context.searchText;
+        console.log('[OUTPUT] Using searchText');
+      } else if (context.scrapedContent) {
+        output = "SCRAPED CONTENT:\n" + context.scrapedContent.slice(0, 2000);
+        console.log('[OUTPUT] Using scrapedContent');
+      } else if (context.apiResponse) {
+        output = "API RESPONSE:\n" + (typeof context.apiResponse === 'string' ? context.apiResponse : JSON.stringify(context.apiResponse, null, 2));
+        console.log('[OUTPUT] Using apiResponse');
+      } else if (context.transformed) {
+        output = "TRANSFORMED DATA:\n" + context.transformed;
+        console.log('[OUTPUT] Using transformed');
+      } else if (context.aggregatedResult) {
+        output = "AGGREGATED RESULT:\n" + context.aggregatedResult;
+        console.log('[OUTPUT] Using aggregatedResult');
+      } else if (context.memoryData) {
+        output = "MEMORY DATA:\n" + context.memoryData;
+        console.log('[OUTPUT] Using memoryData');
+      } else if (context.fileContent) {
+        output = "FILE CONTENT:\n" + context.fileContent.slice(0, 2000);
+        console.log('[OUTPUT] Using fileContent');
+      } else if (context.loopResults) {
+        output = "LOOP RESULTS:\n" + JSON.stringify(context.loopResults, null, 2).slice(0, 2000);
+        console.log('[OUTPUT] Using loopResults');
+      } else {
+        console.log('[OUTPUT] No standard data found, checking dynamic keys');
+        // Check for memory variables or other dynamic keys
+        const dataKeys = Object.keys(context).filter(k => 
+          k !== 'el' && k !== 'outputEl' && 
+          context[k] !== undefined && context[k] !== null &&
+          !['persona', 'system', 'temperature', 'maxtokens'].includes(k)
+        );
+        console.log('[OUTPUT] Filtered data keys:', dataKeys);
+        
+        if (dataKeys.length > 0) {
+          const firstKey = dataKeys[0];
+          const value = context[firstKey];
+          output = typeof value === 'string' ? value : JSON.stringify(value, null, 2);
+          console.log('[OUTPUT] Using dynamic key:', firstKey, 'value:', value);
+        } else {
+          output = "[No data received]";
+          console.log('[OUTPUT] No data found, showing fallback message');
+        }
+      }
+      
+      console.log('[OUTPUT] Final output to display:', output);
+      if(node.data.outputEl) {
+        node.data.outputEl.textContent = output;
+        console.log('[OUTPUT] Updated output element with content');
+      } else {
+        console.log('[OUTPUT] ERROR: No output element found!');
+        // Try to find it again in case it wasn't set properly during wireNodeInputs
+        const outputEl = node.el?.querySelector(".output");
+        console.log('[OUTPUT] Trying to find output element again:', !!outputEl);
+        if (outputEl) {
+          outputEl.textContent = output;
+          node.data.outputEl = outputEl; // Cache it for next time
+          console.log('[OUTPUT] Found and updated output element');
+        } else {
+          console.log('[OUTPUT] Still no output element - checking node HTML:', node.el?.innerHTML);
+        }
+      }
+      return context;
+    }
+    
+    function collectUpstreamData(targetNode, visited = new Set()) {
+      if (visited.has(targetNode.id)) return {};
+      visited.add(targetNode.id);
+      let data = {};
+      const incoming = graph.edges.filter(e => e.to === targetNode.id);
+      for (const e of incoming) {
+        const src = graph.nodes.find(n => n.id === e.from);
+        if (src) {
+            if (src.type === "persona") data.persona = src.data.persona;
+            if (src.type === "system") data.system = src.data.system;
+            if (src.type === "params") {
+                data.temperature = src.data.temperature;
+                data.maxtokens = src.data.maxtokens;
+            }
+            Object.assign(data, collectUpstreamData(src, visited));
+        }
+      }
+      return data;
+    }
+
+    saveBtn.addEventListener("click", () => { localStorage.setItem("llmcanvas", JSON.stringify(serialize())); alert("Saved."); });
+    loadBtn.addEventListener("click", () => { const raw = localStorage.getItem("llmcanvas"); if (raw) deserialize(JSON.parse(raw)); else alert("No save found."); });
+    exportBtn.addEventListener("click", () => openModal("Export JSON", JSON.stringify(serialize(), null, 2), false));
+    importBtn.addEventListener("click", () => openModal("Import JSON", "", true));
+
+    function serialize() {
+      const cleanNodes = graph.nodes.map(n => ({ id: n.id, type: n.type, x: n.x, y: n.y, data: Object.fromEntries(Object.entries(n.data).filter(([k]) => k !== 'el' && k !== 'outputEl')) }));
+      return { nodes: cleanNodes, edges: graph.edges };
+    }
+    function deserialize(data) {
+        graph = { nodes: [], edges: [] };
+        nodesEl.innerHTML = "";
+        nodeIdSeq = 0;
+        data.nodes.forEach(n => {
+            nodeIdSeq = Math.max(nodeIdSeq, n.id);
+            const newNode = makeNode(n.type, n.x, n.y);
+            newNode.id = n.id;
+            
+            // Merge saved data into the new node's data, preserving the outputEl reference
+            const savedData = n.data || {};
+            Object.assign(newNode.data, savedData);
+
+            updateNodeUI(newNode.el, newNode);
+        });
+        graph.edges = data.edges || [];
+        setTimeout(drawEdges, 100);
+    resetNodeVisualState();
+    }
+    
+    function openModal(title, text, showApply) {
+      modalTitle.textContent = title;
+      modalTextarea.value = text || "";
+      modal.style.display = "flex";
+      modalApply.style.display = showApply ? "inline-block" : "none";
+      modalCopy.style.display = !showApply ? "inline-block" : "none";
+      const examplesContainer = document.querySelector('.examples-container');
+      if (examplesContainer) examplesContainer.style.display = "none";
+    }
+    modalClose.addEventListener("click", () => modal.style.display = "none");
+    modalCopy.addEventListener("click", async () => { await navigator.clipboard.writeText(modalTextarea.value); alert("Copied!"); });
+    modalApply.addEventListener("click", () => { try { deserialize(JSON.parse(modalTextarea.value)); modal.style.display = "none"; } catch (e) { alert("Invalid JSON."); }});
+
+    function showExamples() {
+      const examples = {
+        "Simple Chat": {
+          description: "Basic AI conversation - Ready to run immediately!",
+          workflow: {
+            nodes: [
+              { 
+                id: 1, 
+                type: "persona", 
+                x: 100, 
+                y: 100, 
+                data: { persona: "You are a helpful teacher." } 
+              },
+              { 
+                id: 2, 
+                type: "system", 
+                x: 100, 
+                y: 250, 
+                data: { system: "Always explain things clearly with examples. Keep responses concise but informative." } 
+              },
+              { 
+                id: 3, 
+                type: "prompt", 
+                x: 400, 
+                y: 175, 
+                data: { text: "Explain artificial intelligence in simple terms that a 12-year-old could understand" } 
+              },
+              { 
+                id: 4, 
+                type: "output", 
+                x: 700, 
+                y: 175, 
+                data: {} 
+              }
+            ],
+            edges: [
+              { from: 1, to: 3 },
+              { from: 2, to: 3 },
+              { from: 3, to: 4 }
+            ]
+          }
+        },
+        "Web Research Pipeline": {
+          description: "Search web → scrape content → AI analysis - Complete workflow!",
+          workflow: {
+            nodes: [
+              { 
+                id: 1, 
+                type: "websearch", 
+                x: 80, 
+                y: 120, 
+                data: { 
+                  query: "artificial intelligence trends 2024", 
+                  engine: "duckduckgo", 
+                  count: 5 
+                } 
+              },
+              { 
+                id: 2, 
+                type: "urlscraper", 
+                x: 380, 
+                y: 120, 
+                data: { 
+                  url: "https://en.wikipedia.org/wiki/Artificial_intelligence", 
+                  extract: "text" 
+                } 
+              },
+              { 
+                id: 3, 
+                type: "transform", 
+                x: 680, 
+                y: 120, 
+                data: { 
+                  transform: "format", 
+                  template: "SEARCH RESULTS:\n{{searchText}}\n\nWEBSITE CONTENT:\n{{scrapedContent}}" 
+                } 
+              },
+              { 
+                id: 4, 
+                type: "persona", 
+                x: 80, 
+                y: 300, 
+                data: { persona: "You are a technology research analyst with expertise in AI trends." } 
+              },
+              { 
+                id: 5, 
+                type: "system", 
+                x: 80, 
+                y: 450, 
+                data: { system: "Provide structured analysis with key points, trends, and implications. Be concise but comprehensive." } 
+              },
+              { 
+                id: 6, 
+                type: "prompt", 
+                x: 680, 
+                y: 375, 
+                data: { text: "Based on this research data, provide a comprehensive analysis of current AI trends: {{transformed}}" } 
+              },
+              { 
+                id: 7, 
+                type: "output", 
+                x: 980, 
+                y: 375, 
+                data: {} 
+              }
+            ],
+            edges: [
+              { from: 1, to: 2 },
+              { from: 2, to: 3 },
+              { from: 3, to: 6 },
+              { from: 4, to: 6 },
+              { from: 5, to: 6 },
+              { from: 6, to: 7 }
+            ]
+          }
+        },
+        "API Integration Chain": {
+          description: "Call external API → process response → AI enhancement - Live API!",
+          workflow: {
+            nodes: [
+              { 
+                id: 1, 
+                type: "apicall", 
+                x: 100, 
+                y: 150, 
+                data: { 
+                  method: "GET",
+                  url: "https://jsonplaceholder.typicode.com/posts/1", 
+                  headers: '{"Content-Type": "application/json"}',
+                  body: ""
+                } 
+              },
+              { 
+                id: 2, 
+                type: "transform", 
+                x: 400, 
+                y: 150, 
+                data: { 
+                  transform: "format", 
+                  template: "API Response Data:\nTitle: {{apiResponse.title}}\nContent: {{apiResponse.body}}\nUser ID: {{apiResponse.userId}}" 
+                } 
+              },
+              { 
+                id: 3, 
+                type: "persona", 
+                x: 100, 
+                y: 320, 
+                data: { persona: "You are a creative content strategist and copywriter." } 
+              },
+              { 
+                id: 4, 
+                type: "system", 
+                x: 100, 
+                y: 470, 
+                data: { system: "Transform boring content into engaging, compelling copy. Add emotion and clear structure." } 
+              },
+              { 
+                id: 5, 
+                type: "prompt", 
+                x: 400, 
+                y: 395, 
+                data: { text: "Transform this API data into an engaging blog post with catchy title and compelling introduction: {{transformed}}" } 
+              },
+              { 
+                id: 6, 
+                type: "output", 
+                x: 700, 
+                y: 395, 
+                data: {} 
+              }
+            ],
+            edges: [
+              { from: 1, to: 2 },
+              { from: 2, to: 5 },
+              { from: 3, to: 5 },
+              { from: 4, to: 5 },
+              { from: 5, to: 6 }
+            ]
+          }
+        },
+        "File Processing Workflow": {
+          description: "Process CSV data → analyze → generate insights - Pre-loaded data!",
+          workflow: {
+            nodes: [
+              { 
+                id: 1, 
+                type: "file", 
+                x: 80, 
+                y: 150, 
+                data: { 
+                  text: "Name,Age,Department,Salary,Years_Experience\nAlice Johnson,28,Engineering,75000,3\nBob Smith,35,Marketing,65000,7\nCarol Davis,42,Engineering,95000,12\nDavid Wilson,29,Sales,58000,4\nEva Brown,31,Engineering,82000,6\nFrank Miller,38,Marketing,70000,9\nGrace Lee,26,Sales,52000,2\nHenry Clark,45,Engineering,110000,15", 
+                  parsedData: { 
+                    headers: ["Name", "Age", "Department", "Salary", "Years_Experience"] 
+                  } 
+                } 
+              },
+              { 
+                id: 2, 
+                type: "transform", 
+                x: 380, 
+                y: 150, 
+                data: { 
+                  transform: "format", 
+                  template: "Employee Data Analysis:\n{{fileContent}}" 
+                } 
+              },
+              { 
+                id: 3, 
+                type: "persona", 
+                x: 80, 
+                y: 320, 
+                data: { persona: "You are a senior HR data analyst with expertise in workforce analytics." } 
+              },
+              { 
+                id: 4, 
+                type: "system", 
+                x: 80, 
+                y: 470, 
+                data: { system: "Analyze employee data and provide insights on salary distribution, department composition, and experience levels. Include specific numbers." } 
+              },
+              { 
+                id: 5, 
+                type: "prompt", 
+                x: 380, 
+                y: 395, 
+                data: { text: "Analyze this employee dataset and provide comprehensive insights about salary trends, department distribution, and experience correlation: {{transformed}}" } 
+              },
+              { 
+                id: 6, 
+                type: "output", 
+                x: 680, 
+                y: 395, 
+                data: {} 
+              }
+            ],
+            edges: [
+              { from: 1, to: 2 },
+              { from: 2, to: 5 },
+              { from: 3, to: 5 },
+              { from: 4, to: 5 },
+              { from: 5, to: 6 }
+            ]
+          }
+        },
+        "Conditional Logic Flow": {
+          description: "Smart routing based on content analysis - Shows conditional workflow!",
+          workflow: {
+            nodes: [
+              { 
+                id: 1, 
+                type: "prompt", 
+                x: 100, 
+                y: 200, 
+                data: { text: "Is the following a question or statement: The sky is blue during the day" } 
+              },
+              { 
+                id: 2, 
+                type: "conditional", 
+                x: 400, 
+                y: 200, 
+                data: { condition: "input.llmResponse && input.llmResponse.toLowerCase().includes('question')" } 
+              },
+              { 
+                id: 3, 
+                type: "prompt", 
+                x: 700, 
+                y: 100, 
+                data: { text: "Provide a detailed answer to this question: {{llmResponse}}" } 
+              },
+              { 
+                id: 4, 
+                type: "prompt", 
+                x: 700, 
+                y: 300, 
+                data: { text: "Expand on this statement with additional details and examples: {{llmResponse}}" } 
+              },
+              { 
+                id: 5, 
+                type: "output", 
+                x: 1000, 
+                y: 200, 
+                data: {} 
+              }
+            ],
+            edges: [
+              { from: 1, to: 2 },
+              { from: 2, to: 3 },
+              { from: 2, to: 4 },
+              { from: 3, to: 5 },
+              { from: 4, to: 5 }
+            ]
+          }
+        },
+        "Advanced Multi-Step Workflow": {
+          description: "Complex workflow: Memory + Variables + Multi-path - Advanced showcase!",
+          workflow: {
+            nodes: [
+              { 
+                id: 1, 
+                type: "memory", 
+                x: 80, 
+                y: 120, 
+                data: { 
+                  varname: "user_preference", 
+                  operation: "set", 
+                  value: "I prefer technical explanations with code examples" 
+                } 
+              },
+              { 
+                id: 2, 
+                type: "prompt", 
+                x: 380, 
+                y: 120, 
+                data: { text: "What type of explanation do you prefer: technical with code or simple everyday terms?" } 
+              },
+              { 
+                id: 3, 
+                type: "conditional", 
+                x: 680, 
+                y: 120, 
+                data: { condition: "input.llmResponse && input.llmResponse.toLowerCase().includes('technical')" } 
+              },
+              { 
+                id: 4, 
+                type: "persona", 
+                x: 80, 
+                y: 320, 
+                data: { persona: "You are a senior software engineer and technical educator." } 
+              },
+              { 
+                id: 5, 
+                type: "persona", 
+                x: 80, 
+                y: 470, 
+                data: { persona: "You are a friendly teacher who explains complex topics simply." } 
+              },
+              { 
+                id: 6, 
+                type: "prompt", 
+                x: 980, 
+                y: 80, 
+                data: { text: "Explain machine learning algorithms with Python code examples and technical details" } 
+              },
+              { 
+                id: 7, 
+                type: "prompt", 
+                x: 980, 
+                y: 200, 
+                data: { text: "Explain machine learning in simple terms using everyday analogies that anyone can understand" } 
+              },
+              { 
+                id: 8, 
+                type: "memory", 
+                x: 1280, 
+                y: 140, 
+                data: { 
+                  varname: "final_explanation", 
+                  operation: "set", 
+                  value: "{{llmResponse}}" 
+                } 
+              },
+              { 
+                id: 9, 
+                type: "transform", 
+                x: 1580, 
+                y: 140, 
+                data: { 
+                  transform: "format", 
+                  template: "User Preference: {{user_preference}}\n\nGenerated Explanation:\n{{final_explanation}}" 
+                } 
+              },
+              { 
+                id: 10, 
+                type: "output", 
+                x: 1880, 
+                y: 140, 
+                data: {} 
+              }
+            ],
+            edges: [
+              { from: 1, to: 2 },
+              { from: 2, to: 3 },
+              { from: 3, to: 6 },
+              { from: 3, to: 7 },
+              { from: 4, to: 6 },
+              { from: 5, to: 7 },
+              { from: 6, to: 8 },
+              { from: 7, to: 8 },
+              { from: 8, to: 9 },
+              { from: 9, to: 10 }
+            ]
+          }
+        },
+        "Super Complex: Research Agent Pipeline": {
+          description: "Multi-stage research agent: Search → Filter → Deep Analysis → Report Generation",
+          workflow: {
+            nodes: [
+              { 
+                id: 1, 
+                type: "memory", 
+                x: 60, 
+                y: 100, 
+                data: { 
+                  varname: "research_topic", 
+                  operation: "set", 
+                  value: "latest developments in renewable energy technology 2024" 
+                } 
+              },
+              { 
+                id: 2, 
+                type: "websearch", 
+                x: 300, 
+                y: 100, 
+                data: { 
+                  query: "{{research_topic}}", 
+                  engine: "duckduckgo", 
+                  count: 5 
+                } 
+              },
+              { 
+                id: 3, 
+                type: "transform", 
+                x: 540, 
+                y: 100, 
+                data: { 
+                  transform: "format", 
+                  template: "Research Topic: {{research_topic}}\n\nSearch Results:\n{{searchText}}" 
+                } 
+              },
+              { 
+                id: 4, 
+                type: "persona", 
+                x: 60, 
+                y: 280, 
+                data: { persona: "You are a senior research analyst specializing in technology and energy sectors." } 
+              },
+              { 
+                id: 5, 
+                type: "system", 
+                x: 60, 
+                y: 430, 
+                data: { system: "Analyze information critically. Identify key trends, breakthrough technologies, market implications, and future predictions. Structure your analysis professionally." } 
+              },
+              { 
+                id: 6, 
+                type: "prompt", 
+                x: 780, 
+                y: 200, 
+                data: { text: "Based on this research data, identify the 3 most significant developments and provide detailed analysis: {{transformed}}" } 
+              },
+              { 
+                id: 7, 
+                type: "memory", 
+                x: 1020, 
+                y: 300, 
+                data: { 
+                  varname: "key_findings", 
+                  operation: "set", 
+                  value: "{{llmResponse}}" 
+                } 
+              },
+              { 
+                id: 8, 
+                type: "urlscraper", 
+                x: 1260, 
+                y: 100, 
+                data: { 
+                  url: "https://en.wikipedia.org/wiki/Renewable_energy", 
+                  extract: "text" 
+                } 
+              },
+              { 
+                id: 9, 
+                type: "transform", 
+                x: 1500, 
+                y: 200, 
+                data: { 
+                  transform: "format", 
+                  template: "Key Findings:\n{{key_findings}}\n\nAdditional Context:\n{{scrapedContent}}" 
+                } 
+              },
+              { 
+                id: 10, 
+                type: "persona", 
+                x: 60, 
+                y: 580, 
+                data: { persona: "You are an executive report writer who creates comprehensive business intelligence reports." } 
+              },
+              { 
+                id: 11, 
+                type: "prompt", 
+                x: 1740, 
+                y: 300, 
+                data: { text: "Create an executive summary report with market implications, investment opportunities, and strategic recommendations based on: {{transformed}}" } 
+              },
+              { 
+                id: 12, 
+                type: "aggregator", 
+                x: 1980, 
+                y: 400, 
+                data: { 
+                  aggregate: "concat", 
+                  separator: "\n\n--- FINAL REPORT ---\n\n" 
+                } 
+              },
+              { 
+                id: 13, 
+                type: "output", 
+                x: 2220, 
+                y: 400, 
+                data: {} 
+              }
+            ],
+            edges: [
+              { from: 1, to: 2 },
+              { from: 2, to: 3 },
+              { from: 3, to: 6 },
+              { from: 4, to: 6 },
+              { from: 5, to: 6 },
+              { from: 6, to: 7 },
+              { from: 7, to: 8 },
+              { from: 8, to: 9 },
+              { from: 9, to: 11 },
+              { from: 10, to: 11 },
+              { from: 11, to: 12 },
+              { from: 12, to: 13 }
+            ]
+          }
+        }
+      };
+      
+      const examplesList = Object.entries(examples).map(([name, ex]) => `<div class="example-item" data-name="${name}"><h3>${name}</h3><p>${ex.description}</p><button class="btn primary">Load Example</button></div>`).join('');
+      const examplesContainer = document.createElement('div');
+      examplesContainer.className = 'examples-container';
+      examplesContainer.innerHTML = `<style>.examples-container{max-height:400px;overflow-y:auto;padding-right:8px}.example-item{padding:16px;border:1px solid var(--border);border-radius:8px;margin-bottom:12px}.example-item h3{margin:0 0 8px 0;color:var(--accent);}.example-item p{margin:0 0 12px 0;color:var(--muted);font-size:14px;}.example-item button{width:100%}</style>${examplesList}`;
+      modal.querySelector('.modal-content').appendChild(examplesContainer);
+      
+      examplesContainer.addEventListener('click', (e) => {
+        if (e.target.tagName === 'BUTTON') {
+          const name = e.target.closest('.example-item').dataset.name;
+          deserialize(examples[name].workflow);
+          modal.style.display = "none";
+          examplesContainer.remove();
+        }
+      });
+
+      modalTitle.textContent = "Example Workflows";
+      modalTextarea.style.display = "none";
+      modalApply.style.display = "none";
+      modalCopy.style.display = "none";
+      modal.style.display = "flex";
+    }
+    
+    function updateNodeUI(el, node) {
+      if (!el || !node) return;
+      Object.entries(node.data).forEach(([key, value]) => {
+        const input = el.querySelector(`[data-${key}]`) || el.querySelector('textarea');
+        if (input) input.value = value;
+      });
+      if (node.type === 'file' && node.data.text) {
+        el.querySelector('[data-file-name]').textContent = node.data.fileName || "preloaded.txt";
+        el.querySelector('[data-file-size]').textContent = formatFileSize(node.data.text.length);
+        el.querySelector('[data-parse]').value = 'lines'; // Default for example
+        parseFileContent(node);
+      }
+    }
+    
+    function formatFileSize(bytes) { return bytes < 1024 ? `${bytes} bytes` : `${(bytes/1024).toFixed(1)} KB`; }
+
+    document.getElementById("examplesBtn").addEventListener("click", showExamples);
+    document.getElementById("refreshEdgesBtn").addEventListener("click", () => { drawEdges(); });
+    themeBtn.addEventListener("click", () => document.body.classList.toggle("dark"));
+
+    zoomInBtn.addEventListener("click", () => setZoom(zoom * 1.2));
+    zoomOutBtn.addEventListener("click", () => setZoom(zoom / 1.2));
+    zoomResetBtn.addEventListener("click", () => { zoom = 1; panX = 0; panY = 0; applyTransform(); });
+    
+    function setZoom(newZoom) { zoom = Math.max(0.3, Math.min(2.5, newZoom)); applyTransform(); }
+    function applyTransform() {
+      canvasEl.style.transform = `scale(${zoom}) translate(${panX}px, ${panY}px)`;
+      zoomResetBtn.textContent = `${Math.round(zoom * 100)}%`;
+      requestAnimationFrame(drawEdges);
+    }
+    
+    const wrapper = document.querySelector(".canvas-wrapper");
+    wrapper.style.cursor = "grab";
+    wrapper.addEventListener("mousedown", (e) => {
+      if (e.target.closest(".node, .handle")) return;
+      panning = true; startX = e.clientX; startY = e.clientY;
+      wrapper.style.cursor = "grabbing";
+    });
+    wrapper.addEventListener("wheel", (e) => { e.preventDefault(); setZoom(zoom * (e.deltaY > 0 ? 0.9 : 1.1)); }, { passive: false }); 
+    window.addEventListener("mousemove", (e) => {
+      if (!panning) return;
+      panX += (e.clientX - startX) / zoom;
+      panY += (e.clientY - startY) / zoom;
+      startX = e.clientX; startY = e.clientY;
+      applyTransform();
+    });
+    window.addEventListener("mouseup", () => { panning = false; wrapper.style.cursor = connecting ? "crosshair" : "grab"; });
+
+    modelSelect.addEventListener("change", async () => {
+      const id = modelSelect.value;
+      modelNameEl.textContent = modelSelect.selectedOptions[0].textContent;
+      engine = null;
+      await initEngine(id);
+    });
+
+    // Load default example on start
+    showExamples();
+    // Initially hide the modal, but allow the examples to be loaded into the DOM
+    modal.style.display = "none";
+    document.querySelector(".example-item button").click();
+
+  </script>
+</body>
+</html>

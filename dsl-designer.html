@@ -1,0 +1,1891 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>VFS DSL Studio – Plan Designer & Interpreter</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #f5f7fb;
+      --panel: #ffffff;
+      --panel-alt: #f0f3ff;
+      --border: #d8dbe6;
+      --text: #1f2937;
+      --muted: #6b7280;
+      --accent: #4c1d95;
+      --accent-soft: rgba(76, 29, 149, 0.08);
+      --accent-2: #2563eb;
+      --accent-success: #16a34a;
+      --accent-warn: #eab308;
+      --shadow: 0 12px 28px rgba(15, 23, 42, 0.12);
+      --code-bg: #0f172a;
+      --log-info: #1d4ed8;
+      --log-agent: #7c3aed;
+      --log-action: #0f766e;
+      --log-warn: #b45309;
+      --log-error: #dc2626;
+    }
+    body.dark {
+      --bg: #0f172a;
+      --panel: #111827;
+      --panel-alt: rgba(17, 24, 39, 0.8);
+      --border: #1f2937;
+      --text: #e5e7eb;
+      --muted: #9ca3af;
+      --accent: #a855f7;
+      --accent-soft: rgba(168, 85, 247, 0.12);
+      --accent-2: #3b82f6;
+      --accent-success: #22c55e;
+      --accent-warn: #facc15;
+      --shadow: 0 16px 36px rgba(0, 0, 0, 0.45);
+      --code-bg: #020617;
+    }
+
+    * { box-sizing: border-box; }
+    html, body {
+      height: 100%;
+      margin: 0;
+      font-family: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      overflow: hidden;
+    }
+
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 20px;
+      border-bottom: 1px solid var(--border);
+      background: var(--panel);
+      box-shadow: var(--shadow);
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .brand h1 {
+      font-size: 20px;
+      font-weight: 600;
+      margin: 0;
+    }
+    .brand-icon {
+      font-size: 26px;
+    }
+    .tagline {
+      color: var(--muted);
+      font-size: 13px;
+    }
+    .toolbar {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .btn, select, input[type="number"], textarea {
+      font-family: inherit;
+      border: 1px solid var(--border);
+      background: var(--panel);
+      color: var(--text);
+      padding: 8px 12px;
+      border-radius: 10px;
+      font-size: 14px;
+      cursor: pointer;
+      transition: transform 0.1s ease, box-shadow 0.1s ease;
+    }
+    .btn:hover:not(:disabled) {
+      transform: translateY(-1px);
+      box-shadow: var(--shadow);
+    }
+    .btn.primary {
+      background: var(--accent);
+      color: #f9fafb;
+      border-color: transparent;
+    }
+    .btn.accent {
+      background: var(--accent-2);
+      color: #f8fafc;
+      border-color: transparent;
+    }
+    .btn.ghost {
+      background: transparent;
+      border-color: transparent;
+      color: var(--muted);
+    }
+    .btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+    .material-icons {
+      font-size: 18px;
+      vertical-align: middle;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 320px 1fr;
+      height: calc(100vh - 68px);
+    }
+
+    aside.sidebar {
+      background: var(--panel);
+      border-right: 1px solid var(--border);
+      padding: 16px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+    .sidebar section {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .section-title {
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      font-weight: 600;
+      color: var(--muted);
+    }
+    .control-group {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+    .control-group select {
+      flex: 1;
+    }
+    .tree {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .tree-section {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: var(--panel-alt);
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .tree-section h3 {
+      margin: 0 0 6px 0;
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+      font-weight: 600;
+    }
+    .tree-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 10px;
+      border-radius: 10px;
+      border: none;
+      background: transparent;
+      color: inherit;
+      text-align: left;
+      cursor: pointer;
+    }
+    .tree-item:hover {
+      background: var(--accent-soft);
+    }
+    .tree-item.active {
+      background: var(--accent);
+      color: #f8fafc;
+    }
+
+    main.content {
+      display: grid;
+      grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr);
+      gap: 20px;
+      padding: 20px;
+      overflow: hidden;
+    }
+
+    .panel {
+      background: var(--panel);
+      border-radius: 18px;
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow);
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
+    }
+    .panel h2 {
+      margin: 0 0 10px 0;
+      font-size: 18px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .panel h3 {
+      margin: 16px 0 8px 0;
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .detail-body {
+      overflow-y: auto;
+      flex: 1;
+      padding-right: 8px;
+    }
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+    .summary-card {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px;
+      background: var(--panel-alt);
+    }
+    .summary-card span {
+      display: block;
+      font-size: 12px;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 4px;
+      letter-spacing: 0.05em;
+    }
+    .summary-card strong {
+      font-size: 15px;
+      font-weight: 600;
+    }
+
+    .step-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .step {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px;
+      background: var(--panel-alt);
+      display: grid;
+      grid-template-columns: 120px 1fr;
+      gap: 12px;
+      align-items: center;
+    }
+    .step-tag {
+      font-weight: 600;
+      text-transform: uppercase;
+      color: var(--accent);
+      letter-spacing: 0.08em;
+      font-size: 12px;
+    }
+    .step-content {
+      font-size: 14px;
+      color: var(--text);
+      line-height: 1.5;
+    }
+    .step-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 6px;
+      font-size: 12px;
+      color: var(--muted);
+    }
+    .chip {
+      border-radius: 999px;
+      background: var(--accent-soft);
+      color: var(--accent);
+      padding: 2px 8px;
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    pre.code {
+      background: var(--code-bg);
+      color: #e2e8f0;
+      border-radius: 14px;
+      padding: 16px;
+      font-size: 13px;
+      overflow-x: auto;
+      border: 1px solid rgba(148, 163, 184, 0.2);
+      max-height: 280px;
+    }
+
+    .legend-text {
+      font-size: 13px;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    .runner-panel {
+      overflow: hidden;
+    }
+    .run-controls {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 12px;
+    }
+    .run-controls select {
+      min-width: 220px;
+      flex: 1;
+    }
+    .log-summary {
+      font-size: 12px;
+      color: var(--muted);
+      margin-bottom: 12px;
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    .log-summary strong {
+      color: var(--text);
+      font-weight: 600;
+    }
+    .runtime-meta {
+      display: flex;
+      gap: 20px;
+      flex-wrap: wrap;
+      font-size: 13px;
+      color: var(--muted);
+      margin-bottom: 12px;
+    }
+    .log {
+      background: var(--panel-alt);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px;
+      height: 260px;
+      overflow-y: auto;
+      font-size: 13px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .log-entry {
+      border-radius: 8px;
+      padding: 8px 10px;
+      line-height: 1.4;
+      position: relative;
+    }
+    .log-entry::before {
+      content: attr(data-icon);
+      font-family: "Material Icons";
+      font-size: 16px;
+      position: absolute;
+      left: -24px;
+      top: 8px;
+      opacity: 0.8;
+    }
+    .log-info { background: rgba(29, 78, 216, 0.08); border-left: 3px solid var(--log-info); }
+    .log-agent { background: rgba(124, 58, 237, 0.1); border-left: 3px solid var(--log-agent); }
+    .log-action { background: rgba(15, 118, 110, 0.12); border-left: 3px solid var(--log-action); }
+    .log-success { background: rgba(22, 163, 74, 0.12); border-left: 3px solid var(--accent-success); }
+    .log-warn { background: rgba(234, 179, 8, 0.16); border-left: 3px solid var(--log-warn); }
+    .log-error { background: rgba(220, 38, 38, 0.16); border-left: 3px solid var(--log-error); }
+
+    .context {
+      background: var(--panel-alt);
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      padding: 14px;
+      min-height: 120px;
+      max-height: 200px;
+      overflow: auto;
+      font-family: "Source Code Pro", monospace;
+      font-size: 12.5px;
+      white-space: pre-wrap;
+    }
+
+    .modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.55);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 30;
+    }
+    .modal-content {
+      width: min(720px, 92vw);
+      background: var(--panel);
+      border-radius: 16px;
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow);
+      padding: 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .modal-actions {
+      display: flex;
+      gap: 10px;
+      justify-content: flex-end;
+    }
+    .modal-content textarea {
+      min-height: 260px;
+      resize: vertical;
+    }
+
+    @media (max-width: 1200px) {
+      .layout { grid-template-columns: 280px 1fr; }
+      main.content { grid-template-columns: 1fr; overflow-y: auto; }
+      .panel { min-height: 0; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="brand">
+  <i class="material-icons brand-icon">schema</i>
+      <div>
+        <h1>VFS DSL Studio</h1>
+        <div class="tagline">Design, inspect, and execute your PLAN/AGENT workflows</div>
+      </div>
+    </div>
+    <div class="toolbar">
+      <button id="toggleThemeBtn" class="btn ghost"><i class="material-icons">dark_mode</i> Theme</button>
+    </div>
+  </header>
+
+  <div class="layout">
+    <aside class="sidebar">
+      <section>
+        <div class="section-title">Load Plan</div>
+        <div class="control-group">
+          <select id="exampleSelect" title="Example plans"></select>
+          <button id="loadExampleBtn" class="btn primary"><i class="material-icons">play_circle</i> Load</button>
+        </div>
+        <div class="control-group">
+          <button id="pasteXmlBtn" class="btn"><i class="material-icons">upload</i> Paste XML</button>
+          <button id="downloadXmlBtn" class="btn"><i class="material-icons">download</i> Copy XML</button>
+        </div>
+      </section>
+
+      <section>
+        <div class="section-title">Plan Structure</div>
+        <nav id="planTree" class="tree"></nav>
+      </section>
+
+      <section>
+        <div class="section-title">Legend</div>
+  <div class="legend-text">
+          • PLAN metadata ⇢ description, author, counts<br>
+          • AGENT nodes ⇢ double-click to auto-run<br>
+          • SCHEMA ⇢ tables, columns, enums<br>
+          • STORE ⇢ virtual filesystem snapshot<br>
+          • SEED ⇢ initial dataset records
+        </div>
+      </section>
+    </aside>
+
+    <main class="content">
+      <section class="panel detail-panel">
+        <h2 id="detailTitle"><i class="material-icons">info</i> Plan Overview</h2>
+        <div id="detailBody" class="detail-body"></div>
+        <h3>XML Snippet</h3>
+        <pre id="xmlPreview" class="code" aria-label="XML preview">Select a node to preview its XML…</pre>
+      </section>
+
+      <section class="panel runner-panel">
+        <h2><i class="material-icons">play_arrow</i> Interpreter Console</h2>
+        <div class="run-controls">
+          <select id="agentSelect" title="Select agent"></select>
+          <button id="runAgentBtn" class="btn accent"><i class="material-icons">bolt</i> Run Agent</button>
+          <button id="runPlanBtn" class="btn"><i class="material-icons">route</i> Run Orchestrator</button>
+          <button id="clearLogBtn" class="btn ghost"><i class="material-icons">clear_all</i> Clear</button>
+          <button id="copyLogBtn" class="btn"><i class="material-icons">content_copy</i> Copy Log JSON</button>
+        </div>
+        <div class="log-summary">
+          <div>Total entries: <strong id="logCount">0</strong></div>
+          <div>Current run: <strong id="runIdDisplay">—</strong></div>
+        </div>
+        <div class="runtime-meta">
+          <div>Engine: <span id="engineStatus">Initializing…</span></div>
+          <div>Model:
+            <select id="modelSelect">
+              <option value="Qwen2.5-1.5B-Instruct-q4f32_1-MLC">Qwen2.5‑1.5B Instruct</option>
+              <option value="TinyLlama-1.1B-Chat-v1.0-q4f32_1-MLC">TinyLlama 1.1B Chat</option>
+            </select>
+          </div>
+        </div>
+        <h3>Execution Log</h3>
+        <div id="activityLog" class="log" aria-live="polite"></div>
+        <h3>Context Snapshot</h3>
+        <pre id="contextPreview" class="context">{}</pre>
+      </section>
+    </main>
+  </div>
+
+  <div id="modal" class="modal" role="dialog" aria-modal="true">
+    <div class="modal-content">
+  <div class="modal-header">
+        <strong id="modalTitle">Paste DSL PLAN XML</strong>
+        <button id="closeModalBtn" class="btn ghost"><i class="material-icons">close</i></button>
+      </div>
+      <textarea id="modalTextarea" placeholder="Paste full PLAN XML here"></textarea>
+  <div class="modal-actions">
+        <button id="applyModalBtn" class="btn primary">Load Plan</button>
+        <button id="copyModalBtn" class="btn">Copy</button>
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { CreateMLCEngine } from "https://esm.run/@mlc-ai/web-llm";
+
+    const examplePlans = {
+      "Customer Onboarding": `
+<PLAN Key="CustomerOnboarding" Description="AI-assisted onboarding journey with structured schema, reusable agents, and store integration" Author="Workflow Architect">
+  <SCHEMA>
+    <TABLE Key="Prospects" Plural="Prospects" Description="Sales accepted prospects awaiting onboarding">
+      <COLUMN Key="ID" Type="UNIQ" IsRequired="true" Description="Prospect identifier"/>
+      <COLUMN Key="Name" Type="STRING" IsRequired="true" Description="Primary contact name"/>
+      <COLUMN Key="Company" Type="STRING" IsRequired="true" Description="Prospect company"/>
+      <COLUMN Key="Industry" Type="STRING" Description="Industry vertical"/>
+      <COLUMN Key="Focus" Type="STRING" Description="Strategic focus area"/>
+      <COLUMN Key="Status" Type="STRING" Description="Lifecycle status"/>
+    </TABLE>
+    <ENUM Key="OnboardingStatus">
+      <VALUE Key="new" Content="Awaiting kickoff"/>
+      <VALUE Key="in_progress" Content="Tasks underway"/>
+      <VALUE Key="live" Content="Implementation complete"/>
+    </ENUM>
+  </SCHEMA>
+
+  <SEED>
+    <RECORD Key="ProspectSunGrid" TableKey="Prospects">
+      <FIELD Key="ID" Content="prospect_001" Type="UNIQ"/>
+      <FIELD Key="Name" Content="Ava Solar" Type="STRING"/>
+      <FIELD Key="Company" Content="SunGrid Energy" Type="STRING"/>
+      <FIELD Key="Industry" Content="Clean Energy" Type="STRING"/>
+      <FIELD Key="Focus" Content="Smart microgrid orchestration" Type="STRING"/>
+      <FIELD Key="Status" Content="new" Type="STRING"/>
+    </RECORD>
+  </SEED>
+
+  <AGENT Key="OnboardingOrchestrator" Purpose="Orchestrator">
+    <DECLARE Key="ProspectId" Type="STRING" Expression="prospect_001"/>
+    <OUT Template="🚀 Starting onboarding flow for #ProspectId#"/>
+    <CALL Key="Prospect" ToKey="ProspectDataAgent" Variables="ProspectId"/>
+    <OUT Template="📌 Loaded profile for #Prospect.Name# at #Prospect.Company# (#Prospect.Industry#)"/>
+    <CALL Key="WelcomePack" ToKey="GenerateWelcomePack" Variables="Prospect"/>
+    <OUT Template="✅ Welcome pack prepared and stored."/>
+    <WRITE Key="WelcomePack" FileKey="Prospects/prospect_001"/>
+  </AGENT>
+
+  <AGENT Key="ProspectDataAgent" Purpose="Data">
+    <DECLARE Key="ProspectId" Type="STRING"/>
+    <OUT Template="📂 Fetching cached data for #ProspectId#"/>
+    <ASSIGN Key="Prospect.Id" Template="#ProspectId#"/>
+    <ASSIGN Key="Prospect.Name" Template="Ava Solar"/>
+    <ASSIGN Key="Prospect.Company" Template="SunGrid Energy"/>
+    <ASSIGN Key="Prospect.Industry" Template="Clean Energy"/>
+    <ASSIGN Key="Prospect.Focus" Template="Smart microgrid orchestration"/>
+    <RETURN Type="OBJECT" Template="#Prospect#"/>
+  </AGENT>
+
+  <AGENT Key="GenerateWelcomePack" Purpose="AI">
+    <DECLARE Key="Prospect" Type="OBJECT"/>
+    <PROMPT>
+      <SECTION Type="system">
+        <LINE Template="You are a SaaS onboarding specialist who writes concise, upbeat welcome briefs."/>
+      </SECTION>
+      <SECTION Type="user">
+        <LINE Template="Create a three-paragraph welcome brief for #Prospect.Name# from #Prospect.Company#."/>
+        <LINE Template="Highlight their industry (#Prospect.Industry#) and focus area (#Prospect.Focus#)."/>
+        <LINE Template="Close with next steps and a friendly tone."/>
+      </SECTION>
+    </PROMPT>
+    <GENERATE Key="WelcomeBrief" MaxTokens="320" Creativity="Balanced"/>
+    <RETURN Type="STRING" Template="#WelcomeBrief#"/>
+  </AGENT>
+
+  <STORE Key="OnboardingVault">
+    <FOLDER Key="Prospects">
+      <FILE Key="prospect_001" Type="TEXTDATA" Vectorized="false">
+        <Content><![CDATA[Discovery notes, timeline, and previous interactions.]]></Content>
+      </FILE>
+    </FOLDER>
+  </STORE>
+</PLAN>
+      `
+    };
+
+    const planState = {
+      name: "",
+      xmlSource: "",
+      planElement: null,
+      planMeta: {},
+      schema: { tables: [], enums: [] },
+      schemaIndex: new Map(),
+      enumIndex: new Map(),
+      agents: [],
+      agentMap: new Map(),
+      stores: [],
+      storeIndex: new Map(),
+      seeds: [],
+      seedIndex: new Map(),
+      selectedItem: null
+    };
+
+    const parser = new DOMParser();
+    const serializer = new XMLSerializer();
+
+    const exampleSelect = document.getElementById("exampleSelect");
+    const loadExampleBtn = document.getElementById("loadExampleBtn");
+    const pasteXmlBtn = document.getElementById("pasteXmlBtn");
+    const downloadXmlBtn = document.getElementById("downloadXmlBtn");
+    const planTree = document.getElementById("planTree");
+    const detailTitle = document.getElementById("detailTitle");
+    const detailBody = document.getElementById("detailBody");
+    const xmlPreview = document.getElementById("xmlPreview");
+    const agentSelect = document.getElementById("agentSelect");
+    const runAgentBtn = document.getElementById("runAgentBtn");
+    const runPlanBtn = document.getElementById("runPlanBtn");
+    const clearLogBtn = document.getElementById("clearLogBtn");
+    const engineStatus = document.getElementById("engineStatus");
+    const modelSelect = document.getElementById("modelSelect");
+    const activityLog = document.getElementById("activityLog");
+    const contextPreview = document.getElementById("contextPreview");
+    const modal = document.getElementById("modal");
+    const modalTitle = document.getElementById("modalTitle");
+    const modalTextarea = document.getElementById("modalTextarea");
+    const applyModalBtn = document.getElementById("applyModalBtn");
+    const copyModalBtn = document.getElementById("copyModalBtn");
+    const closeModalBtn = document.getElementById("closeModalBtn");
+    const toggleThemeBtn = document.getElementById("toggleThemeBtn");
+    const copyLogBtn = document.getElementById("copyLogBtn");
+    const logCountEl = document.getElementById("logCount");
+    const runIdDisplay = document.getElementById("runIdDisplay");
+
+  const structuredLogs = [];
+  let runSequence = 0;
+  let currentRunId = null;
+  let currentRunMeta = null;
+    const MAX_CAPTURED_LOGS = 2000;
+    const MAX_LOG_SERIALIZED_LENGTH = 1200;
+    const LOG_LEVEL_ICONS = {
+      info: "info",
+      agent: "smart_toy",
+      action: "chevron_right",
+      success: "check_circle",
+      warn: "warning",
+      error: "error"
+    };
+
+    Object.keys(examplePlans).forEach((name, idx) => {
+      const option = document.createElement("option");
+      option.value = name;
+      option.textContent = name;
+      if (idx === 0) option.selected = true;
+      exampleSelect.appendChild(option);
+    });
+
+    let engine = null;
+    let engineInitializing = false;
+
+    async function initEngine(modelId) {
+      if (engineInitializing) return;
+      engineInitializing = true;
+      engineStatus.textContent = `Loading ${modelSelect.selectedOptions[0]?.textContent || modelId}…`;
+      try {
+        engine = await CreateMLCEngine(modelId, {
+          initProgressCallback: report => {
+            if (report?.text) engineStatus.textContent = report.text;
+          }
+        });
+        engineStatus.textContent = `Ready (${modelSelect.selectedOptions[0]?.textContent || modelId})`;
+      } catch (error) {
+        console.warn("WebLLM initialization failed", error);
+        engine = null;
+        engineStatus.textContent = "Demo mode (WebLLM unavailable)";
+      } finally {
+        engineInitializing = false;
+      }
+    }
+
+    initEngine(modelSelect.value);
+
+    modelSelect.addEventListener("change", async () => {
+      engine = null;
+      await initEngine(modelSelect.value);
+    });
+
+    function resetStateIndexes() {
+      planState.schemaIndex.clear();
+      planState.enumIndex.clear();
+      planState.agentMap.clear();
+      planState.storeIndex.clear();
+      planState.seedIndex.clear();
+    }
+
+    function parsePlanFromXml(xmlString) {
+      const doc = parser.parseFromString(xmlString, "application/xml");
+      const parseError = doc.querySelector("parsererror");
+      if (parseError) {
+        throw new Error(parseError.textContent?.replace(/\s+/g, " ").trim() || "Invalid XML");
+      }
+      const planEl = doc.documentElement.tagName === "PLAN" ? doc.documentElement : doc.querySelector("PLAN");
+      if (!planEl) throw new Error("PLAN root element not found");
+
+      planState.planElement = planEl;
+      planState.xmlSource = xmlString;
+      planState.planMeta = {
+        key: planEl.getAttribute("Key") || "UntitledPlan",
+        description: planEl.getAttribute("Description") || "",
+        author: planEl.getAttribute("Author") || "",
+        version: planEl.getAttribute("Version") || "",
+      };
+
+      resetStateIndexes();
+
+      planState.schema = parseSchema(planEl.querySelector("SCHEMA"));
+      planState.seeds = parseSeed(planEl.querySelector("SEED"));
+      planState.stores = parseStores(planEl.querySelectorAll(":scope > STORE"));
+      planState.agents = parseAgents(planEl.querySelectorAll(":scope > AGENT"));
+      planState.name = planState.planMeta.key;
+
+      appendLog(
+        `PLAN parsed • key=${planState.planMeta.key} agents=${planState.agents.length} tables=${planState.schema.tables.length} enums=${planState.schema.enums.length} seeds=${planState.seeds.length} stores=${planState.stores.length}`,
+        "info",
+        0,
+        {
+          event: "plan-parsed",
+          plan: {
+            key: planState.planMeta.key,
+            agents: planState.agents.length,
+            tables: planState.schema.tables.length,
+            enums: planState.schema.enums.length,
+            seeds: planState.seeds.length,
+            stores: planState.stores.length
+          }
+        }
+      );
+    }
+
+    function parseSchema(schemaEl) {
+      if (!schemaEl) return { tables: [], enums: [] };
+      const tables = [];
+      const enums = [];
+      const children = Array.from(schemaEl.children || []);
+      children.forEach(child => {
+        const tag = child.tagName?.toUpperCase();
+        if (tag === "TABLE") {
+          const table = {
+            key: child.getAttribute("Key") || "UnnamedTable",
+            plural: child.getAttribute("Plural") || "",
+            description: child.getAttribute("Description") || "",
+            columns: Array.from(child.children || []).filter(col => col.tagName?.toUpperCase() === "COLUMN").map(col => ({
+              key: col.getAttribute("Key") || "",
+              type: col.getAttribute("Type") || "",
+              required: col.getAttribute("IsRequired") === "true",
+              description: col.getAttribute("Description") || "",
+              foreignType: col.getAttribute("ForeignType") || "",
+              annotation: col.getAttribute("Annotation") || ""
+            })),
+            element: child
+          };
+          tables.push(table);
+          planState.schemaIndex.set(table.key, table);
+        } else if (tag === "ENUM") {
+          const enumeration = {
+            key: child.getAttribute("Key") || "UnnamedEnum",
+            values: Array.from(child.children || []).filter(val => val.tagName?.toUpperCase() === "VALUE").map(val => ({
+              key: val.getAttribute("Key") || "",
+              content: val.getAttribute("Content") || ""
+            })),
+            element: child
+          };
+          enums.push(enumeration);
+          planState.enumIndex.set(enumeration.key, enumeration);
+        }
+      });
+      return { tables, enums };
+    }
+
+    function parseSeed(seedEl) {
+      if (!seedEl) return [];
+      return Array.from(seedEl.children || [])
+        .filter(child => child.tagName?.toUpperCase() === "RECORD")
+        .map(recordEl => {
+          const record = {
+            key: recordEl.getAttribute("Key") || "Record",
+            tableKey: recordEl.getAttribute("TableKey") || "",
+            fields: Array.from(recordEl.children || []).filter(f => f.tagName?.toUpperCase() === "FIELD").map(f => ({
+              key: f.getAttribute("Key") || "",
+              content: f.getAttribute("Content") || "",
+              type: f.getAttribute("Type") || "",
+            })),
+            element: recordEl
+          };
+          planState.seedIndex.set(record.key, record);
+          return record;
+        });
+    }
+
+    function parseStores(storeEls) {
+      const stores = [];
+      storeEls.forEach(storeEl => {
+        const store = parseStoreNode(storeEl, storeEl.getAttribute("Key") || "Store");
+        stores.push(store);
+      });
+      return stores;
+    }
+
+    function parseStoreNode(node, path) {
+      const tag = node.tagName?.toUpperCase();
+      if (tag === "STORE") {
+        const key = node.getAttribute("Key") || "Store";
+        const store = {
+          type: "store",
+          key,
+          path: key,
+          folders: [],
+          files: [],
+          element: node
+        };
+        planState.storeIndex.set(store.path, store);
+        Array.from(node.children || []).forEach(child => {
+          const parsed = parseStoreNode(child, `${store.path}/${child.getAttribute("Key") || child.tagName}`);
+          if (!parsed) return;
+          if (parsed.type === "folder") store.folders.push(parsed);
+          if (parsed.type === "file") store.files.push(parsed);
+        });
+        return store;
+      }
+      if (tag === "FOLDER") {
+        const key = node.getAttribute("Key") || "Folder";
+        const folder = {
+          type: "folder",
+          key,
+          path,
+          folders: [],
+          files: [],
+          element: node
+        };
+        planState.storeIndex.set(path, folder);
+        Array.from(node.children || []).forEach(child => {
+          const parsed = parseStoreNode(child, `${path}/${child.getAttribute("Key") || child.tagName}`);
+          if (!parsed) return;
+          if (parsed.type === "folder") folder.folders.push(parsed);
+          if (parsed.type === "file") folder.files.push(parsed);
+        });
+        return folder;
+      }
+      if (tag === "FILE") {
+        const file = {
+          type: "file",
+          key: node.getAttribute("Key") || "File",
+          fileType: node.getAttribute("Type") || "",
+          vectorized: node.getAttribute("Vectorized") === "true",
+          content: node.querySelector("Content")?.textContent?.trim() || "",
+          path,
+          element: node
+        };
+        planState.storeIndex.set(path, file);
+        return file;
+      }
+      return null;
+    }
+
+    function parseAgents(agentEls) {
+      return Array.from(agentEls || []).map(agentEl => {
+        const agent = {
+          key: agentEl.getAttribute("Key") || "Agent",
+          purpose: agentEl.getAttribute("Purpose") || "",
+          description: agentEl.getAttribute("Description") || "",
+          steps: Array.from(agentEl.children || []).map(step => ({
+            tag: step.tagName?.toUpperCase() || "",
+            attributes: mapAttributes(step),
+            element: step,
+            text: step.textContent?.trim() || ""
+          })),
+          element: agentEl
+        };
+        planState.agentMap.set(agent.key, agent);
+        return agent;
+      });
+    }
+
+    function mapAttributes(el) {
+      return Array.from(el.attributes || []).reduce((acc, attr) => {
+        acc[attr.name] = attr.value;
+        return acc;
+      }, {});
+    }
+
+    function loadPlan(name, xml) {
+      try {
+        parsePlanFromXml(xml);
+        renderPlanNavigator();
+        renderAgentDropdown();
+        selectTreeItem("plan", planState.planMeta.key);
+        detailTitle.innerHTML = `<i class=\"material-icons\">info</i> PLAN • ${planState.planMeta.key}`;
+        showPlanDetail();
+        xmlPreview.textContent = formatXml(serializer.serializeToString(planState.planElement));
+        appendLog(`Loaded plan \"${planState.planMeta.key}\"`, "info", 0, {
+          event: "plan-loaded",
+          planKey: planState.planMeta.key,
+          exampleName: name
+        });
+      } catch (error) {
+        alert(`Unable to load plan: ${error.message}`);
+        console.error(error);
+      }
+    }
+
+    function renderPlanNavigator() {
+      planTree.innerHTML = "";
+
+      const sections = [];
+
+      sections.push(`
+        <div class="tree-section">
+          <h3>Plan</h3>
+          <button class="tree-item" data-type="plan" data-key="${planState.planMeta.key}">
+            <i class="material-icons">description</i>
+            <span>${planState.planMeta.key}</span>
+          </button>
+        </div>
+      `);
+
+      if (planState.schema.tables.length || planState.schema.enums.length) {
+        let items = "";
+        if (planState.schema.tables.length) {
+          items += `<div class=\"section-title\">Tables</div>`;
+          items += planState.schema.tables.map(table => `
+            <button class="tree-item" data-type="schema-table" data-key="${table.key}">
+              <i class="material-icons">grid_on</i>
+              <span>${table.key}</span>
+            </button>
+          `).join("");
+        }
+        if (planState.schema.enums.length) {
+          items += `<div class=\"section-title\" style=\"margin-top:6px\">Enums</div>`;
+          items += planState.schema.enums.map(en => `
+            <button class="tree-item" data-type="schema-enum" data-key="${en.key}">
+              <i class="material-icons">category</i>
+              <span>${en.key}</span>
+            </button>
+          `).join("");
+        }
+        sections.push(`<div class="tree-section">${items}</div>`);
+      }
+
+      if (planState.agents.length) {
+        sections.push(`
+          <div class="tree-section">
+            <h3>Agents</h3>
+            ${planState.agents.map(agent => `
+              <button class="tree-item" data-type="agent" data-key="${agent.key}">
+                <i class="material-icons">smart_toy</i>
+                <span>${agent.key}${agent.purpose ? ` · ${agent.purpose}` : ""}</span>
+              </button>
+            `).join("")}
+          </div>
+        `);
+      }
+
+      if (planState.stores.length) {
+        const storeButtons = planState.stores.map(store => buildStoreTree(store)).join("");
+        sections.push(`
+          <div class="tree-section">
+            <h3>Store</h3>
+            ${storeButtons}
+          </div>
+        `);
+      }
+
+      if (planState.seeds.length) {
+        sections.push(`
+          <div class="tree-section">
+            <h3>Seed Data</h3>
+            ${planState.seeds.map(record => `
+              <button class="tree-item" data-type="seed" data-key="${record.key}">
+                <i class="material-icons">dataset</i>
+                <span>${record.key}</span>
+              </button>
+            `).join("")}
+          </div>
+        `);
+      }
+
+      planTree.innerHTML = sections.join("");
+    }
+
+    function buildStoreTree(node) {
+      if (!node) return "";
+      if (node.type === "file") {
+        return `
+          <button class="tree-item" data-type="store-file" data-path="${node.path}">
+            <i class="material-icons">description</i>
+            <span>${node.key}</span>
+          </button>
+        `;
+      }
+      const children = [
+        ...node.folders.map(folder => buildStoreTree(folder)),
+        ...node.files.map(file => buildStoreTree(file))
+      ].join("");
+      if (node.type === "folder") {
+        return `
+          <button class="tree-item" data-type="store-folder" data-path="${node.path}">
+            <i class="material-icons">folder</i>
+            <span>${node.key}</span>
+          </button>
+          <div style="padding-left:14px; display:flex; flex-direction:column; gap:6px;">${children}</div>
+        `;
+      }
+      if (node.type === "store") {
+        return `
+          <button class="tree-item" data-type="store-root" data-path="${node.path}">
+            <i class="material-icons">inventory_2</i>
+            <span>${node.key}</span>
+          </button>
+          <div style="padding-left:14px; display:flex; flex-direction:column; gap:6px;">${children}</div>
+        `;
+      }
+      return "";
+    }
+
+    function renderAgentDropdown() {
+      agentSelect.innerHTML = "";
+      const placeholder = document.createElement("option");
+      placeholder.value = "";
+      placeholder.textContent = "Select agent to execute";
+      placeholder.disabled = true;
+      placeholder.selected = true;
+      agentSelect.appendChild(placeholder);
+      planState.agents.forEach(agent => {
+        const option = document.createElement("option");
+        option.value = agent.key;
+        option.textContent = agent.purpose ? `${agent.key} · ${agent.purpose}` : agent.key;
+        agentSelect.appendChild(option);
+      });
+    }
+
+    planTree.addEventListener("click", (event) => {
+      const item = event.target.closest(".tree-item");
+      if (!item) return;
+      const type = item.dataset.type;
+      const key = item.dataset.key || item.dataset.path;
+      selectTreeItem(type, key, item);
+    });
+
+    planTree.addEventListener("dblclick", (event) => {
+      const item = event.target.closest(".tree-item");
+      if (!item) return;
+      if (item.dataset.type === "agent") {
+        const key = item.dataset.key;
+        agentSelect.value = key;
+        runAgent();
+      }
+    });
+
+    function selectTreeItem(type, key, element) {
+      planState.selectedItem = { type, key };
+      planTree.querySelectorAll(".tree-item").forEach(btn => btn.classList.remove("active"));
+      if (element) element.classList.add("active");
+
+      switch (type) {
+        case "plan":
+          detailTitle.innerHTML = `<i class=\"material-icons\">info</i> PLAN • ${planState.planMeta.key}`;
+          showPlanDetail();
+          xmlPreview.textContent = formatXml(serializer.serializeToString(planState.planElement));
+          break;
+        case "agent": {
+          const agent = planState.agentMap.get(key);
+          if (agent) {
+            detailTitle.innerHTML = `<i class=\"material-icons\">smart_toy</i> AGENT • ${agent.key}`;
+            showAgentDetail(agent);
+            xmlPreview.textContent = formatXml(serializer.serializeToString(agent.element));
+          }
+          break;
+        }
+        case "schema-table": {
+          const table = planState.schemaIndex.get(key);
+          if (table) {
+            detailTitle.innerHTML = `<i class=\"material-icons\">grid_on</i> TABLE • ${table.key}`;
+            showTableDetail(table);
+            xmlPreview.textContent = formatXml(serializer.serializeToString(table.element));
+          }
+          break;
+        }
+        case "schema-enum": {
+          const en = planState.enumIndex.get(key);
+          if (en) {
+            detailTitle.innerHTML = `<i class=\"material-icons\">category</i> ENUM • ${en.key}`;
+            showEnumDetail(en);
+            xmlPreview.textContent = formatXml(serializer.serializeToString(en.element));
+          }
+          break;
+        }
+        case "store-root":
+        case "store-folder":
+        case "store-file": {
+          const storeNode = planState.storeIndex.get(key);
+          if (storeNode) {
+            const icon = storeNode.type === "file" ? "description" : storeNode.type === "folder" ? "folder" : "inventory_2";
+            detailTitle.innerHTML = `<i class=\"material-icons\">${icon}</i> STORE • ${storeNode.key}`;
+            showStoreDetail(storeNode);
+            xmlPreview.textContent = formatXml(serializer.serializeToString(storeNode.element));
+          }
+          break;
+        }
+        case "seed": {
+          const record = planState.seedIndex.get(key);
+          if (record) {
+            detailTitle.innerHTML = `<i class=\"material-icons\">dataset</i> SEED • ${record.key}`;
+            showSeedDetail(record);
+            xmlPreview.textContent = formatXml(serializer.serializeToString(record.element));
+          }
+          break;
+        }
+        default:
+          break;
+      }
+    }
+
+    function showPlanDetail() {
+      const { key, description, author } = planState.planMeta;
+      const body = document.createElement("div");
+      body.innerHTML = `
+        <div class="summary-grid">
+          <div class="summary-card"><span>Key</span><strong>${key}</strong></div>
+          <div class="summary-card"><span>Agents</span><strong>${planState.agents.length}</strong></div>
+          <div class="summary-card"><span>Tables</span><strong>${planState.schema.tables.length}</strong></div>
+          <div class="summary-card"><span>Store Items</span><strong>${planState.storeIndex.size}</strong></div>
+          <div class="summary-card"><span>Seed Records</span><strong>${planState.seeds.length}</strong></div>
+        </div>
+        <div style="font-size:14px; line-height:1.6; margin-bottom:16px;">
+          <strong>Description:</strong> ${description || "—"}<br/>
+          <strong>Author:</strong> ${author || "—"}
+        </div>
+        <div style="font-size:13px; color:var(--muted); line-height:1.6;">
+          This view summarizes the PLAN metadata and overall footprint. Select a node from the structure panel to drill into agents, schema objects, stored assets, or seed data.
+        </div>
+      `;
+      detailBody.innerHTML = "";
+      detailBody.appendChild(body);
+    }
+
+    function showAgentDetail(agent) {
+      const container = document.createElement("div");
+      container.innerHTML = `
+        <div class="summary-grid" style="margin-bottom:20px;">
+          <div class="summary-card"><span>Purpose</span><strong>${agent.purpose || "—"}</strong></div>
+          <div class="summary-card"><span>Steps</span><strong>${agent.steps.length}</strong></div>
+        </div>
+      `;
+
+      const steps = document.createElement("div");
+      steps.className = "step-list";
+      agent.steps.forEach((step, index) => {
+        const stepEl = document.createElement("div");
+        stepEl.className = "step";
+        const metaChips = Object.entries(step.attributes || {}).map(([k, v]) => `<span class=\"chip\">${k}: ${v}</span>`).join(" ");
+        stepEl.innerHTML = `
+          <div class="step-tag">${index + 1}. ${step.tag}</div>
+          <div class="step-content">
+            ${step.text ? `<div>${escapeHtml(step.text)}</div>` : ""}
+            ${metaChips ? `<div class=\"step-meta\">${metaChips}</div>` : ""}
+          </div>
+        `;
+        steps.appendChild(stepEl);
+      });
+      container.appendChild(steps);
+      detailBody.innerHTML = "";
+      detailBody.appendChild(container);
+    }
+
+    function showTableDetail(table) {
+      const wrapper = document.createElement("div");
+      wrapper.innerHTML = `
+        <div class="summary-grid" style="margin-bottom:16px;">
+          <div class="summary-card"><span>Key</span><strong>${table.key}</strong></div>
+          <div class="summary-card"><span>Plural</span><strong>${table.plural || "—"}</strong></div>
+          <div class="summary-card"><span>Columns</span><strong>${table.columns.length}</strong></div>
+        </div>
+        <div style="font-size:14px; margin-bottom:16px;">${table.description || ""}</div>
+      `;
+      const list = document.createElement("div");
+      list.style.display = "flex";
+      list.style.flexDirection = "column";
+      list.style.gap = "8px";
+      table.columns.forEach(col => {
+        const item = document.createElement("div");
+        item.className = "summary-card";
+        item.innerHTML = `
+          <span>${col.key}</span>
+          <strong>${col.type}${col.required ? " · required" : ""}</strong>
+          <div style="font-size:12px; color:var(--muted); margin-top:6px;">${col.description || ""}${col.foreignType ? `<br/>Foreign: ${col.foreignType}` : ""}</div>
+        `;
+        list.appendChild(item);
+      });
+      wrapper.appendChild(list);
+      detailBody.innerHTML = "";
+      detailBody.appendChild(wrapper);
+    }
+
+    function showEnumDetail(en) {
+      const wrapper = document.createElement("div");
+      wrapper.innerHTML = `
+        <div class="summary-card" style="margin-bottom:16px;">
+          <span>Key</span>
+          <strong>${en.key}</strong>
+        </div>
+      `;
+      const list = document.createElement("div");
+      list.style.display = "flex";
+      list.style.flexDirection = "column";
+      list.style.gap = "8px";
+      en.values.forEach(val => {
+        const item = document.createElement("div");
+        item.className = "summary-card";
+        item.innerHTML = `<span>${val.key}</span><strong>${val.content}</strong>`;
+        list.appendChild(item);
+      });
+      wrapper.appendChild(list);
+      detailBody.innerHTML = "";
+      detailBody.appendChild(wrapper);
+    }
+
+    function showStoreDetail(node) {
+      const container = document.createElement("div");
+      if (node.type === "file") {
+        container.innerHTML = `
+          <div class="summary-grid" style="margin-bottom:16px;">
+            <div class="summary-card"><span>File</span><strong>${node.key}</strong></div>
+            <div class="summary-card"><span>Type</span><strong>${node.fileType || "—"}</strong></div>
+            <div class="summary-card"><span>Vectorized</span><strong>${node.vectorized ? "Yes" : "No"}</strong></div>
+          </div>
+          <div style="font-size:13px; color:var(--muted); margin-bottom:8px;">Path: ${node.path}</div>
+          <pre class="code" style="max-height:200px;">${escapeHtml(node.content || "(empty)")}</pre>
+        `;
+      } else {
+        const items = [
+          ...node.folders.map(f => `<div class=\"summary-card\"><span>Folder</span><strong>${f.key}</strong></div>`),
+          ...node.files.map(f => `<div class=\"summary-card\"><span>File</span><strong>${f.key}</strong></div>`)
+        ].join("");
+        container.innerHTML = `
+          <div class="summary-card" style="margin-bottom:16px;">
+            <span>${node.type === "store" ? "Store" : "Folder"}</span>
+            <strong>${node.key}</strong>
+            <div style="font-size:12px; color:var(--muted); margin-top:6px;">Path: ${node.path}</div>
+          </div>
+          <div class="summary-grid">${items || "<div>No child items</div>"}</div>
+        `;
+      }
+      detailBody.innerHTML = "";
+      detailBody.appendChild(container);
+    }
+
+    function showSeedDetail(record) {
+      const container = document.createElement("div");
+      container.innerHTML = `
+        <div class="summary-grid" style="margin-bottom:16px;">
+          <div class="summary-card"><span>Key</span><strong>${record.key}</strong></div>
+          <div class="summary-card"><span>Table</span><strong>${record.tableKey}</strong></div>
+          <div class="summary-card"><span>Fields</span><strong>${record.fields.length}</strong></div>
+        </div>
+      `;
+      const list = document.createElement("div");
+      list.style.display = "flex";
+      list.style.flexDirection = "column";
+      list.style.gap = "8px";
+      record.fields.forEach(field => {
+        const item = document.createElement("div");
+        item.className = "summary-card";
+        item.innerHTML = `<span>${field.key}</span><strong>${field.content}</strong><div style=\"font-size:12px; color:var(--muted); margin-top:6px;\">Type: ${field.type || ""}</div>`;
+        list.appendChild(item);
+      });
+      container.appendChild(list);
+      detailBody.innerHTML = "";
+      detailBody.appendChild(container);
+    }
+
+    function formatXml(xml) {
+      if (!xml) return "";
+      const PADDING = "  ";
+      const reg = /(>)(<)(\/*)/g;
+      let formatted = "";
+      let pad = 0;
+      xml = xml.replace(reg, "$1\n$2$3");
+      xml.split("\n").forEach((node) => {
+        let indent = 0;
+        if (node.match(/^\s*<\//)) {
+          pad = Math.max(pad - 1, 0);
+        } else if (node.match(/^\s*<[^>]+>$/) && !node.includes("<") && !node.includes("/>")) {
+          indent = 1;
+        } else if (node.match(/<.*<\/.*>/)) {
+          indent = 0;
+        } else if (node.match(/^\s*<[^>]+[^\/]>/)) {
+          indent = 1;
+        }
+        formatted += PADDING.repeat(pad) + node.trim() + "\n";
+        pad += indent;
+      });
+      return formatted.trim();
+    }
+
+    function escapeHtml(value) {
+      return (value || "").replace(/[&<>]/g, ch => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" }[ch]));
+    }
+
+    loadExampleBtn.addEventListener("click", () => {
+      const name = exampleSelect.value;
+      if (!name) return;
+      loadPlan(name, examplePlans[name]);
+    });
+
+    pasteXmlBtn.addEventListener("click", () => {
+      modalTitle.textContent = "Paste PLAN XML";
+      modalTextarea.value = planState.xmlSource || "";
+      modal.style.display = "flex";
+    });
+
+    downloadXmlBtn.addEventListener("click", async () => {
+      if (!planState.planElement) return;
+      const xml = formatXml(serializer.serializeToString(planState.planElement));
+      await navigator.clipboard.writeText(xml);
+      appendLog("PLAN XML copied to clipboard", "info", 0, {
+        event: "xml-copied",
+        planKey: planState.planMeta?.key || null
+      });
+    });
+
+    closeModalBtn.addEventListener("click", () => modal.style.display = "none");
+    copyModalBtn.addEventListener("click", async () => {
+      await navigator.clipboard.writeText(modalTextarea.value || "");
+  appendLog("Copied XML to clipboard", "info", 0, { event: "modal-xml-copied" });
+    });
+    applyModalBtn.addEventListener("click", () => {
+      const xml = modalTextarea.value.trim();
+      if (!xml) return;
+      loadPlan("Custom Plan", xml);
+      modal.style.display = "none";
+    });
+
+    window.addEventListener("keydown", (event) => {
+      if (event.key === "Escape" && modal.style.display === "flex") {
+        modal.style.display = "none";
+      }
+    });
+
+    toggleThemeBtn.addEventListener("click", () => {
+      document.body.classList.toggle("dark");
+    });
+
+    runAgentBtn.addEventListener("click", () => runAgent());
+    runPlanBtn.addEventListener("click", () => runPlan());
+    clearLogBtn.addEventListener("click", () => {
+      activityLog.innerHTML = "";
+      contextPreview.textContent = "{}";
+      structuredLogs.length = 0;
+      currentRunId = null;
+      currentRunMeta = null;
+      updateLogSummary();
+    });
+
+    copyLogBtn.addEventListener("click", async () => {
+      try {
+        const exportPayload = buildStructuredLogExport();
+        const json = JSON.stringify(exportPayload, null, 2);
+        await navigator.clipboard.writeText(json);
+        appendLog("Structured log copied to clipboard", "success", 0, { event: "log-export", entryCount: structuredLogs.length });
+      } catch (error) {
+        appendLog(`Failed to copy log: ${error.message}`, "error", 0, { event: "log-export-error", error: error.message });
+      }
+    });
+
+    function updateLogSummary() {
+      if (logCountEl) logCountEl.textContent = structuredLogs.length.toString();
+      if (runIdDisplay) runIdDisplay.textContent = currentRunId ? `#${currentRunId}` : "—";
+    }
+
+    function prepareMeta(meta) {
+      if (!meta || typeof meta !== "object") return null;
+      const clone = { ...meta };
+      if (clone.context !== undefined) {
+        clone.context = sanitizeContext(clone.context);
+      }
+      if (clone.contextSnapshot !== undefined) {
+        clone.contextSnapshot = sanitizeContext(clone.contextSnapshot);
+      }
+      try {
+        return JSON.parse(JSON.stringify(clone));
+      } catch (error) {
+        return { serializationError: error.message };
+      }
+    }
+
+    function appendLog(message, level = "info", depth = 0, meta = null) {
+      const entry = document.createElement("div");
+      entry.className = `log-entry log-${level}`;
+      entry.style.marginLeft = `${depth * 18}px`;
+      entry.dataset.icon = LOG_LEVEL_ICONS[level] || LOG_LEVEL_ICONS.info;
+      entry.textContent = message;
+      activityLog.appendChild(entry);
+      activityLog.scrollTop = activityLog.scrollHeight;
+
+      const structuredEntry = {
+        timestamp: new Date().toISOString(),
+        level,
+        depth,
+        message,
+        runId: currentRunId || null
+      };
+      const safeMeta = prepareMeta(meta);
+      if (safeMeta && Object.keys(safeMeta).length) {
+        structuredEntry.meta = safeMeta;
+      }
+      structuredLogs.push(structuredEntry);
+      if (structuredLogs.length > MAX_CAPTURED_LOGS) {
+        structuredLogs.splice(0, structuredLogs.length - MAX_CAPTURED_LOGS);
+      }
+      updateLogSummary();
+    }
+
+    function appendLogObject(prefix, obj, level = "info", depth = 0) {
+      try {
+        const json = JSON.stringify(obj, null, 2) || "{}";
+        const trimmed = json.length > MAX_LOG_SERIALIZED_LENGTH ? `${json.slice(0, MAX_LOG_SERIALIZED_LENGTH)} … (truncated)` : json;
+        appendLog(`${prefix}\n${trimmed}`, level, depth, {
+          label: prefix,
+          contextSnapshot: obj,
+          snapshotSerializedLength: json.length,
+          snapshotTruncated: json.length > MAX_LOG_SERIALIZED_LENGTH
+        });
+      } catch (error) {
+        appendLog(`${prefix}\n[unserializable data: ${error.message}]`, level, depth, { snapshotError: error.message });
+      }
+    }
+
+    function logContextSnapshot(context, label, depth = 0) {
+      const sanitized = sanitizeContext(context);
+      appendLogObject(label, sanitized, "info", depth);
+    }
+
+    function beginRun(meta = {}) {
+      currentRunId = ++runSequence;
+      currentRunMeta = {
+        runId: currentRunId,
+        startedAt: new Date().toISOString(),
+        ...meta
+      };
+      updateLogSummary();
+      return currentRunId;
+    }
+
+    function endRun(runId, meta = {}) {
+      if (currentRunId !== runId) return;
+      currentRunMeta = {
+        ...(currentRunMeta || {}),
+        endedAt: new Date().toISOString(),
+        ...meta
+      };
+      currentRunId = null;
+      updateLogSummary();
+    }
+
+    function buildStructuredLogExport() {
+      const planMeta = planState?.planMeta ? { ...planState.planMeta } : null;
+      const activeModel = modelSelect?.value || null;
+      const exportEntries = structuredLogs.map(entry => ({ ...entry }));
+      return {
+        version: 1,
+        generatedAt: new Date().toISOString(),
+        runSequence,
+        currentRunMeta,
+        plan: planMeta,
+        model: activeModel,
+        engineStatus: engineStatus?.textContent || null,
+        entries: exportEntries
+      };
+    }
+
+    function sanitizeContext(context) {
+      const clone = {};
+      Object.entries(context || {}).forEach(([key, value]) => {
+        if (key.startsWith("__")) return;
+        if (value instanceof Element) return;
+        if (typeof value === "function") return;
+        try {
+          clone[key] = typeof value === "object" ? JSON.parse(JSON.stringify(value)) : value;
+        } catch (e) {
+          clone[key] = String(value);
+        }
+      });
+      if (context?.__return__ !== undefined) {
+        try {
+          clone["__return__"] = typeof context.__return__ === "object" ? JSON.parse(JSON.stringify(context.__return__)) : context.__return__;
+        } catch {
+          clone["__return__"] = String(context.__return__);
+        }
+      }
+      return clone;
+    }
+
+    function evaluateExpression(expr, context) {
+      if (!expr) return null;
+      const trimmed = expr.trim();
+      if (trimmed.startsWith("$(") && trimmed.endsWith(")")) {
+        const inner = trimmed.slice(2, -1).trim();
+        if (inner === "now") return new Date().toISOString();
+        if (inner.startsWith("now")) return new Date().toISOString();
+      }
+      return interpolateTemplate(expr, context);
+    }
+
+    function resolvePath(context, path) {
+      if (!path) return undefined;
+      const parts = path.split(".");
+      let current = context;
+      for (const part of parts) {
+        if (current == null) return undefined;
+        current = current[part];
+      }
+      return current;
+    }
+
+    function setPath(context, path, value) {
+      if (!path) return;
+      const parts = path.split(".");
+      let current = context;
+      for (let i = 0; i < parts.length - 1; i++) {
+        const part = parts[i];
+        if (!(part in current) || typeof current[part] !== "object" || current[part] === null) {
+          current[part] = {};
+        }
+        current = current[part];
+      }
+      current[parts[parts.length - 1]] = value;
+    }
+
+    function interpolateTemplate(template, context) {
+      if (!template) return "";
+      return template.replace(/#(.*?)#/g, (_, token) => {
+        const value = resolvePath(context, token.trim());
+        if (value === undefined || value === null) return "";
+        if (typeof value === "object") {
+          try { return JSON.stringify(value); } catch { return String(value); }
+        }
+        return String(value);
+      });
+    }
+
+    function parseTemplateValue(value, context) {
+      if (!value) return "";
+      const substituted = interpolateTemplate(value, context);
+      const trimmed = substituted.trim();
+      if ((trimmed.startsWith("{") && trimmed.endsWith("}")) || (trimmed.startsWith("[") && trimmed.endsWith("]"))) {
+        try {
+          return JSON.parse(trimmed);
+        } catch {
+          return substituted;
+        }
+      }
+      return substituted;
+    }
+
+    async function generateText(promptState, generateEl, context, depth) {
+      const key = generateEl.getAttribute("Key") || "Result";
+      const creativity = (generateEl.getAttribute("Creativity") || "Balanced").toLowerCase();
+      const maxTokens = Number(generateEl.getAttribute("MaxTokens") || 400);
+      const temperatureMap = {
+        precise: 0.2,
+        focused: 0.35,
+        balanced: 0.7,
+        creative: 0.95
+      };
+      const temperature = temperatureMap[creativity] ?? 0.7;
+      const messages = [];
+      if (promptState.system) {
+        messages.push({ role: "system", content: promptState.system });
+      }
+      messages.push({ role: "user", content: promptState.user || promptState.full });
+
+      const generationStarted = performance.now();
+      appendLog(`Generating ${key} (max ${maxTokens} tokens, creativity ${creativity})`, "action", depth, {
+        event: "generate-start",
+        targetKey: key,
+        maxTokens,
+        creativity,
+        temperature,
+        promptPreview: (promptState.user || promptState.full || "").slice(0, 240)
+      });
+      let responseText = "";
+
+      if (!engine) {
+        responseText = `[demo] ${promptState.user.slice(0, 220)}...`;
+      } else {
+        const completion = await engine.chat.completions.create({
+          messages,
+          temperature,
+          max_tokens: maxTokens
+        });
+        responseText = completion?.choices?.[0]?.message?.content || "";
+      }
+      const generationElapsed = Math.round(performance.now() - generationStarted);
+      context[key] = responseText;
+      appendLog(`Generated ${key} (${responseText.length} chars)`, "success", depth, {
+        event: "generate-complete",
+        targetKey: key,
+        elapsedMs: generationElapsed,
+        responsePreview: responseText.slice(0, 240),
+        usedEngine: Boolean(engine)
+      });
+      return responseText;
+    }
+
+    function buildPrompt(promptEl, context, depth) {
+      const sections = { system: [], user: [] };
+      Array.from(promptEl.children || []).forEach(section => {
+        if (section.tagName?.toUpperCase() !== "SECTION") return;
+        const type = (section.getAttribute("Type") || "user").toLowerCase();
+        const lines = Array.from(section.children || []).filter(line => line.tagName?.toUpperCase() === "LINE").map(line => interpolateTemplate(line.getAttribute("Template") || line.textContent || "", context));
+        if (type === "system") sections.system.push(lines.join("\n"));
+        else sections.user.push(lines.join("\n"));
+      });
+      const systemText = sections.system.filter(Boolean).join("\n\n");
+      const userText = sections.user.filter(Boolean).join("\n\n");
+      appendLog(`Prompt prepared${systemText ? " (system instructions included)" : ""}`, "action", depth, {
+        event: "prompt-prepared",
+        systemLength: systemText.length,
+        userLength: userText.length,
+        sectionCount: {
+          system: sections.system.length,
+          user: sections.user.length
+        }
+      });
+      return { system: systemText, user: userText, full: [systemText, userText].filter(Boolean).join("\n\n") };
+    }
+
+    async function interpretAgent(agent, baseContext = {}, depth = 0) {
+      const context = { ...baseContext };
+      appendLog(`Agent ${agent.key}${agent.purpose ? " · " + agent.purpose : ""}`, "agent", depth, {
+        event: "agent-start",
+        agentKey: agent.key,
+        purpose: agent.purpose || null
+      });
+      if (Object.keys(baseContext).length) {
+        logContextSnapshot(baseContext, "Inbound context", depth + 1);
+      }
+      let currentPrompt = null;
+      let returnValue;
+
+      for (const step of agent.steps) {
+        const tag = step.tag;
+        const attrs = step.attributes || {};
+        appendLog(`→ ${tag}${attrs.Key ? ` ${attrs.Key}` : ""}${attrs.ToKey ? ` ${attrs.ToKey}` : ""}`, "action", depth + 1, {
+          event: "statement-dispatch",
+          tag,
+          attributes: attrs
+        });
+        switch (tag) {
+          case "DECLARE": {
+            const key = attrs.Key;
+            const value = evaluateExpression(attrs.Expression, context);
+            context[key] = value;
+            appendLog(`DECLARE ${key}${value !== null && value !== undefined ? ` = ${value}` : ""}`, "action", depth + 1, {
+              event: "declare",
+              key,
+              expression: attrs.Expression || null,
+              value
+            });
+            logContextSnapshot(context, `Context after DECLARE ${key}`, depth + 2);
+            break;
+          }
+          case "ASSIGN": {
+            const key = attrs.Key;
+            const value = parseTemplateValue(attrs.Template, context);
+            if (key?.includes(",")) {
+              key.split(",").map(k => k.trim()).forEach((k, idx) => setPath(context, k, Array.isArray(value) ? value[idx] : value));
+            } else {
+              setPath(context, key, value);
+            }
+            appendLog(`ASSIGN ${key} ← ${typeof value === "object" ? JSON.stringify(value) : value}`, "action", depth + 1, {
+              event: "assign",
+              key,
+              template: attrs.Template || null,
+              value
+            });
+            logContextSnapshot(context, `Context after ASSIGN ${key}`, depth + 2);
+            break;
+          }
+          case "OUT": {
+            const text = interpolateTemplate(attrs.Template || step.text, context);
+            appendLog(text, "info", depth + 1, {
+              event: "out",
+              template: attrs.Template || step.text || "",
+              resolved: text
+            });
+            break;
+          }
+          case "PROMPT": {
+            currentPrompt = buildPrompt(step.element, context, depth + 1);
+            logContextSnapshot(context, "Prompt context", depth + 2);
+            break;
+          }
+          case "GENERATE": {
+            if (!currentPrompt) {
+              appendLog("GENERATE encountered without PROMPT", "warn", depth + 1, {
+                event: "generate-missing-prompt",
+                key: attrs.Key || "Result"
+              });
+              break;
+            }
+            const generated = await generateText(currentPrompt, step.element, context, depth + 1);
+            returnValue = generated;
+            currentPrompt = null;
+            logContextSnapshot(context, `Context after GENERATE ${attrs.Key || "Result"}`, depth + 2);
+            break;
+          }
+          case "CALL": {
+            const targetKey = attrs.ToKey;
+            const targetAgent = planState.agentMap.get(targetKey);
+            if (!targetAgent) {
+              appendLog(`CALL skipped – agent ${targetKey} not found`, "warn", depth + 1, {
+                event: "call-missing-agent",
+                targetKey
+              });
+              break;
+            }
+            const variables = (attrs.Variables || "").split(",").map(v => v.trim()).filter(Boolean);
+            const callContext = { };
+            variables.forEach(varName => {
+              if (varName) callContext[varName] = context[varName];
+            });
+            appendLog(`CALL ${targetKey}${variables.length ? ` with [${variables.join(", ")}]` : ""}`, "action", depth + 1, {
+              event: "call-dispatched",
+              targetKey,
+              variables
+            });
+            const childResult = await interpretAgent(targetAgent, callContext, depth + 2);
+            Object.assign(context, childResult);
+            if (attrs.Key) {
+              context[attrs.Key] = childResult.__return__ !== undefined ? childResult.__return__ : childResult[attrs.Key];
+            }
+            appendLog(`CALL ${targetKey} completed`, "success", depth + 1, {
+              event: "call-complete",
+              targetKey,
+              returnedKeys: Object.keys(childResult || {})
+            });
+            logContextSnapshot(childResult, `Result from ${targetKey}`, depth + 2);
+            break;
+          }
+          case "RETURN": {
+            const template = attrs.Template || step.text || "";
+            returnValue = parseTemplateValue(template, context);
+            appendLog(`RETURN ${attrs.Type || ""} → ${typeof returnValue === "object" ? JSON.stringify(returnValue) : returnValue}`, "success", depth + 1, {
+              event: "return",
+              type: attrs.Type || null,
+              template,
+              value: returnValue
+            });
+            break;
+          }
+          case "WRITE": {
+            appendLog(`WRITE ${attrs.Key || ""} → STORE ${attrs.FileKey || ""}`, "info", depth + 1, {
+              event: "write",
+              key: attrs.Key || null,
+              fileKey: attrs.FileKey || null
+            });
+            break;
+          }
+          default:
+            appendLog(`Unhandled token <${tag}> – stubbed`, "warn", depth + 1, {
+              event: "unhandled-token",
+              tag,
+              attributes: attrs
+            });
+            break;
+        }
+      }
+      if (returnValue !== undefined) {
+        context.__return__ = returnValue;
+      }
+      appendLog(`Agent ${agent.key} finished`, "success", depth, {
+        event: "agent-complete",
+        agentKey: agent.key,
+        returnKeys: Object.keys(context || {})
+      });
+      return context;
+    }
+
+    async function runAgent() {
+      const key = agentSelect.value;
+      if (!key) {
+        alert("Select an agent to execute.");
+        return;
+      }
+      const agent = planState.agentMap.get(key);
+      if (!agent) {
+        alert(`Agent ${key} not found in current plan.`);
+        return;
+      }
+      runAgentBtn.disabled = true;
+      const runId = beginRun({ mode: "agent", agentKey: key, planKey: planState.planMeta?.key || null });
+      appendLog(`Executing agent ${key}`, "info", 0, { event: "run-start", agentKey: key, planKey: planState.planMeta?.key || null, runId });
+      logContextSnapshot({}, "Initial execution context", 1);
+      const started = performance.now();
+      try {
+        const resultContext = await interpretAgent(agent, {}, 0);
+        const elapsed = Math.round(performance.now() - started);
+        appendLog(`Agent ${key} completed in ${elapsed} ms`, "success", 0, { event: "run-complete", runId, agentKey: key, elapsedMs: elapsed });
+        contextPreview.textContent = JSON.stringify(sanitizeContext(resultContext), null, 2);
+        logContextSnapshot(resultContext, "Final sanitized context", 1);
+        endRun(runId, { status: "success", elapsedMs: elapsed, agentKey: key });
+      } catch (error) {
+        console.error(error);
+        appendLog(`Execution error: ${error.message}`, "error", 0, { event: "run-error", agentKey: key, error: { message: error.message, stack: error.stack }, runId });
+        contextPreview.textContent = JSON.stringify({ error: error.message, stack: error.stack }, null, 2);
+        endRun(runId, { status: "error", agentKey: key, error: { message: error.message, stack: error.stack } });
+      } finally {
+        runAgentBtn.disabled = false;
+      }
+    }
+
+    async function runPlan() {
+      const orchestrator = planState.agents.find(agent => /orchestrator/i.test(agent.purpose) || /orchestrator/i.test(agent.key));
+      if (!orchestrator) {
+        alert("No orchestrator agent found. Select an agent manually.");
+        return;
+      }
+      appendLog(`Running orchestrator ${orchestrator.key}`, "info", 0, {
+        event: "plan-run",
+        orchestratorKey: orchestrator.key
+      });
+      agentSelect.value = orchestrator.key;
+      await runAgent();
+    }
+
+  updateLogSummary();
+  loadPlan(Object.keys(examplePlans)[0], Object.values(examplePlans)[0]);
+
+  </script>
+</body>
+</html>
