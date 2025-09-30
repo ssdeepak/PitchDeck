@@ -2,8 +2,8 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=yes" />
   <title>LLMCanvas – Visual LLM Workflow Automation</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
   <style>
@@ -43,6 +43,8 @@
       color: var(--text);
       display: grid;
       grid-template-rows: auto 1fr;
+      touch-action: manipulation;
+      -webkit-tap-highlight-color: transparent;
     }
 
     header {
@@ -73,6 +75,8 @@
       font-size: 14px;
       cursor: pointer;
       box-shadow: var(--shadow);
+      min-height: 44px; /* Touch-friendly minimum size */
+      min-width: 44px; /* Touch-friendly minimum size */
     }
     .btn.primary { background: var(--accent); color: #fff; border-color: transparent; }
     .btn.green { background: var(--accent-2); color: #041b0e; border-color: transparent; }
@@ -88,6 +92,7 @@
       grid-template-columns: 280px 1fr;
       height: calc(100vh - 64px);
       gap: 0;
+      position: relative;
     }
 
     /* Sidebar */
@@ -96,6 +101,11 @@
       background: var(--panel);
       padding: 12px;
       overflow-y: auto;
+      transition: transform 0.3s ease;
+      z-index: 10;
+    }
+    .sidebar.hidden {
+      transform: translateX(-100%);
     }
     .section-title {
       font-weight: 600; font-size: 13px; color: var(--muted);
@@ -115,6 +125,7 @@
       box-shadow: var(--shadow);
       display: flex; align-items: center; gap: 8px;
       transition: transform 0.05s ease;
+      min-height: 44px; /* Touch-friendly minimum size */
     }
     .palette-item:hover { transform: translateY(-2px); }
 
@@ -122,6 +133,7 @@
     .canvas-wrapper {
       position: relative;
       overflow: hidden;
+      touch-action: none;
     }
     .grid {
       position: absolute; inset: 0;
@@ -169,6 +181,7 @@
       box-shadow: var(--shadow);
       padding: 12px;
       user-select: none;
+      touch-action: none;
     }
     .node.executing {
       border: 3px solid var(--accent);
@@ -206,6 +219,7 @@
       border-radius: 10px;
       padding: 8px;
       font-size: 14px;
+      min-height: 44px; /* Touch-friendly minimum size */
     }
     .node-body textarea { resize: vertical; min-height: 80px; }
     .output {
@@ -217,7 +231,7 @@
       font-size: 12px; color: var(--muted);
     }
     .handle {
-      width: 18px; height: 18px; border-radius: 50%;
+      width: 24px; height: 24px; border-radius: 50%; /* Larger for touch */
       background: var(--accent);
       border: 3px solid var(--panel);
       position: absolute;
@@ -231,8 +245,8 @@
       transform: translateY(-50%) scale(1.4);
       box-shadow: 0 0 12px var(--accent);
     }
-    .handle.in { left: -9px; background: var(--accent-2); }
-    .handle.out { right: -9px; background: var(--accent); }
+    .handle.in { left: -12px; background: var(--accent-2); }
+    .handle.out { right: -12px; background: var(--accent); }
     .handle.connecting { background: var(--accent-3); box-shadow: 0 0 16px var(--accent-3); }
     
     .node.connecting-source { box-shadow: 0 0 20px var(--accent); }
@@ -265,23 +279,214 @@
       position: fixed; inset: 0; background: rgba(0,0,0,0.4);
       display: none; align-items: center; justify-content: center;
       z-index: 2000;
+      padding: 16px;
     }
     .modal-content {
       width: min(720px, 90vw);
+      max-height: 80vh;
       background: var(--panel);
       border: 1px solid var(--border);
       box-shadow: var(--shadow);
       border-radius: 12px; padding: 16px;
+      overflow-y: auto;
     }
     .modal-content textarea {
       width: 100%; min-height: 220px;
       background: var(--bg); color: var(--text);
       border: 1px solid var(--border); border-radius: 10px; padding: 10px;
     }
+
+    /* Mobile header controls */
+    .mobile-controls {
+      display: none;
+      gap: 8px;
+      align-items: center;
+    }
+    .hamburger {
+      display: none;
+      flex-direction: column;
+      justify-content: space-between;
+      width: 30px;
+      height: 21px;
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      padding: 0;
+    }
+    .hamburger span {
+      display: block;
+      height: 3px;
+      width: 100%;
+      background-color: var(--text);
+      border-radius: 3px;
+      transition: all 0.3s ease;
+    }
+
+    /* Panel toggle buttons */
+    .panel-toggle {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      z-index: 20;
+      box-shadow: var(--shadow);
+      font-size: 18px;
+    }
+    .sidebar-toggle {
+      left: 0;
+      margin-left: 8px;
+    }
+    .toolbar-toggle {
+      right: 0;
+      margin-right: 8px;
+    }
+
+    /* Mobile toolbar */
+    .mobile-toolbar {
+      display: none;
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: var(--panel);
+      border-top: 1px solid var(--border);
+      padding: 8px 16px;
+      z-index: 100;
+      box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+    }
+    .mobile-toolbar .toolbar {
+      justify-content: space-between;
+      width: 100%;
+    }
+    .mobile-toolbar .toolbar .btn {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      font-size: 12px;
+      padding: 8px 4px;
+    }
+    .mobile-toolbar .toolbar .btn .material-icons {
+      font-size: 20px;
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 1024px) {
+      .workspace {
+        grid-template-columns: 1fr;
+      }
+      .sidebar {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 280px;
+        height: 100%;
+        z-index: 100;
+      }
+      .sidebar.hidden {
+        transform: translateX(-100%);
+      }
+      .mobile-controls {
+        display: flex;
+      }
+      .hamburger {
+        display: flex;
+      }
+      .toolbar {
+        display: none;
+      }
+      .mobile-toolbar {
+        display: flex;
+      }
+      .brand h1 {
+        font-size: 16px;
+      }
+    }
+
+    @media (max-width: 768px) {
+      header {
+        padding: 8px 12px;
+      }
+      .node {
+        min-width: 240px;
+        max-width: 300px;
+      }
+      .block-palette {
+        grid-template-columns: 1fr;
+      }
+      .modal-content {
+        width: 95vw;
+        padding: 12px;
+      }
+      .statusbar, .zoom-controls {
+        font-size: 12px;
+        padding: 6px 10px;
+      }
+      .zoom-controls .btn {
+        min-width: 36px;
+        min-height: 36px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .node {
+        min-width: 220px;
+        max-width: 280px;
+        padding: 10px;
+      }
+      .modal-content {
+        width: 98vw;
+        padding: 10px;
+      }
+      .mobile-toolbar .toolbar .btn {
+        font-size: 10px;
+      }
+      .mobile-toolbar .toolbar .btn .material-icons {
+        font-size: 18px;
+      }
+    }
+
+    /* Touch-friendly improvements */
+    .btn, select, input[type="number"], .palette-item {
+      -webkit-touch-callout: none;
+      -webkit-user-select: none;
+      user-select: none;
+    }
+
+    /* Long press context menu prevention */
+    .node, .palette-item, .btn {
+      -webkit-touch-callout: none;
+      -webkit-user-select: none;
+      -khtml-user-select: none;
+      -moz-user-select: none;
+      -ms-user-select: none;
+      user-select: none;
+    }
+
+    /* Prevent zoom on double-tap */
+    .node, .btn, .palette-item {
+      touch-action: manipulation;
+    }
   </style>
 </head>
 <body>
   <header>
+    <div class="mobile-controls">
+      <button class="hamburger" id="sidebarToggle">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+    </div>
     <div class="brand">
       <i class="material-icons" style="font-size:24px">psychology</i>
       <h1>LLMCanvas</h1>
@@ -311,7 +516,7 @@
   </header>
 
   <div class="workspace">
-    <aside class="sidebar">
+    <aside class="sidebar" id="sidebar">
       <div class="section-title">LLM Blocks</div>
       <div class="block-palette">
         <div class="palette-item" data-type="prompt"><i class="material-icons">chat</i> Prompt</div>
@@ -358,6 +563,10 @@
       </div>
     </aside>
 
+    <button class="panel-toggle sidebar-toggle" id="sidebarToggleBtn">
+      <i class="material-icons">chevron_right</i>
+    </button>
+
     <main class="canvas-wrapper">
       <div class="grid"></div>
       <div id="canvas" class="canvas" style="transform: scale(1) translate(0px, 0px)">
@@ -376,6 +585,26 @@
         <button id="zoomIn" class="btn">+</button>
       </div>
     </main>
+  </div>
+
+  <div class="mobile-toolbar">
+    <div class="toolbar">
+      <button id="mobileRunBtn" class="btn primary icon">
+        <i class="material-icons">play_arrow</i> Run
+      </button>
+      <button id="mobileConnectBtn" class="btn icon">
+        <i class="material-icons">link</i> Connect
+      </button>
+      <button id="mobileSaveBtn" class="btn icon">
+        <i class="material-icons">save</i> Save
+      </button>
+      <button id="mobileExamplesBtn" class="btn icon">
+        <i class="material-icons">library_books</i> Examples
+      </button>
+      <button id="mobileMenuBtn" class="btn icon">
+        <i class="material-icons">more_vert</i> More
+      </button>
+    </div>
   </div>
 
   <div id="modal" class="modal">
@@ -419,6 +648,16 @@
     const modalApply = document.getElementById("modalApply");
     const modalCopy = document.getElementById("modalCopy");
     const modalClose = document.getElementById("modalClose");
+    
+    // Mobile elements
+    const sidebar = document.getElementById("sidebar");
+    const sidebarToggle = document.getElementById("sidebarToggle");
+    const sidebarToggleBtn = document.getElementById("sidebarToggleBtn");
+    const mobileRunBtn = document.getElementById("mobileRunBtn");
+    const mobileConnectBtn = document.getElementById("mobileConnectBtn");
+    const mobileSaveBtn = document.getElementById("mobileSaveBtn");
+    const mobileExamplesBtn = document.getElementById("mobileExamplesBtn");
+    const mobileMenuBtn = document.getElementById("mobileMenuBtn");
 
     let engine = null;
     let graph = { nodes: [], edges: [] }; // edges: {from, to}
@@ -433,6 +672,13 @@
     let workflowMemory = new Map(); // Global memory store
     let executionState = { running: false, currentNode: null };
     let activeNodeEl = null;
+
+    // Touch gesture state
+    let touchStartDistance = null;
+    let touchStartZoom = 1;
+    let lastTouchX = 0;
+    let lastTouchY = 0;
+    let isPinching = false;
 
     function clearActiveNode() {
       if (activeNodeEl) {
@@ -523,13 +769,29 @@
       nodesEl.appendChild(el);
 
       let drag = false, dx = 0, dy = 0;
+      
+      // Mouse events for desktop
       el.addEventListener("mousedown", (e) => {
         const target = e.target;
         if (target instanceof HTMLElement && (target.closest("textarea, select, input, button") || target.closest(".handle"))) return;
         drag = true;
         dx = (e.clientX / zoom) - node.x;
         dy = (e.clientY / zoom) - node.y;
+        e.preventDefault();
       });
+      
+      // Touch events for mobile
+      el.addEventListener("touchstart", (e) => {
+        if (e.touches.length !== 1) return;
+        const touch = e.touches[0];
+        const target = e.target;
+        if (target instanceof HTMLElement && (target.closest("textarea, select, input, button") || target.closest(".handle"))) return;
+        drag = true;
+        dx = (touch.clientX / zoom) - node.x;
+        dy = (touch.clientY / zoom) - node.y;
+        e.preventDefault();
+      }, { passive: false });
+      
       window.addEventListener("mousemove", (e) => {
         if (!drag) return;
         node.x = (e.clientX / zoom) - dx;
@@ -538,7 +800,20 @@
         el.style.top = node.y + "px";
         requestAnimationFrame(drawEdges);
       });
+      
+      window.addEventListener("touchmove", (e) => {
+        if (!drag || e.touches.length !== 1) return;
+        const touch = e.touches[0];
+        node.x = (touch.clientX / zoom) - dx;
+        node.y = (touch.clientY / zoom) - dy;
+        el.style.left = node.x + "px";
+        el.style.top = node.y + "px";
+        requestAnimationFrame(drawEdges);
+        e.preventDefault();
+      }, { passive: false });
+      
       window.addEventListener("mouseup", () => drag = false);
+      window.addEventListener("touchend", () => drag = false);
 
       el.querySelector('[data-action="delete"]').addEventListener("click", () => {
         graph.nodes = graph.nodes.filter(n => n.id !== id);
@@ -578,8 +853,24 @@
       outHandle.addEventListener('click', (e) => handleConnection(e, true));
       inHandle.addEventListener('click', (e) => handleConnection(e, false));
       
+      // Touch events for handles
+      outHandle.addEventListener('touchend', (e) => {
+        e.preventDefault();
+        handleConnection(e, true);
+      });
+      inHandle.addEventListener('touchend', (e) => {
+        e.preventDefault();
+        handleConnection(e, false);
+      });
+      
       inHandle.addEventListener('mouseenter', () => { if (connecting && connectSource && connectSource !== id) el.classList.add('connecting-target'); });
       inHandle.addEventListener('mouseleave', () => el.classList.remove('connecting-target'));
+      
+      // Touch events for connection targets
+      inHandle.addEventListener('touchstart', () => { 
+        if (connecting && connectSource && connectSource !== id) el.classList.add('connecting-target'); 
+      });
+      inHandle.addEventListener('touchend', () => el.classList.remove('connecting-target'));
 
       wireNodeInputs(el, node);
       return node;
@@ -749,6 +1040,15 @@
         const nodeY = (-panY) + 100 + Math.random() * 50;
         makeNode(type, nodeX, nodeY);
       });
+      
+      // Touch event for mobile
+      item.addEventListener("touchend", (e) => {
+        e.preventDefault();
+        const type = item.dataset.type;
+        const nodeX = (-panX) + 100 + Math.random() * 50;
+        const nodeY = (-panY) + 100 + Math.random() * 50;
+        makeNode(type, nodeX, nodeY);
+      });
     });
 
     connectBtn.addEventListener("click", () => {
@@ -761,10 +1061,23 @@
       document.querySelector(".canvas-wrapper").style.cursor = connecting ? "crosshair" : "grab";
     });
 
+    // Mobile connect button
+    mobileConnectBtn.addEventListener("click", () => {
+      connecting = !connecting;
+      connectSource = null;
+      document.querySelectorAll('.node').forEach(n => n.classList.remove('connecting-source', 'connecting-target'));
+      document.querySelectorAll('.handle').forEach(h => h.classList.remove('connecting'));
+      mobileConnectBtn.classList.toggle("orange", connecting);
+      connectBtn.classList.toggle("orange", connecting);
+      connectBtn.innerHTML = connecting ? '<i class="material-icons">link</i> Pick target...' : '<i class="material-icons">link</i> Connect';
+      document.querySelector(".canvas-wrapper").style.cursor = connecting ? "crosshair" : "grab";
+    });
+
     runBtn.addEventListener("click", async () => {
       if (executionState.running) {
         executionState.running = false;
         runBtn.innerHTML = '<i class="material-icons">play_arrow</i> Run';
+        mobileRunBtn.innerHTML = '<i class="material-icons">play_arrow</i> Run';
         clearActiveNode();
         document.querySelectorAll('.node.executing').forEach(el => el.classList.remove('executing'));
         return;
@@ -772,6 +1085,7 @@
       resetNodeVisualState();
       executionState.running = true;
       runBtn.innerHTML = '<i class="material-icons">stop</i> Stop';
+      mobileRunBtn.innerHTML = '<i class="material-icons">stop</i> Stop';
       
       try {
         let startNodes = graph.nodes.filter(node => !graph.edges.some(edge => edge.to === node.id));
@@ -793,6 +1107,48 @@
         executionState.running = false;
         executionState.currentNode = null;
         runBtn.innerHTML = '<i class="material-icons">play_arrow</i> Run';
+        mobileRunBtn.innerHTML = '<i class="material-icons">play_arrow</i> Run';
+        clearActiveNode();
+        document.querySelectorAll('.node.executing').forEach(el => el.classList.remove('executing'));
+      }
+    });
+
+    // Mobile run button
+    mobileRunBtn.addEventListener("click", async () => {
+      if (executionState.running) {
+        executionState.running = false;
+        runBtn.innerHTML = '<i class="material-icons">play_arrow</i> Run';
+        mobileRunBtn.innerHTML = '<i class="material-icons">play_arrow</i> Run';
+        clearActiveNode();
+        document.querySelectorAll('.node.executing').forEach(el => el.classList.remove('executing'));
+        return;
+      }
+      resetNodeVisualState();
+      executionState.running = true;
+      runBtn.innerHTML = '<i class="material-icons">stop</i> Stop';
+      mobileRunBtn.innerHTML = '<i class="material-icons">stop</i> Stop';
+      
+      try {
+        let startNodes = graph.nodes.filter(node => !graph.edges.some(edge => edge.to === node.id));
+        if (startNodes.length === 0 && graph.nodes.length > 0) startNodes = [graph.nodes[0]];
+        if (startNodes.length === 0) throw new Error("No starting nodes found.");
+        
+        workflowMemory.clear();
+        const globalVisited = new Set();
+        const sharedContext = {};
+        for (const startNode of startNodes) {
+          if (!executionState.running) break;
+          await executeNodeChain(startNode, globalVisited, sharedContext);
+        }
+        
+      } catch (error) {
+        console.error("Workflow execution error:", error);
+        alert("Workflow execution failed: " + error.message);
+      } finally {
+        executionState.running = false;
+        executionState.currentNode = null;
+        runBtn.innerHTML = '<i class="material-icons">play_arrow</i> Run';
+        mobileRunBtn.innerHTML = '<i class="material-icons">play_arrow</i> Run';
         clearActiveNode();
         document.querySelectorAll('.node.executing').forEach(el => el.classList.remove('executing'));
       }
@@ -1338,6 +1694,12 @@
     exportBtn.addEventListener("click", () => openModal("Export JSON", JSON.stringify(serialize(), null, 2), false));
     importBtn.addEventListener("click", () => openModal("Import JSON", "", true));
 
+    // Mobile save button
+    mobileSaveBtn.addEventListener("click", () => { 
+      localStorage.setItem("llmcanvas", JSON.stringify(serialize())); 
+      alert("Saved."); 
+    });
+
     function serialize() {
       const cleanNodes = graph.nodes.map(n => ({ id: n.id, type: n.type, x: n.x, y: n.y, data: Object.fromEntries(Object.entries(n.data).filter(([k]) => k !== 'el' && k !== 'outputEl')) }));
       return { nodes: cleanNodes, edges: graph.edges };
@@ -1449,7 +1811,7 @@
                 y: 120, 
                 data: { 
                   transform: "format", 
-                  template: "SEARCH RESULTS:\n{{searchText}}\n\nWEBSITE CONTENT:\n{{scrapedContent}}" 
+                  template: "Research Topic: {{research_topic}}\n\nSearch Results:\n{{searchText}}" 
                 } 
               },
               { 
@@ -1471,7 +1833,7 @@
                 type: "prompt", 
                 x: 680, 
                 y: 375, 
-                data: { text: "Based on this research data, provide a comprehensive analysis of current AI trends: {{transformed}}" } 
+                data: { text: "Based on this research data, identify the 3 most significant developments and provide detailed analysis: {{transformed}}" } 
               },
               { 
                 id: 7, 
@@ -1948,6 +2310,55 @@
     document.getElementById("refreshEdgesBtn").addEventListener("click", () => { drawEdges(); });
     themeBtn.addEventListener("click", () => document.body.classList.toggle("dark"));
 
+    // Mobile examples button
+    mobileExamplesBtn.addEventListener("click", showExamples);
+
+    // Mobile menu button
+    mobileMenuBtn.addEventListener("click", () => {
+      openModal("More Options", "", false);
+      modalTextarea.style.display = "none";
+      modalApply.style.display = "none";
+      modalCopy.style.display = "none";
+      
+      const menuContainer = document.createElement('div');
+      menuContainer.innerHTML = `
+        <div style="display: flex; flex-direction: column; gap: 12px;">
+          <button class="btn" id="mobileLoadBtn" style="justify-content: flex-start;"><i class="material-icons">folder_open</i> Load</button>
+          <button class="btn" id="mobileExportBtn" style="justify-content: flex-start;"><i class="material-icons">download</i> Export</button>
+          <button class="btn" id="mobileImportBtn" style="justify-content: flex-start;"><i class="material-icons">upload</i> Import</button>
+          <button class="btn" id="mobileThemeBtn" style="justify-content: flex-start;"><i class="material-icons">brightness_6</i> Theme</button>
+          <button class="btn" id="mobileRefreshBtn" style="justify-content: flex-start;"><i class="material-icons">refresh</i> Refresh Lines</button>
+        </div>
+      `;
+      
+      modal.querySelector('.modal-content').appendChild(menuContainer);
+      
+      document.getElementById("mobileLoadBtn").addEventListener("click", () => { 
+        const raw = localStorage.getItem("llmcanvas"); 
+        if (raw) deserialize(JSON.parse(raw)); 
+        else alert("No save found."); 
+        modal.style.display = "none";
+      });
+      
+      document.getElementById("mobileExportBtn").addEventListener("click", () => {
+        openModal("Export JSON", JSON.stringify(serialize(), null, 2), false);
+      });
+      
+      document.getElementById("mobileImportBtn").addEventListener("click", () => {
+        openModal("Import JSON", "", true);
+      });
+      
+      document.getElementById("mobileThemeBtn").addEventListener("click", () => {
+        document.body.classList.toggle("dark");
+        modal.style.display = "none";
+      });
+      
+      document.getElementById("mobileRefreshBtn").addEventListener("click", () => {
+        drawEdges();
+        modal.style.display = "none";
+      });
+    });
+
     zoomInBtn.addEventListener("click", () => setZoom(zoom * 1.2));
     zoomOutBtn.addEventListener("click", () => setZoom(zoom / 1.2));
     zoomResetBtn.addEventListener("click", () => { zoom = 1; panX = 0; panY = 0; applyTransform(); });
@@ -1961,12 +2372,19 @@
     
     const wrapper = document.querySelector(".canvas-wrapper");
     wrapper.style.cursor = "grab";
+    
+    // Mouse events for desktop
     wrapper.addEventListener("mousedown", (e) => {
       if (e.target.closest(".node, .handle")) return;
       panning = true; startX = e.clientX; startY = e.clientY;
       wrapper.style.cursor = "grabbing";
     });
-    wrapper.addEventListener("wheel", (e) => { e.preventDefault(); setZoom(zoom * (e.deltaY > 0 ? 0.9 : 1.1)); }, { passive: false }); 
+    
+    wrapper.addEventListener("wheel", (e) => { 
+      e.preventDefault(); 
+      setZoom(zoom * (e.deltaY > 0 ? 0.9 : 1.1)); 
+    }, { passive: false }); 
+    
     window.addEventListener("mousemove", (e) => {
       if (!panning) return;
       panX += (e.clientX - startX) / zoom;
@@ -1974,7 +2392,92 @@
       startX = e.clientX; startY = e.clientY;
       applyTransform();
     });
-    window.addEventListener("mouseup", () => { panning = false; wrapper.style.cursor = connecting ? "crosshair" : "grab"; });
+    
+    window.addEventListener("mouseup", () => { 
+      panning = false; 
+      wrapper.style.cursor = connecting ? "crosshair" : "grab"; 
+    });
+
+    // Touch events for mobile
+    wrapper.addEventListener("touchstart", (e) => {
+      if (e.touches.length === 1) {
+        // Single touch - panning
+        if (e.target.closest(".node, .handle")) return;
+        panning = true;
+        const touch = e.touches[0];
+        startX = touch.clientX;
+        startY = touch.clientY;
+        lastTouchX = touch.clientX;
+        lastTouchY = touch.clientY;
+        e.preventDefault();
+      } else if (e.touches.length === 2) {
+        // Two touches - pinch to zoom
+        isPinching = true;
+        const touch1 = e.touches[0];
+        const touch2 = e.touches[1];
+        touchStartDistance = Math.hypot(
+          touch1.clientX - touch2.clientX,
+          touch1.clientY - touch2.clientY
+        );
+        touchStartZoom = zoom;
+        e.preventDefault();
+      }
+    }, { passive: false });
+    
+    wrapper.addEventListener("touchmove", (e) => {
+      if (isPinching && e.touches.length === 2) {
+        // Pinch to zoom
+        const touch1 = e.touches[0];
+        const touch2 = e.touches[1];
+        const currentDistance = Math.hypot(
+          touch1.clientX - touch2.clientX,
+          touch1.clientY - touch2.clientY
+        );
+        
+        if (touchStartDistance) {
+          const scale = currentDistance / touchStartDistance;
+          setZoom(touchStartZoom * scale);
+        }
+        e.preventDefault();
+      } else if (panning && e.touches.length === 1) {
+        // Panning
+        const touch = e.touches[0];
+        panX += (touch.clientX - lastTouchX) / zoom;
+        panY += (touch.clientY - lastTouchY) / zoom;
+        lastTouchX = touch.clientX;
+        lastTouchY = touch.clientY;
+        applyTransform();
+        e.preventDefault();
+      }
+    }, { passive: false });
+    
+    wrapper.addEventListener("touchend", (e) => {
+      if (e.touches.length === 0) {
+        panning = false;
+        isPinching = false;
+        touchStartDistance = null;
+      } else if (e.touches.length === 1) {
+        isPinching = false;
+        touchStartDistance = null;
+      }
+    });
+
+    // Sidebar toggle functionality
+    sidebarToggle.addEventListener("click", () => {
+      sidebar.classList.toggle("hidden");
+      const isHidden = sidebar.classList.contains("hidden");
+      sidebarToggleBtn.innerHTML = isHidden ? 
+        '<i class="material-icons">chevron_right</i>' : 
+        '<i class="material-icons">chevron_left</i>';
+    });
+    
+    sidebarToggleBtn.addEventListener("click", () => {
+      sidebar.classList.toggle("hidden");
+      const isHidden = sidebar.classList.contains("hidden");
+      sidebarToggleBtn.innerHTML = isHidden ? 
+        '<i class="material-icons">chevron_right</i>' : 
+        '<i class="material-icons">chevron_left</i>';
+    });
 
     modelSelect.addEventListener("change", async () => {
       const id = modelSelect.value;
