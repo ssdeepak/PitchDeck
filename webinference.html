@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=yes" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>LLMCanvas – Visual LLM Workflow Automation</title>
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
@@ -68,6 +68,8 @@
       overflow: hidden;
       text-overflow: ellipsis;
     }
+    .brand .icon-lg { font-size: 20px; }
+    .temp-input { width: 70px; }
     .brand .badge {
       display: none;
     }
@@ -170,6 +172,7 @@
     .canvas {
       position: absolute; inset: 0;
       transform-origin: 0 0;
+      transform: scale(1) translate(0px, 0px);
     }
     .nodes {
       position: absolute; inset: 0;
@@ -306,6 +309,39 @@
       box-shadow: var(--shadow);
       border-radius: 12px; padding: 16px;
       overflow-y: auto;
+    }
+    .modal-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:8px }
+    .modal-footer { margin-top:8px; display:flex; gap:8px }
+    .tips-text { font-size:13px; color:var(--muted) }
+    /* Bottom tabs (mobile) */
+    .bottom-tabs {
+      position: fixed; left: 0; right: 0; bottom: 0;
+      display: none; background: var(--panel); border-top: 1px solid var(--border);
+      box-shadow: 0 -6px 18px rgba(0,0,0,0.08); z-index: 1200; height: 64px;
+      display: flex; justify-content: space-around; align-items: center;
+    }
+    .bottom-tabs .tab-btn { background: transparent; border: none; display:flex; flex-direction:column; align-items:center; gap:4px; color:var(--muted); font-size:12px; }
+    .bottom-tabs .tab-btn.active { color: var(--accent); }
+    .bottom-tabs .tab-btn .material-icons { font-size:22px }
+
+    /* Right drawer */
+    .right-drawer { position: fixed; right: -380px; top: 0; width: 360px; height: 100%; background: var(--panel); border-left:1px solid var(--border); box-shadow: -8px 0 24px rgba(0,0,0,0.12); transition: right 0.28s ease; z-index:1300; padding:12px; }
+    .right-drawer.open { right: 0; }
+    .drawer-header { display:flex; justify-content:space-between; align-items:center; padding-bottom:8px }
+    .drawer-body { padding-top:8px; overflow-y:auto; max-height:calc(100% - 48px) }
+    .form-row { display:flex; flex-direction:column; gap:6px; margin-bottom:12px }
+
+    /* Workflows panel */
+    .tab-panel { position: fixed; left: 12px; right: 12px; bottom: 80px; top: 80px; background: rgba(0,0,0,0.02); border-radius: 12px; padding: 12px; display:none; z-index:1250; overflow:auto }
+    .tab-panel[aria-hidden="false"] { display:block }
+    .workflows-list { display:flex; flex-direction:column; gap:8px; margin-top:8px }
+    .workflow-item { padding:10px; border:1px solid var(--border); border-radius:8px; background:var(--panel); display:flex; justify-content:space-between; align-items:center }
+
+    @media (max-width: 1024px) {
+      .bottom-tabs { display:flex }
+      .sidebar { transform: translateX(-100%); }
+      .sidebar.hidden { transform: translateX(-100%); }
+      .panel-toggle { display:none }
     }
     .modal-content textarea {
       width: 100%; min-height: 220px;
@@ -482,6 +518,9 @@
       .mobile-toolbar .toolbar .btn .material-icons {
         font-size: 16px;
       }
+
+      /* Save status badge spacing */
+      .save-status { margin-left: 8px; }
       .sidebar {
         width: 260px;
       }
@@ -520,7 +559,7 @@
       </button>
     </div>
     <div class="brand">
-      <i class="material-icons" style="font-size:20px">psychology</i>
+  <i class="material-icons icon-lg">psychology</i>
       <h1>LLMCanvas</h1>
       <span class="badge">Visual LLM Workflow Automation</span>
     </div>
@@ -530,7 +569,7 @@
         <option value="TinyLlama-1.1B-Chat-v1.0-q4f32_1-MLC">TinyLlama‑1.1B‑Chat</option>
       </select>
       <label class="badge">Temp</label>
-      <input id="tempInput" type="number" min="0" max="1" step="0.1" value="0.7" style="width:70px" />
+  <input id="tempInput" class="temp-input" type="number" min="0" max="1" step="0.1" value="0.7" />
       <button id="connectModeBtn" class="btn icon">
         <i class="material-icons">link</i> <span class="btn-text">Connect</span>
       </button>
@@ -544,6 +583,9 @@
       <button id="themeBtn" class="btn icon"><i class="material-icons">brightness_6</i></button>
       <button id="examplesBtn" class="btn icon"><i class="material-icons">library_books</i></button>
       <button id="refreshEdgesBtn" class="btn icon"><i class="material-icons">refresh</i></button>
+      <button id="undoBtn" class="btn icon" title="Undo (Ctrl+Z)"><i class="material-icons">undo</i></button>
+      <button id="redoBtn" class="btn icon" title="Redo (Ctrl+Y)"><i class="material-icons">redo</i></button>
+      <span id="saveStatus" class="badge save-status">Saved</span>
     </div>
   </header>
 
@@ -584,7 +626,7 @@
       </div>
 
       <div class="section-title">Tips</div>
-      <div style="font-size:13px; color:var(--muted)">
+  <div class="tips-text">
         - Click "Connect" to link nodes with arrows
         <br/>- Use {{variable}} syntax for dynamic templates  
         <br/>- Memory nodes store data between executions
@@ -601,7 +643,7 @@
 
     <main class="canvas-wrapper">
       <div class="grid"></div>
-      <div id="canvas" class="canvas" style="transform: scale(1) translate(0px, 0px)">
+  <div id="canvas" class="canvas">
         <svg id="edges" class="edges"></svg>
         <div id="nodes" class="nodes"></div>
       </div>
@@ -639,14 +681,76 @@
     </div>
   </div>
 
+  <!-- Bottom Tabs (mobile / tablet) -->
+  <nav id="bottomTabs" class="bottom-tabs" aria-label="Main tabs">
+    <button class="tab-btn active" data-tab="blocks" aria-label="Blocks" title="Blocks">
+      <i class="material-icons">apps</i>
+      <div class="tab-label">Blocks</div>
+    </button>
+    <button class="tab-btn" data-tab="workflows" aria-label="Workflows" title="Workflows">
+      <i class="material-icons">folder</i>
+      <div class="tab-label">Workflows</div>
+    </button>
+    <button class="tab-btn" data-tab="settings" aria-label="Settings" title="Settings">
+      <i class="material-icons">settings</i>
+      <div class="tab-label">Settings</div>
+    </button>
+  </nav>
+
+  <!-- Right drawer for settings -->
+  <aside id="rightDrawer" class="right-drawer" aria-hidden="true">
+    <div class="drawer-header">
+      <strong>Settings</strong>
+      <button id="closeRightDrawer" class="btn">✖</button>
+    </div>
+    <div class="drawer-body">
+      <h4>Model & Execution</h4>
+      <div class="form-row">
+        <label>Model</label>
+        <select id="drawerModelSelect">
+          <option>Qwen2.5‑1.5B‑Instruct</option>
+          <option>TinyLlama‑1.1B‑Chat</option>
+        </select>
+      </div>
+      <div class="form-row">
+        <label>Temperature</label>
+        <input id="drawerTemp" type="number" min="0" max="1" step="0.1" value="0.7" />
+      </div>
+      <hr />
+      <h4>Autosave & History</h4>
+      <div class="form-row">
+        <label>Autosave interval</label>
+        <input id="drawerAutosaveInterval" type="number" min="1" max="60" value="3" />
+      </div>
+      <div class="form-row">
+        <button id="exportAllBtn" class="btn">Export All Workflows</button>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Workflows Tab Panel (hidden by default) -->
+  <div id="workflowsPanel" class="tab-panel" aria-hidden="true">
+    <div class="workflows-header">
+      <h3>Your Workflows</h3>
+      <div>
+        <button id="newWorkflowBtn" class="btn">New</button>
+        <button id="importWorkflowBtn" class="btn">Import</button>
+      </div>
+    </div>
+    <div id="workflowsList" class="workflows-list"></div>
+    <div class="workflows-footer">
+      <small class="tips-text">Tap a workflow to load it into the canvas.</small>
+    </div>
+  </div>
+
   <div id="modal" class="modal">
     <div class="modal-content">
-      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px">
+      <div class="modal-header">
         <strong id="modalTitle">Export / Import</strong>
         <button id="modalClose" class="btn">✖</button>
       </div>
       <textarea id="modalTextarea"></textarea>
-      <div style="margin-top:8px; display:flex; gap:8px">
+      <div class="modal-footer">
         <button id="modalApply" class="btn green">Apply</button>
         <button id="modalCopy" class="btn">Copy</button>
       </div>
@@ -674,6 +778,10 @@
     const zoomOutBtn = document.getElementById("zoomOut");
     const zoomInBtn = document.getElementById("zoomIn");
     const zoomResetBtn = document.getElementById("zoomReset");
+  // Right-drawer controls (settings)
+  const drawerModelSelect = document.getElementById('drawerModelSelect');
+  const drawerTemp = document.getElementById('drawerTemp');
+  const drawerAutosaveInterval = document.getElementById('drawerAutosaveInterval');
     const modal = document.getElementById("modal");
     const modalTitle = document.getElementById("modalTitle");
     const modalTextarea = document.getElementById("modalTextarea");
@@ -1755,6 +1863,138 @@
         setTimeout(drawEdges, 100);
     resetNodeVisualState();
     }
+
+    // --- History, Undo/Redo & Autosave Recovery ---
+    (function() {
+      const statusEl = document.getElementById('saveStatus');
+      const undoBtn = document.getElementById('undoBtn');
+      const redoBtn = document.getElementById('redoBtn');
+
+      const HISTORY_LIMIT = 50;
+      const DEBOUNCE_MS = 600; // debounce pushes to history
+
+      let history = [];
+      let historyIndex = -1;
+      let pushTimer = null;
+
+      function updateSaveStatus(text) { if (statusEl) statusEl.textContent = text; }
+      function updateUndoRedoUI() {
+        if (undoBtn) undoBtn.disabled = historyIndex <= 0;
+        if (redoBtn) redoBtn.disabled = historyIndex >= history.length - 1;
+      }
+
+      function pushHistorySnapshot(reason = 'edit') {
+        try {
+          const snapshot = JSON.stringify(serialize());
+          // If identical to current, skip
+          if (historyIndex >= 0 && history[historyIndex] === snapshot) return;
+          // Truncate any redo history
+          history = history.slice(0, historyIndex + 1);
+          history.push(snapshot);
+          if (history.length > HISTORY_LIMIT) history.shift();
+          historyIndex = history.length - 1;
+          updateUndoRedoUI();
+          updateSaveStatus(reason === 'autosave' ? 'Saved (auto)' : 'Unsaved changes');
+        } catch (e) { console.warn('pushHistorySnapshot failed', e); }
+      }
+
+      function debouncePush() {
+        if (pushTimer) clearTimeout(pushTimer);
+        pushTimer = setTimeout(() => { pushHistorySnapshot('edit'); pushTimer = null; }, DEBOUNCE_MS);
+      }
+
+      function restoreFromSnapshot(snapshot) {
+        try {
+          const data = JSON.parse(snapshot);
+          deserialize(data);
+        } catch (e) { console.warn('restoreFromSnapshot failed', e); }
+      }
+
+      function undo() {
+        if (historyIndex <= 0) return;
+        historyIndex--;
+        restoreFromSnapshot(history[historyIndex]);
+        updateUndoRedoUI();
+        updateSaveStatus('Unsaved changes');
+      }
+
+      function redo() {
+        if (historyIndex >= history.length - 1) return;
+        historyIndex++;
+        restoreFromSnapshot(history[historyIndex]);
+        updateUndoRedoUI();
+        updateSaveStatus('Unsaved changes');
+      }
+
+      // Keyboard shortcuts
+      window.addEventListener('keydown', (e) => {
+        if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'z') { e.preventDefault(); undo(); }
+        if ((e.ctrlKey || e.metaKey) && (e.key.toLowerCase() === 'y' || (e.shiftKey && e.key.toLowerCase() === 'z'))) { e.preventDefault(); redo(); }
+      });
+
+      if (undoBtn) undoBtn.addEventListener('click', undo);
+      if (redoBtn) redoBtn.addEventListener('click', redo);
+
+      // MutationObserver + input listeners to detect changes -> debounced history push
+      try {
+        const mo = new MutationObserver(() => debouncePush());
+        mo.observe(nodesEl, { childList: true, subtree: true, attributes: true, characterData: true });
+        mo.observe(edgesEl, { childList: true, subtree: true, attributes: true, characterData: true });
+      } catch (e) { console.warn('History: MutationObserver failed', e); }
+      document.addEventListener('input', debouncePush, true);
+      document.addEventListener('change', debouncePush, true);
+
+      // Autosave: periodically write to autsave key if snapshot changed
+      let lastAutosaveSnapshot = null;
+      function autosaveTick() {
+        try {
+          const snapshot = JSON.stringify(serialize());
+          if (snapshot !== lastAutosaveSnapshot) {
+            localStorage.setItem('llmcanvas_autosave', snapshot);
+            lastAutosaveSnapshot = snapshot;
+            pushHistorySnapshot('autosave');
+          }
+        } catch (e) { console.warn('AutosaveTick failed', e); }
+      }
+      const autosaveInterval = setInterval(autosaveTick, 3000);
+
+      // Manual save clears the autosave and updates status
+      saveBtn.addEventListener('click', () => {
+        try {
+          const snapshot = JSON.stringify(serialize());
+          localStorage.setItem('llmcanvas', snapshot);
+          localStorage.removeItem('llmcanvas_autosave');
+          lastAutosaveSnapshot = snapshot;
+          pushHistorySnapshot('manual-save');
+          updateSaveStatus('Saved');
+        } catch (e) { console.warn('Manual save failed', e); }
+      });
+
+      // On load: if autosave exists and differs from manual save, offer recovery
+      window.addEventListener('load', () => {
+        try {
+          const manual = localStorage.getItem('llmcanvas');
+          const autosave = localStorage.getItem('llmcanvas_autosave');
+          if (autosave && autosave !== manual) {
+            // Show a simple recovery modal using existing modal elements
+            openModal('Recover Autosave', '', true);
+            modalTextarea.style.display = 'block';
+            modalTextarea.value = 'A recent autosave was found. Click Apply to restore the autosaved workflow, or Copy to inspect it.';
+            modalApply.style.display = 'inline-block';
+            modalCopy.style.display = 'inline-block';
+            modalApply.onclick = () => {
+              try { deserialize(JSON.parse(autosave)); modal.style.display = 'none'; }
+              catch (e) { alert('Failed to restore autosave.'); }
+            };
+            modalCopy.onclick = async () => { await navigator.clipboard.writeText(autosave); alert('Autosave JSON copied to clipboard'); };
+          }
+        } catch (e) { console.warn('Autosave recovery check failed', e); }
+      });
+
+      // Initialize history with current state
+      pushHistorySnapshot('init');
+      updateUndoRedoUI();
+    })();
     
     function openModal(title, text, showApply) {
       modalTitle.textContent = title;
@@ -2550,6 +2790,151 @@
         sidebarToggleBtn.style.display = 'none';
       }
     });
+
+  // --- Bottom tabs & right drawer (mobile-focused UI) ---
+    const bottomTabs = document.getElementById('bottomTabs');
+    const tabButtons = document.querySelectorAll('.tab-btn');
+    const rightDrawer = document.getElementById('rightDrawer');
+    const closeRightDrawer = document.getElementById('closeRightDrawer');
+    const workflowsPanel = document.getElementById('workflowsPanel');
+    const workflowsList = document.getElementById('workflowsList');
+    const newWorkflowBtn = document.getElementById('newWorkflowBtn');
+    const importWorkflowBtn = document.getElementById('importWorkflowBtn');
+    const exportAllBtn = document.getElementById('exportAllBtn');
+
+    function switchToTab(tabName) {
+      tabButtons.forEach(btn => btn.classList.toggle('active', btn.dataset.tab === tabName));
+      // Manage panels
+      if (tabName === 'blocks') {
+        workflowsPanel.setAttribute('aria-hidden', 'true');
+        rightDrawer.classList.remove('open');
+      } else if (tabName === 'workflows') {
+        workflowsPanel.setAttribute('aria-hidden', 'false');
+        rightDrawer.classList.remove('open');
+        renderWorkflowsList();
+      } else if (tabName === 'settings') {
+        workflowsPanel.setAttribute('aria-hidden', 'true');
+        rightDrawer.classList.add('open');
+      }
+    }
+
+    tabButtons.forEach(btn => btn.addEventListener('click', () => switchToTab(btn.dataset.tab)));
+    closeRightDrawer.addEventListener('click', () => rightDrawer.classList.remove('open'));
+
+    // --- Settings drawer bindings ---
+    // Keep header controls and drawer controls in sync
+    // modelSelect is the header select; drawerModelSelect is the drawer select
+    try {
+      // Initialize drawer select to match header
+      if (drawerModelSelect && modelSelect) {
+        // replace drawer options with header options (preserve values)
+        drawerModelSelect.innerHTML = '';
+        Array.from(modelSelect.options).forEach(opt => drawerModelSelect.appendChild(opt.cloneNode(true)));
+        drawerModelSelect.value = modelSelect.value;
+        drawerModelSelect.addEventListener('change', async () => {
+          const id = drawerModelSelect.value;
+          // sync header
+          modelSelect.value = id;
+          modelNameEl.textContent = drawerModelSelect.selectedOptions[0].textContent || id;
+          // re-init engine with new model
+          engine = null;
+          await initEngine(id);
+        });
+        // also propagate header changes to drawer
+        modelSelect.addEventListener('change', () => {
+          drawerModelSelect.value = modelSelect.value;
+        });
+      }
+
+      // Temperature input sync
+      if (drawerTemp && tempInput) {
+        drawerTemp.value = tempInput.value;
+        drawerTemp.addEventListener('input', () => {
+          tempInput.value = drawerTemp.value;
+        });
+        tempInput.addEventListener('input', () => {
+          drawerTemp.value = tempInput.value;
+        });
+      }
+
+      // Autosave interval control: allow user to change autosave frequency (in seconds)
+      let autosaveTimerRef = autosaveInterval; // current interval id
+      function setAutosaveIntervalSeconds(sec) {
+        try {
+          if (autosaveTimerRef) clearInterval(autosaveTimerRef);
+        } catch (e) {}
+        try {
+          const ms = Math.max(1000, Number(sec) * 1000);
+          autosaveTimerRef = setInterval(autosaveTick, ms);
+        } catch (e) { console.warn('Failed to set autosave interval', e); }
+      }
+      if (drawerAutosaveInterval) {
+        drawerAutosaveInterval.value = 3;
+        drawerAutosaveInterval.addEventListener('change', () => {
+          const s = Number(drawerAutosaveInterval.value) || 3;
+          setAutosaveIntervalSeconds(s);
+        });
+      }
+    } catch (e) { console.warn('Settings drawer bind failed', e); }
+
+    // Workflows storage: store under key 'llmcanvas_workflows' as map name->payload
+    function loadWorkflowsStore() {
+      try { return JSON.parse(localStorage.getItem('llmcanvas_workflows') || '{}'); } catch (e) { return {}; }
+    }
+    function saveWorkflowsStore(obj) { localStorage.setItem('llmcanvas_workflows', JSON.stringify(obj)); }
+
+    function renderWorkflowsList() {
+      const store = loadWorkflowsStore();
+      workflowsList.innerHTML = '';
+      const keys = Object.keys(store).sort();
+      if (keys.length === 0) {
+        workflowsList.innerHTML = '<div class="tips-text">No saved workflows yet. Create one and click Save in the header.</div>';
+        return;
+      }
+      keys.forEach(name => {
+        const item = document.createElement('div');
+        item.className = 'workflow-item';
+        item.innerHTML = `<div>${name}</div><div style="display:flex;gap:8px"><button class='btn load-workflow' data-name='${name}'>Load</button><button class='btn delete-workflow' data-name='${name}'>Delete</button></div>`;
+        workflowsList.appendChild(item);
+      });
+      workflowsList.querySelectorAll('.load-workflow').forEach(b => b.addEventListener('click', (e) => {
+        const name = e.target.dataset.name;
+        const store = loadWorkflowsStore();
+        if (store[name]) deserialize(store[name]);
+      }));
+      workflowsList.querySelectorAll('.delete-workflow').forEach(b => b.addEventListener('click', (e) => {
+        const name = e.target.dataset.name;
+        const store = loadWorkflowsStore();
+        if (confirm(`Delete workflow "${name}"?`)) { delete store[name]; saveWorkflowsStore(store); renderWorkflowsList(); }
+      }));
+    }
+
+    newWorkflowBtn.addEventListener('click', () => {
+      if (!confirm('Create new blank workflow? Unsaved changes will be lost.')) return;
+      graph = { nodes: [], edges: [] }; nodesEl.innerHTML = ''; nodeIdSeq = 0; drawEdges();
+    });
+
+    importWorkflowBtn.addEventListener('click', () => openModal('Import JSON', '', true));
+
+    exportAllBtn && exportAllBtn.addEventListener('click', () => {
+      const store = loadWorkflowsStore();
+      openModal('All Workflows JSON', JSON.stringify(store, null, 2), false);
+    });
+
+    // Hook save flow: prompt for name and save to workflows store
+    saveBtn.addEventListener('click', () => {
+      const name = prompt('Enter a name to save this workflow:', 'My Workflow');
+      if (!name) return alert('Save cancelled');
+      try {
+        const store = loadWorkflowsStore();
+        store[name] = serialize();
+        saveWorkflowsStore(store);
+        alert('Workflow saved: ' + name);
+      } catch (e) { console.warn('Save workflow failed', e); alert('Save failed'); }
+    });
+
+    // Initialize tab state based on screen size
+    if (window.innerWidth <= 1024) switchToTab('blocks');
   </script>
 </body>
 </html>
