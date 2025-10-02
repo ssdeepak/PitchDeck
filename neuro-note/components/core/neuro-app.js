@@ -498,7 +498,7 @@ export class NeuroApp extends BaseComponent {
 
     // Listen for semantic analysis results
     document.addEventListener("connections-updated", (event) => {
-      console.log("🧠 Received semantic analysis results:", event.detail);
+       
       this.renderConnections();
     });
   }
@@ -565,18 +565,157 @@ export class NeuroApp extends BaseComponent {
       }
     });
 
-    // Zoom
+    // Touch support for tablets and mobile
+    let touchStartDistance = 0;
+    let touchStartZoom = 1;
+    let touchStartPan = { x: 0, y: 0 };
+    let isTouchPanning = false;
+    let touchStartTime = 0;
+
+    container.addEventListener(
+      "touchstart",
+      (e) => {
+        touchStartTime = Date.now();
+
+        if (e.touches.length === 1) {
+          // Single touch - pan
+          const touch = e.touches[0];
+          if (e.target === container || e.target.id === "noteCanvas") {
+            e.preventDefault();
+            isTouchPanning = true;
+            startX = touch.clientX;
+            startY = touch.clientY;
+            startPanX = this.state.pan.x;
+            startPanY = this.state.pan.y;
+            document.body.style.userSelect = "none";
+          }
+        } else if (e.touches.length === 2) {
+          // Two finger - zoom and pan
+          e.preventDefault();
+          isTouchPanning = false;
+
+          const touch1 = e.touches[0];
+          const touch2 = e.touches[1];
+
+          // Calculate initial distance for zoom
+          touchStartDistance = Math.sqrt(
+            Math.pow(touch2.clientX - touch1.clientX, 2) +
+              Math.pow(touch2.clientY - touch1.clientY, 2)
+          );
+          touchStartZoom = this.state.zoom;
+          touchStartPan = { ...this.state.pan };
+        }
+      },
+      { passive: false }
+    );
+
+    container.addEventListener(
+      "touchmove",
+      (e) => {
+        if (e.touches.length === 1 && isTouchPanning) {
+          // Single touch pan
+          e.preventDefault();
+          const touch = e.touches[0];
+          const dx = touch.clientX - startX;
+          const dy = touch.clientY - startY;
+
+          stateManager.setState({
+            pan: {
+              x: startPanX + dx,
+              y: startPanY + dy,
+            },
+          });
+          this.updateCanvasTransform();
+        } else if (e.touches.length === 2) {
+          // Two finger zoom and pan
+          e.preventDefault();
+
+          const touch1 = e.touches[0];
+          const touch2 = e.touches[1];
+
+          // Calculate current distance
+          const currentDistance = Math.sqrt(
+            Math.pow(touch2.clientX - touch1.clientX, 2) +
+              Math.pow(touch2.clientY - touch1.clientY, 2)
+          );
+
+          // Calculate zoom factor
+          const zoomFactor = currentDistance / touchStartDistance;
+          const newZoom = Math.max(
+            0.2,
+            Math.min(3, touchStartZoom * zoomFactor)
+          );
+
+          // Calculate center point of pinch
+          const centerX = (touch1.clientX + touch2.clientX) / 2;
+          const centerY = (touch1.clientY + touch2.clientY) / 2;
+
+          // Update zoom and maintain center point
+          const rect = container.getBoundingClientRect();
+          const relativeX = centerX - rect.left;
+          const relativeY = centerY - rect.top;
+
+          // Adjust pan to keep zoom centered on pinch point
+          const zoomDelta = newZoom / this.state.zoom;
+          const newPanX = touchStartPan.x - relativeX * (zoomDelta - 1);
+          const newPanY = touchStartPan.y - relativeY * (zoomDelta - 1);
+
+          stateManager.setState({
+            zoom: newZoom,
+            pan: { x: newPanX, y: newPanY },
+          });
+          this.updateCanvasTransform();
+        }
+      },
+      { passive: false }
+    );
+
+    container.addEventListener(
+      "touchend",
+      (e) => {
+        const touchDuration = Date.now() - touchStartTime;
+
+        // Reset panning state
+        if (isTouchPanning) {
+          isTouchPanning = false;
+          document.body.style.userSelect = "";
+        }
+
+        // Handle tap gestures (quick touch < 200ms)
+        if (e.touches.length === 0 && touchDuration < 200) {
+          // This was a tap, not a pan - could be used for note creation
+          // For now, just ensure we're not interfering with note interactions
+        }
+
+        e.preventDefault();
+      },
+      { passive: false }
+    );
+
+    // Mouse wheel zoom
     container.addEventListener(
       "wheel",
       (e) => {
         e.preventDefault();
         const zoomFactor = 1.08;
+        const rect = container.getBoundingClientRect();
+        const mouseX = e.clientX - rect.left;
+        const mouseY = e.clientY - rect.top;
+
         const newZoom =
           e.deltaY < 0
             ? Math.min(3, this.state.zoom * zoomFactor)
             : Math.max(0.2, this.state.zoom / zoomFactor);
 
-        stateManager.setState({ zoom: newZoom });
+        // Zoom towards mouse position
+        const zoomDelta = newZoom / this.state.zoom;
+        const newPanX = this.state.pan.x - mouseX * (zoomDelta - 1);
+        const newPanY = this.state.pan.y - mouseY * (zoomDelta - 1);
+
+        stateManager.setState({
+          zoom: newZoom,
+          pan: { x: newPanX, y: newPanY },
+        });
         this.updateCanvasTransform();
       },
       { passive: false }
@@ -604,13 +743,11 @@ export class NeuroApp extends BaseComponent {
     const connections = this.state.connections || [];
 
     if (notes.length === 0) {
-      console.log("⚠️ No notes to beautify");
+       
       return;
     }
 
-    console.log(
-      `🎨 Beautifying layout with ${notes.length} notes and ${connections.length} connections`
-    );
+   
 
     // Parameters
     const repulsionStrength = 8000;
@@ -711,7 +848,7 @@ export class NeuroApp extends BaseComponent {
 
     // Update state and re-render
     stateManager.setState({ notes });
-    console.log("✨ Layout beautification complete");
+     
   }
 
   renderNotes() {
@@ -721,29 +858,19 @@ export class NeuroApp extends BaseComponent {
       return;
     }
 
-    console.log(`📝 Rendering ${this.state.notes.length} notes...`);
+     
 
     // Clear existing notes
     canvas.innerHTML = "";
 
     // Render each note
     this.state.notes.forEach((note) => {
-      console.log(
-        "Creating note card:",
-        note.id,
-        note.title,
-        `at (${note.x}, ${note.y})`
-      );
+       
       const noteCard = document.createElement("neuro-note-card");
       noteCard.setNoteData(note);
 
       // Debug: Check if note card was created
-      console.log(
-        "  → Note card element:",
-        noteCard.tagName,
-        "visible:",
-        noteCard.offsetWidth > 0
-      );
+       
 
       // Listen to note events
       noteCard.addEventListener("note-title-changed", (e) => {
@@ -781,15 +908,12 @@ export class NeuroApp extends BaseComponent {
       canvas.appendChild(noteCard);
     });
 
-    console.log("✅ Notes rendered! Canvas children:", canvas.children.length);
-    console.log("Canvas element info:", {
-      width: canvas.offsetWidth,
-      height: canvas.offsetHeight,
-      transform: canvas.style.transform,
-    });
+      
 
     // Render connections after notes are in DOM
-    this.renderConnections();
+    setTimeout(() => {
+      this.renderConnections();
+    }, 100); // Small delay to ensure note cards are fully rendered
   }
 
   /**
@@ -803,17 +927,42 @@ export class NeuroApp extends BaseComponent {
     svg.innerHTML = "";
 
     const connections = this.state.connections || [];
-    console.log("🔗 Rendering", connections.length, "connections");
+    console.log(`🔗 Rendering ${connections.length} connections`);
+
+    // Connection styles (duplicated from styleConnection for label rendering)
+    const styles = {
+      "parent-child": { stroke: "#999", width: 2, dash: "none", opacity: 0.6 },
+      similarity: { stroke: "#4CAF50", width: 1.5, dash: "5,5", opacity: 0.5 },
+      causal: { stroke: "#2196F3", width: 2.5, dash: "none", opacity: 0.7 },
+      contradiction: {
+        stroke: "#f44336",
+        width: 1.5,
+        dash: "3,3",
+        opacity: 0.6,
+      },
+      supports: { stroke: "#4CAF50", width: 2, dash: "none", opacity: 0.6 },
+      refines: { stroke: "#9C27B0", width: 1.5, dash: "2,2", opacity: 0.5 },
+      temporal: { stroke: "#FF9800", width: 2, dash: "none", opacity: 0.6 },
+      related: { stroke: "#757575", width: 1, dash: "5,5", opacity: 0.4 },
+    };
 
     connections.forEach((conn) => {
       // Handle both old format (from/to) and new format (sourceId/targetId)
       const sourceId = conn.from || conn.sourceId;
       const targetId = conn.to || conn.targetId;
 
-      const sourceNote = this.$(`.note-card[data-id="${sourceId}"]`);
-      const targetNote = this.$(`.note-card[data-id="${targetId}"]`);
+      const sourceNote = this.$(`neuro-note-card[data-id="${sourceId}"]`);
+      const targetNote = this.$(`neuro-note-card[data-id="${targetId}"]`);
 
-      if (!sourceNote || !targetNote) return;
+      if (!sourceNote || !targetNote) {
+        console.warn(
+          `🔗 Could not find notes for connection: ${sourceId} -> ${targetId}`
+        );
+        console.warn(
+          `  Source note found: ${!!sourceNote}, Target note found: ${!!targetNote}`
+        );
+        return;
+      }
 
       // Get center points of notes
       const sourceRect = sourceNote.getBoundingClientRect();
@@ -853,6 +1002,8 @@ export class NeuroApp extends BaseComponent {
       if (conn.reason && conn.type !== "parent-child") {
         const midX = (x1 + x2) / 2;
         const midY = (y1 + y2) / 2;
+        const type = conn.type || "related";
+        const style = styles[type] || styles.related;
 
         const label = document.createElementNS(
           "http://www.w3.org/2000/svg",
@@ -887,6 +1038,9 @@ export class NeuroApp extends BaseComponent {
       }
 
       svg.appendChild(line);
+      console.log(
+        `✅ Drew connection: ${sourceId} -> ${targetId} (${conn.type})`
+      );
     });
   }
 
@@ -995,14 +1149,14 @@ export class NeuroApp extends BaseComponent {
     });
 
     this.saveToStorage();
-    console.log("✅ Child note created for parent:", parentId);
+    
   }
 
   async deepDiveNote(noteId) {
     const note = stateManager.getNote(noteId);
     if (!note) return;
 
-    console.log("🔍 Deep Dive requested for:", note.title);
+     
 
     try {
       const prompt = `Expand this concept into 3-5 specific sub-concepts:
@@ -1026,7 +1180,7 @@ Each sub-concept should be specific, actionable, and add new information.`;
         throw new Error("Invalid response format");
       }
 
-      console.log(`✅ Generated ${subconcepts.length} sub-concepts`);
+       
 
       // Create child notes
       const hierarchy = this.state.noteHierarchy || {};
@@ -1079,7 +1233,7 @@ Each sub-concept should be specific, actionable, and add new information.`;
     }
 
     stateManager.setState({ collapsedNotes });
-    console.log("🔄 Toggled collapse for note:", noteId);
+     
   }
 
   getRandomNoteColor() {
@@ -1105,7 +1259,7 @@ Each sub-concept should be specific, actionable, and add new information.`;
       if (!this.state.currentCanvasId) {
         stateManager.setState({ currentCanvasId: id });
       }
-      console.log("💾 Canvas auto-saved to IndexedDB:", canvas.name);
+       
     } catch (e) {
       console.error("Failed to save canvas to IndexedDB:", e);
     }
@@ -1143,7 +1297,7 @@ Each sub-concept should be specific, actionable, and add new information.`;
     // Add to canvas
     canvasContainer.appendChild(analysisScratchNode);
 
-    console.log("🧠 Analysis scratch node created at", position);
+     
   }
 
   findGoodScratchNodePosition() {
@@ -1207,7 +1361,7 @@ Each sub-concept should be specific, actionable, and add new information.`;
   onThemeChange(theme) {
     // Just update the theme icon - CSS variables are inherited from document
     this.updateThemeIcon();
-    console.log("🎨 NeuroApp theme changed to:", theme);
+     
   }
 
   toggleLeftDrawer() {
@@ -1229,7 +1383,7 @@ Each sub-concept should be specific, actionable, and add new information.`;
       this.$("#rightDrawer").classList.remove("open");
       stateManager.setState({ rightDrawerOpen: false });
     }
-    console.log("🍔 Left drawer:", isOpen ? "CLOSED" : "OPEN");
+     
   }
 
   toggleRightDrawer() {
@@ -1249,7 +1403,7 @@ Each sub-concept should be specific, actionable, and add new information.`;
       this.$("#leftDrawer").classList.remove("open");
       stateManager.setState({ leftDrawerOpen: false });
     }
-    console.log("⚙️ Right drawer:", isOpen ? "CLOSED" : "OPEN");
+     
   }
 
   attachDrawerListeners() {
@@ -1300,7 +1454,7 @@ Each sub-concept should be specific, actionable, and add new information.`;
 
       try {
         await this.updateProviderUI(provider);
-        console.log(`🔄 Refreshed models for ${provider}`);
+         
       } catch (error) {
         console.error("Failed to refresh models:", error);
         alert("Failed to refresh models. Check console for details.");
@@ -1327,7 +1481,7 @@ Each sub-concept should be specific, actionable, and add new information.`;
 
         // Initialize WebLLM with progress callback
         const success = await llmService.initWebLLM((report) => {
-          console.log("WebLLM progress:", report);
+           
           if (report.progress) {
             const percent = Math.round(report.progress * 100);
             progressBar.style.width = percent + "%";
@@ -1368,14 +1522,7 @@ Each sub-concept should be specific, actionable, and add new information.`;
       const endpoint = this.$("#llmEndpoint").value;
       const temperature = parseFloat(this.$("#llmTemp").value);
 
-      console.log("💾 Saving LLM settings:", {
-        provider,
-        model,
-        apiKey: apiKey ? "***" : "(not set)",
-        endpoint,
-        temperature,
-      });
-
+       
       // Update LLM service config
       llmService.updateConfig({
         provider,
@@ -1527,7 +1674,7 @@ Each sub-concept should be specific, actionable, and add new information.`;
       }
     }
 
-    console.log(`📋 Loaded ${models.length} models for ${provider}:`, models);
+     
   }
 
   updateHeader() {
@@ -1539,7 +1686,7 @@ Each sub-concept should be specific, actionable, and add new information.`;
   }
 
   async loadLastCanvas() {
-    console.log("Loading last canvas...");
+     
 
     try {
       // Check if we have any canvases in IndexedDB
@@ -1547,7 +1694,7 @@ Each sub-concept should be specific, actionable, and add new information.`;
 
       if (canvases.length === 0) {
         // No canvases exist - create an Examples canvas
-        console.log("No canvases found, creating Examples canvas...");
+         
         await this.createExamplesCanvas();
         return;
       }
@@ -1568,7 +1715,7 @@ Each sub-concept should be specific, actionable, and add new information.`;
           currentCanvasId: lastCanvas.id,
           currentCanvasName: lastCanvas.name || "Untitled Canvas",
         });
-        console.log("✅ Loaded last canvas:", lastCanvas.name);
+         
         return;
       }
     } catch (e) {
@@ -1746,7 +1893,7 @@ Each sub-concept should be specific, actionable, and add new information.`;
         zoom: 1,
       });
 
-      console.log("✅ Created and loaded Examples canvas");
+       
 
       // Refresh the canvas list so it appears in the left drawer
       this.refreshCanvasList();
@@ -1763,7 +1910,7 @@ Each sub-concept should be specific, actionable, and add new information.`;
    * Analyze notes with LLM to discover semantic connections
    */
   async analyzeNotesWithLLM() {
-    console.log("🔍 Starting semantic analysis...");
+     
 
     const notes = this.state.notes;
     if (notes.length < 2) {
@@ -1822,13 +1969,13 @@ ${JSON.stringify(
         temperature: 0.2,
       });
 
-      console.log("📊 LLM Response:", response);
+       
 
       // Parse JSON response
       const result = this.safeParseJSON(response);
 
       if (result && result.connections) {
-        console.log(`✅ Found ${result.connections.length} connections`);
+         
 
         // Add new connections to state (merge with existing)
         const existingConnections = this.state.connections || [];
@@ -1974,7 +2121,7 @@ ${JSON.stringify(
         });
 
         this.toggleLeftDrawer(); // Close drawer
-        console.log("✅ Loaded canvas:", canvas.name);
+         
       }
     } catch (error) {
       console.error("Failed to load canvas:", error);
@@ -2015,7 +2162,7 @@ ${JSON.stringify(
       });
 
       this.toggleLeftDrawer();
-      console.log("✅ Created new canvas:", canvasName);
+       
     } catch (error) {
       console.error("Failed to create canvas:", error);
       alert("Failed to create canvas");
@@ -2026,7 +2173,7 @@ ${JSON.stringify(
    * Force-directed layout (Beautify)
    */
   async beautifyLayout() {
-    console.log("🎨 Applying force-directed layout...");
+     
 
     const notes = [...this.state.notes];
     const connections = this.state.connections || [];
@@ -2129,7 +2276,7 @@ ${JSON.stringify(
     });
 
     stateManager.setState({ notes });
-    console.log("✅ Layout complete!");
+     
   }
 
   /**
@@ -2200,7 +2347,7 @@ ${JSON.stringify(
     a.click();
     URL.revokeObjectURL(url);
 
-    console.log("📄 Exported to Markdown");
+     
   }
 
   /**

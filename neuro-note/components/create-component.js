@@ -131,17 +131,4 @@ if (!fs.existsSync(dir)) {
 
 // Write file
 fs.writeFileSync(filePath, template, 'utf8');
-
-console.log('✅ Component created successfully!');
-console.log('');
-console.log(`📁 File: ${filePath}`);
-console.log(`🏷️  Tag: <${componentName}>`);
-console.log(`📦 Class: ${className}`);
-console.log('');
-console.log('Next steps:');
-console.log(`1. Edit ${fileName} to implement your component`);
-console.log(`2. Import in parent component or index.html`);
-console.log(`3. Add to component-registry.js`);
-console.log(`4. Use: <${componentName}></${componentName}>`);
-console.log('');
-console.log('Happy coding! 🚀');
+ 

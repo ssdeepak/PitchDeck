@@ -122,6 +122,62 @@ export class AnalysisScratchNode extends BaseComponent {
           box-shadow: 0 0 0 2px var(--focus-ring);
         }
 
+        .analysis-help {
+          margin-top: 8px;
+          padding: 8px 12px;
+          background: var(--bg-secondary);
+          border-radius: 6px;
+          font-size: 0.8rem;
+          color: var(--text-secondary);
+          line-height: 1.4;
+        }
+
+        .analysis-message {
+          margin-bottom: 12px;
+          padding: 12px;
+          background: var(--bg-elevated);
+          border-radius: 8px;
+          border-left: 4px solid var(--brand-primary);
+          font-size: 0.9rem;
+          line-height: 1.5;
+        }
+
+        .analysis-message p {
+          margin: 0 0 8px 0;
+        }
+
+        .analysis-message p:last-child {
+          margin-bottom: 0;
+        }
+
+        .analysis-message strong {
+          color: var(--brand-primary);
+          font-weight: 600;
+        }
+
+        .analysis-message {
+          margin-bottom: 12px;
+          padding: 12px;
+          background: var(--bg-elevated);
+          border-radius: 8px;
+          border-left: 4px solid var(--brand-primary);
+          font-size: 0.9rem;
+          line-height: 1.5;
+        }
+
+        .analysis-message p {
+          margin: 0 0 8px 0;
+        }
+
+        .analysis-message p:last-child {
+          margin-bottom: 0;
+        }
+
+        .analysis-message strong {
+          color: var(--brand-primary);
+          font-weight: 600;
+        }
+
         .analysis-actions {
           padding: 8px 16px;
           display: flex;
@@ -346,11 +402,15 @@ export class AnalysisScratchNode extends BaseComponent {
               id="promptInput" 
               placeholder="Enter your analysis prompt here... (e.g., 'Analyze the key themes and connections in my notes')"
             >Analyze the key themes, patterns, and connections in the current canvas. Provide insights about the relationships between ideas and suggest potential areas for further exploration.</textarea>
+            <div class="analysis-help">
+              <strong>📝 Text Analysis:</strong> Generates written insights and explanations about your notes<br>
+              <strong>🔗 Build Graph:</strong> Creates visual connections and semantic relationships between notes
+            </div>
           </div>
 
           <div class="analysis-actions">
-            <button class="action-btn" id="analyzeBtn">🚀 Start Analysis</button>
-            <button class="action-btn" id="semanticBtn">🧠 Build Graph</button>
+            <button class="action-btn" id="analyzeBtn" title="Generate text analysis and insights about your notes">📝 Text Analysis</button>
+            <button class="action-btn" id="semanticBtn" title="Build visual connections and relationships between notes">🔗 Build Graph</button>
             <button class="action-btn secondary" id="stopBtn" disabled>⏹️ Stop</button>
           </div>
 
@@ -639,7 +699,11 @@ Please provide a detailed, structured analysis. Use clear headings and bullet po
     const streamingContent = this.$("#streamingContent");
     const analysisResult = this.$("#analysisResult");
 
-    if (streamingContent) streamingContent.classList.add("show");
+    // Clear previous streaming content for fresh start
+    if (streamingContent) {
+      streamingContent.innerHTML = "";
+      streamingContent.classList.add("show");
+    }
     if (analysisResult) analysisResult.classList.remove("show");
   }
 
@@ -647,11 +711,17 @@ Please provide a detailed, structured analysis. Use clear headings and bullet po
     const streamingContent = this.$("#streamingContent");
     if (!streamingContent) return;
 
-    const chunkEl = document.createElement("div");
-    chunkEl.className = "stream-chunk";
-    chunkEl.textContent = chunk;
+    // Get or create the current streaming paragraph
+    let currentParagraph = streamingContent.querySelector('.current-stream');
+    if (!currentParagraph) {
+      currentParagraph = document.createElement("div");
+      currentParagraph.className = "stream-chunk current-stream";
+      streamingContent.appendChild(currentParagraph);
+    }
 
-    streamingContent.appendChild(chunkEl);
+    // Add chunk directly to paragraph without extra newlines
+    currentParagraph.textContent += chunk;
+    
     streamingContent.scrollTop = streamingContent.scrollHeight;
   }
 
@@ -677,6 +747,26 @@ Please provide a detailed, structured analysis. Use clear headings and bullet po
       const tokens = Math.floor(text.length / 4);
       tokenCount.textContent = `~${tokens} tokens`;
     }
+  }
+
+  displayMessage(message) {
+    const streamingContent = this.$("#streamingContent");
+    if (!streamingContent) return;
+
+    const messageEl = document.createElement("div");
+    messageEl.className = "analysis-message";
+    
+    // Convert markdown-style formatting to HTML
+    const formattedMessage = message
+      .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+      .replace(/\*(.*?)(?<!\*)\*/g, '<em>$1</em>')
+      .replace(/\n\n/g, '</p><p>')
+      .replace(/\n/g, '<br>');
+    
+    messageEl.innerHTML = `<p>${formattedMessage}</p>`;
+    
+    streamingContent.appendChild(messageEl);
+    streamingContent.scrollTop = streamingContent.scrollHeight;
   }
 
   showAnalysisResult(result) {
@@ -728,9 +818,8 @@ Please provide a detailed, structured analysis. Use clear headings and bullet po
       streamingContent.classList.add("show");
     }
 
-    this.addChunk(
-      "🧠 **Building Semantic Graph**\n\nAnalyzing relationships between notes...",
-      "analysis"
+    this.displayMessage(
+      "🧠 **Building Semantic Graph**\n\nAnalyzing relationships between notes..."
     );
 
     try {
@@ -742,7 +831,7 @@ Please provide a detailed, structured analysis. Use clear headings and bullet po
 
         // Display formatted results
         const formattedResults = semanticAnalysisService.formatResults(result);
-        this.addChunk(formattedResults, "analysis");
+        this.displayMessage(formattedResults);
 
         // Trigger connection rendering in the main app
         const event = new CustomEvent("connections-updated", {
@@ -758,15 +847,14 @@ Please provide a detailed, structured analysis. Use clear headings and bullet po
           `✅ Found ${result.connections.length} relationships`
         );
       } else {
-        this.addChunk(
-          "⚠️ No clear relationships detected. Try positioning related notes closer together.",
-          "warning"
+        this.displayMessage(
+          "⚠️ No clear relationships detected. Try positioning related notes closer together."
         );
         this.updateStatus("No relationships found");
       }
     } catch (error) {
       console.error("Semantic analysis error:", error);
-      this.addChunk(`❌ **Analysis Error**: ${error.message}`, "error");
+      this.displayMessage(`❌ **Analysis Error**: ${error.message}`);
       this.updateStatus("Analysis failed");
     } finally {
       this.hideProgress();

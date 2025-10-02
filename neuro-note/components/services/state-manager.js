@@ -8,8 +8,8 @@ class StateManager {
       // Canvas state
       notes: [],
       connections: [],
-      noteHierarchy: {},
-      collapsedNotes: new Set(),
+      noteHierarchy: {}, // parentId -> [childId1, childId2, ...]
+      collapsedNotes: new Set(), // Set of collapsed note IDs
       pan: { x: 0, y: 0 },
       zoom: 1,
       
@@ -134,14 +134,72 @@ class StateManager {
   }
 
   /**
-   * Delete a note
+   * Delete a note and all its children recursively
    */
   deleteNote(id) {
-    const notes = this.state.notes.filter(n => n.id !== id);
+    const noteToDelete = this.getNote(id);
+    if (!noteToDelete) return;
+
+    // Get all notes to delete (including children recursively)
+    const notesToDelete = this.getNotesInSubtree(id);
+    const idsToDelete = new Set(notesToDelete.map(n => n.id));
+    
+    // Filter out deleted notes
+    const notes = this.state.notes.filter(n => !idsToDelete.has(n.id));
+    
+    // Remove connections involving deleted notes
     const connections = this.state.connections.filter(
-      c => c.from !== id && c.to !== id
+      c => !idsToDelete.has(c.from) && !idsToDelete.has(c.to)
     );
-    this.setState({ notes, connections, isDirty: true });
+    
+    // Update parent's hasChildren status if this was the only child
+    if (noteToDelete.parentId) {
+      const parentNote = notes.find(n => n.id === noteToDelete.parentId);
+      if (parentNote) {
+        const remainingSiblings = notes.filter(n => n.parentId === noteToDelete.parentId);
+        if (remainingSiblings.length === 0) {
+          // No more children, update parent
+          const updatedParent = { ...parentNote, hasChildren: false, childIds: [] };
+          const noteIndex = notes.findIndex(n => n.id === parentNote.id);
+          if (noteIndex >= 0) {
+            notes[noteIndex] = updatedParent;
+          }
+        }
+      }
+    }
+    
+    // Remove from collapsed notes
+    const collapsedNotes = new Set(this.state.collapsedNotes);
+    idsToDelete.forEach(noteId => collapsedNotes.delete(noteId));
+    
+    this.setState({ notes, connections, collapsedNotes, isDirty: true });
+    
+    console.log(`🗑️ Deleted ${idsToDelete.size} notes (including children)`);
+  }
+
+  /**
+   * Get all notes in a subtree (note + all descendants)
+   */
+  getNotesInSubtree(rootId) {
+    const result = [];
+    const visited = new Set();
+    
+    const traverse = (noteId) => {
+      if (visited.has(noteId)) return;
+      visited.add(noteId);
+      
+      const note = this.getNote(noteId);
+      if (note) {
+        result.push(note);
+        
+        // Find children
+        const children = this.state.notes.filter(n => n.parentId === noteId);
+        children.forEach(child => traverse(child.id));
+      }
+    };
+    
+    traverse(rootId);
+    return result;
   }
 
   /**

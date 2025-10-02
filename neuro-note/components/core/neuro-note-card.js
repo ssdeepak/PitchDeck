@@ -16,6 +16,9 @@ export class NeuroNoteCard extends BaseComponent {
       color: "#FFE4B5",
       hasChildren: false,
       isCollapsed: false,
+      parentId: null,
+      childIds: [],
+      depth: 0,
     };
   }
 
@@ -42,8 +45,6 @@ export class NeuroNoteCard extends BaseComponent {
   render() {
     const { id, title, text, x, y, color, hasChildren, isCollapsed } =
       this._noteData;
-    
-    console.log('🎨 Rendering note card:', id, `at position (${x}, ${y})`);
 
     this.shadowRoot.innerHTML = `
       ${this.getCommonStyles()}
@@ -242,12 +243,24 @@ export class NeuroNoteCard extends BaseComponent {
     const deepDiveBtn = this.$(".deep-dive-btn");
     const expandBtn = this.$(".expand-btn");
 
-    // Drag handlers
+    // Drag handlers with touch support
     let isDragging = false;
     let startX, startY, offsetX, offsetY;
+    let touchStartTime = 0;
 
+    // Mouse events
     note.addEventListener("mousedown", (e) => {
-      if (e.target === titleInput || e.target === contentArea) return;
+      // Only start dragging if clicking on note background, not inputs or buttons
+      if (
+        e.target === titleInput ||
+        e.target === contentArea ||
+        e.target.closest(".note-btn") ||
+        e.target.closest(".material-icons")
+      ) {
+        return;
+      }
+      e.preventDefault();
+      e.stopPropagation();
       isDragging = true;
       startX = e.clientX;
       startY = e.clientY;
@@ -256,6 +269,41 @@ export class NeuroNoteCard extends BaseComponent {
       note.style.cursor = "grabbing";
     });
 
+    // Touch events for mobile/tablet
+    note.addEventListener(
+      "touchstart",
+      (e) => {
+        // Only handle single touch
+        if (e.touches.length !== 1) return;
+
+        const touch = e.touches[0];
+        const target = document.elementFromPoint(touch.clientX, touch.clientY);
+
+        // Don't drag if touching input fields or buttons
+        if (
+          target === titleInput ||
+          target === contentArea ||
+          target.closest(".note-btn") ||
+          target.closest(".material-icons")
+        ) {
+          return;
+        }
+
+        touchStartTime = Date.now();
+        e.preventDefault();
+        e.stopPropagation();
+
+        isDragging = true;
+        startX = touch.clientX;
+        startY = touch.clientY;
+        offsetX = this._noteData.x;
+        offsetY = this._noteData.y;
+        note.style.cursor = "grabbing";
+      },
+      { passive: false }
+    );
+
+    // Mouse move
     document.addEventListener("mousemove", (e) => {
       if (!isDragging) return;
       const dx = e.clientX - startX;
@@ -266,6 +314,25 @@ export class NeuroNoteCard extends BaseComponent {
       this.style.top = this._noteData.y + "px";
     });
 
+    // Touch move
+    document.addEventListener(
+      "touchmove",
+      (e) => {
+        if (!isDragging || e.touches.length !== 1) return;
+
+        e.preventDefault();
+        const touch = e.touches[0];
+        const dx = touch.clientX - startX;
+        const dy = touch.clientY - startY;
+        this._noteData.x = offsetX + dx;
+        this._noteData.y = offsetY + dy;
+        this.style.left = this._noteData.x + "px";
+        this.style.top = this._noteData.y + "px";
+      },
+      { passive: false }
+    );
+
+    // Mouse up
     document.addEventListener("mouseup", () => {
       if (isDragging) {
         isDragging = false;
@@ -278,19 +345,58 @@ export class NeuroNoteCard extends BaseComponent {
       }
     });
 
-    // Content editing
-    titleInput?.addEventListener("input", () => {
+    // Touch end
+    document.addEventListener("touchend", (e) => {
+      if (isDragging) {
+        const touchDuration = Date.now() - touchStartTime;
+
+        isDragging = false;
+        note.style.cursor = "move";
+
+        // Only emit move event if it was actually a drag (> 150ms)
+        if (touchDuration > 150) {
+          this.emit("note-moved", {
+            id: this._noteData.id,
+            x: this._noteData.x,
+            y: this._noteData.y,
+          });
+        }
+      }
+    });
+
+    // Content editing with proper event handling
+    titleInput?.addEventListener("input", (e) => {
+      e.stopPropagation();
+      this._noteData.title = titleInput.value;
       this.emit("note-title-changed", {
         id: this._noteData.id,
         title: titleInput.value,
       });
     });
 
-    contentArea?.addEventListener("input", () => {
+    titleInput?.addEventListener("keydown", (e) => {
+      e.stopPropagation();
+    });
+
+    titleInput?.addEventListener("focus", (e) => {
+      e.stopPropagation();
+    });
+
+    contentArea?.addEventListener("input", (e) => {
+      e.stopPropagation();
+      this._noteData.text = contentArea.value;
       this.emit("note-content-changed", {
         id: this._noteData.id,
         text: contentArea.value,
       });
+    });
+
+    contentArea?.addEventListener("keydown", (e) => {
+      e.stopPropagation();
+    });
+
+    contentArea?.addEventListener("focus", (e) => {
+      e.stopPropagation();
     });
 
     // Actions
@@ -316,12 +422,13 @@ export class NeuroNoteCard extends BaseComponent {
   }
 
   setNoteData(data) {
-    console.log('📌 setNoteData called for:', data.id, data.title);
     this._noteData = { ...this._noteData, ...data };
+
+    // Set data-id attribute for connection rendering
+    this.setAttribute("data-id", this._noteData.id);
+
     this.render();
     this.attachEventListeners();
-    console.log('  → Shadow DOM has content:', this.shadowRoot.innerHTML.length > 0);
-    console.log('  → Shadow DOM children:', this.shadowRoot.children.length);
   }
 }
 

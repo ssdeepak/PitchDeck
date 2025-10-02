@@ -59,17 +59,35 @@ ${JSON.stringify(notesPayload, null, 2)}
     `.trim();
 
     try {
-      const response = await llmService.generateResponse([
-        { role: 'system', content: systemPrompt },
-        { role: 'user', content: userPrompt }
-      ], { temperature: 0.2 });
+      // Combine system and user prompts for the LLM service
+      const fullPrompt = `${systemPrompt}\n\n${userPrompt}`;
+
+      const response = await llmService.generate(fullPrompt, {
+        temperature: 0.2,
+        maxTokens: 2048, // Increase token limit to prevent truncation
+      });
 
       const result = this.safeParseJSON(response);
-      
-      if (!result || !result.connections) {
-        throw new Error('Invalid response format from LLM');
+
+      if (!result) {
+        console.warn('JSON parsing failed, falling back to heuristic analysis');
+        throw new Error("Could not parse LLM response as JSON");
       }
 
+      // Ensure we have the required structure
+      if (!result.connections) {
+        result.connections = [];
+      }
+      if (!result.clusters) {
+        result.clusters = [];
+      }
+
+      // Validate connections format
+      result.connections = result.connections.filter(conn => 
+        conn.sourceId && conn.targetId && conn.type
+      );
+
+      console.log(`✅ Parsed semantic analysis: ${result.connections.length} connections, ${result.clusters.length} clusters`);
       return result;
     } catch (error) {
       console.error('LLM semantic analysis failed:', error);
@@ -245,18 +263,66 @@ ${JSON.stringify(notesPayload, null, 2)}
   }
 
   /**
-   * Safe JSON parsing
+   * Safe JSON parsing with truncation handling
    */
   safeParseJSON(text) {
     try {
-      const start = text.indexOf("{");
-      const end = text.lastIndexOf("}");
-      if (start !== -1 && end !== -1) {
-        return JSON.parse(text.slice(start, end + 1));
-      }
+      // First try direct parsing
       return JSON.parse(text);
     } catch (e) {
-      console.warn('JSON parse failed, raw:', text);
+      // Try extracting JSON from text
+      try {
+        const start = text.indexOf("{");
+        const end = text.lastIndexOf("}");
+        if (start !== -1 && end !== -1) {
+          return JSON.parse(text.slice(start, end + 1));
+        }
+      } catch (e2) {
+        // Try to repair incomplete JSON
+        try {
+          const start = text.indexOf("{");
+          if (start !== -1) {
+            let jsonText = text.slice(start);
+            
+            // Count braces to find where JSON might be incomplete
+            let braceCount = 0;
+            let lastValidPos = -1;
+            
+            for (let i = 0; i < jsonText.length; i++) {
+              if (jsonText[i] === '{') braceCount++;
+              else if (jsonText[i] === '}') {
+                braceCount--;
+                if (braceCount === 0) {
+                  lastValidPos = i;
+                  break;
+                }
+              }
+            }
+            
+            if (lastValidPos > 0) {
+              return JSON.parse(jsonText.slice(0, lastValidPos + 1));
+            }
+            
+            // If JSON is incomplete, try to close it
+            if (braceCount > 0) {
+              // Remove incomplete strings and add closing braces
+              let repairedJson = jsonText.replace(/"[^"]*$/, '""'); // Close incomplete strings
+              repairedJson = repairedJson.replace(/,\s*$/, ''); // Remove trailing commas
+              
+              // Add missing closing braces
+              for (let i = 0; i < braceCount; i++) {
+                repairedJson += '}';
+              }
+              
+              return JSON.parse(repairedJson);
+            }
+          }
+        } catch (e3) {
+          console.warn('JSON repair failed, raw:', text.substring(0, 500) + '...');
+        }
+      }
+      
+      console.warn('All JSON parsing attempts failed');
       return null;
     }
   }

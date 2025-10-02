@@ -211,4 +211,4 @@ export const stats = {
   }
 };
 
-console.log('📊 Component Registry Stats:', stats);
+ 

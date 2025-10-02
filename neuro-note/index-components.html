@@ -207,12 +207,7 @@
       }, 500);
     });
 
-    // Log component lifecycle for debugging
-    console.log('✅ NeuroNotes Web Components initialized');
-    console.log('📦 State Manager:', stateManager);
-    console.log('📡 Event Bus:', eventBus);
-    console.log('🎨 Theme Service:', themeService);
-    console.log('🌙 Current Theme:', themeService.getCurrentTheme());
+   
 
     // Listen to global events for debugging
     eventBus.on('*', (event, data) => {
