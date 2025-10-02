@@ -14,6 +14,116 @@
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 
   <style>
+    :root {
+      /* Loading screen variables */
+      --loading-bg: #2c3e50;
+      --loading-text: #ffffff;
+      --spinner-bg: rgba(255, 255, 255, 0.3);
+      --spinner-fg: #ffffff;
+      
+      /* Light theme variables */
+      --bg-primary: #ffffff;
+      --bg-secondary: #f8f9fa;
+      --bg-tertiary: #e9ecef;
+      --bg-elevated: #ffffff;
+      --bg-overlay: rgba(0, 0, 0, 0.5);
+      --text-primary: #212529;
+      --text-secondary: #6c757d;
+      --text-tertiary: #adb5bd;
+      --text-inverse: #ffffff;
+      --border-primary: #dee2e6;
+      --border-secondary: #e9ecef;
+      --border-focus: #667eea;
+      --brand-primary: #667eea;
+      --brand-secondary: #764ba2;
+      --brand-accent: #f093fb;
+      --brand-danger: #dc3545;
+      --brand-success: #28a745;
+      --brand-warning: #ffc107;
+      --hover-bg: rgba(0, 0, 0, 0.05);
+      --active-bg: rgba(0, 0, 0, 0.1);
+      --focus-ring: rgba(102, 126, 234, 0.2);
+      --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1);
+      --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.15);
+      --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.15);
+      --shadow-xl: 0 20px 40px rgba(0, 0, 0, 0.1);
+      --note-bg: #ffffff;
+      --note-border: #e0e0e0;
+      --drawer-bg: #ffffff;
+      --header-bg: #2c3e50;
+      --header-text: #ffffff;
+      --header-btn-bg: rgba(255, 255, 255, 0.15);
+      --header-btn-border: rgba(255, 255, 255, 0.25);
+      --header-btn-hover: rgba(255, 255, 255, 0.25);
+      --text-shadow-sm: none;
+      --fab-primary: #3498db;
+      --fab-secondary: #e74c3c;
+      --analysis-header: #34495e;
+      --chat-header: #2c3e50;
+      --streaming-bg: #f8f9fa;
+      --message-user-bg: #667eea;
+      --message-ai-bg: #f5f5f5;
+      --message-system-bg: #fff3cd;
+      --progress-bg: #eee;
+      --progress-fill: #3498db;
+      --canvas-grid: #f0f0f0;
+    }
+
+    :root.dark-theme {
+      /* Loading screen variables */
+      --loading-bg: #1a252f;
+      --loading-text: #ecf0f1;
+      --spinner-bg: rgba(248, 249, 250, 0.3);
+      --spinner-fg: #f8f9fa;
+      
+      /* Dark theme variables */
+      --bg-primary: #1a1a1a;
+      --bg-secondary: #2d2d2d;
+      --bg-tertiary: #404040;
+      --bg-elevated: #2d2d2d;
+      --bg-overlay: rgba(0, 0, 0, 0.7);
+      --text-primary: #f8f9fa;
+      --text-secondary: #adb5bd;
+      --text-tertiary: #6c757d;
+      --text-inverse: #212529;
+      --border-primary: #404040;
+      --border-secondary: #2d2d2d;
+      --border-focus: #667eea;
+      --brand-primary: #667eea;
+      --brand-secondary: #764ba2;
+      --brand-accent: #f093fb;
+      --brand-danger: #dc3545;
+      --brand-success: #28a745;
+      --brand-warning: #ffc107;
+      --hover-bg: rgba(255, 255, 255, 0.1);
+      --active-bg: rgba(255, 255, 255, 0.15);
+      --focus-ring: rgba(102, 126, 234, 0.3);
+      --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.3);
+      --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.4);
+      --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.4);
+      --shadow-xl: 0 20px 40px rgba(0, 0, 0, 0.3);
+      --note-bg: #2d2d2d;
+      --note-border: #404040;
+      --drawer-bg: #2d2d2d;
+      --header-bg: #1a252f;
+      --header-text: #ecf0f1;
+      --header-btn-bg: rgba(255, 255, 255, 0.1);
+      --header-btn-border: rgba(255, 255, 255, 0.2);
+      --header-btn-hover: rgba(255, 255, 255, 0.2);
+      --text-shadow-sm: none;
+      --fab-primary: #2980b9;
+      --fab-secondary: #c0392b;
+      --analysis-header: #2c3e50;
+      --chat-header: #1a252f;
+      --streaming-bg: #1a1a1a;
+      --message-user-bg: #667eea;
+      --message-ai-bg: #404040;
+      --message-system-bg: #3d3d00;
+      --progress-bg: #404040;
+      --progress-fill: #2980b9;
+      --canvas-grid: #333333;
+    }
+
     * {
       margin: 0;
       padding: 0;
@@ -25,6 +135,7 @@
       width: 100vw;
       height: 100vh;
       overflow: hidden;
+      transition: background 0.3s ease;
     }
 
     /* Loading spinner */
@@ -37,10 +148,11 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      color: white;
+      background: var(--loading-bg);
+      color: var(--loading-text);
       font-size: 1.5rem;
       z-index: 9999;
+      transition: background 0.3s ease, color 0.3s ease;
     }
 
     #loading.hidden {
@@ -48,13 +160,14 @@
     }
 
     .spinner {
-      border: 4px solid rgba(255, 255, 255, 0.3);
-      border-top: 4px solid white;
+      border: 4px solid var(--spinner-bg);
+      border-top: 4px solid var(--spinner-fg);
       border-radius: 50%;
       width: 40px;
       height: 40px;
       animation: spin 1s linear infinite;
       margin-right: 16px;
+      transition: border-color 0.3s ease;
     }
 
     @keyframes spin {
@@ -76,12 +189,17 @@
   <script type="module">
     import { eventBus } from './components/utils/event-bus.js';
     import { stateManager } from './components/services/state-manager.js';
+    import { themeService } from './services/theme-service.js';
     import { NeuroApp } from './components/core/neuro-app.js';
 
     // Make available globally for components
     window.eventBus = eventBus;
     window.stateManager = stateManager;
+    window.themeService = themeService;
 
+    // Initialize theme immediately
+    themeService.applyTheme();
+    
     // Hide loading screen when app is ready
     window.addEventListener('load', () => {
       setTimeout(() => {
@@ -93,6 +211,8 @@
     console.log('✅ NeuroNotes Web Components initialized');
     console.log('📦 State Manager:', stateManager);
     console.log('📡 Event Bus:', eventBus);
+    console.log('🎨 Theme Service:', themeService);
+    console.log('🌙 Current Theme:', themeService.getCurrentTheme());
 
     // Listen to global events for debugging
     eventBus.on('*', (event, data) => {

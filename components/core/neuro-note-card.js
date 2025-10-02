@@ -62,9 +62,9 @@ export class NeuroNoteCard extends BaseComponent {
           width: 100%;
           height: 100%;
           background: ${color};
-          border: 1px solid rgba(0,0,0,0.1);
+          border: 1px solid var(--border-primary);
           border-radius: 8px;
-          box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+          box-shadow: var(--shadow-sm);
           padding: 12px;
           cursor: move;
           resize: both;
@@ -74,7 +74,7 @@ export class NeuroNoteCard extends BaseComponent {
         }
 
         .note:hover {
-          box-shadow: 0 4px 16px rgba(0,0,0,0.25);
+          box-shadow: var(--shadow-md);
         }
 
         .note-header {
@@ -93,12 +93,13 @@ export class NeuroNoteCard extends BaseComponent {
           background: transparent;
           outline: none;
           padding: 4px;
+          max-width:100px;
           border-bottom: 1px solid transparent;
           transition: border-color 0.2s;
         }
 
         .note-title:focus {
-          border-bottom-color: rgba(0,0,0,0.3);
+          border-bottom-color: var(--border-focus);
         }
 
         .note-actions {
@@ -107,8 +108,8 @@ export class NeuroNoteCard extends BaseComponent {
         }
 
         .note-btn {
-          background: rgba(255,255,255,0.7);
-          border: none;
+          background: var(--bg-elevated);
+          border: 1px solid var(--border-secondary);
           border-radius: 4px;
           padding: 4px;
           cursor: pointer;
@@ -119,12 +120,12 @@ export class NeuroNoteCard extends BaseComponent {
         }
 
         .note-btn:hover {
-          background: rgba(255,255,255,0.9);
+          background: var(--hover-bg);
         }
 
         .note-btn .material-icons {
           font-size: 18px;
-          color: #333;
+          color: var(--text-primary);
         }
 
         .note-content {
@@ -148,7 +149,9 @@ export class NeuroNoteCard extends BaseComponent {
         }
 
         .note-badge {
-          background: rgba(0,0,0,0.1);
+          background: var(--bg-secondary);
+          border: 1px solid var(--border-secondary);
+          color: var(--text-secondary);
           padding: 4px 8px;
           border-radius: 12px;
           font-size: 0.75rem;

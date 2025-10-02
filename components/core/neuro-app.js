@@ -2,10 +2,14 @@ import { BaseComponent } from '../utils/base-component.js';
 import { stateManager } from '../services/state-manager.js';
 import { indexedDBService } from "../services/indexeddb-service.js";
 import { llmService } from "../services/llm-service.js";
+import { themeService } from "../../services/theme-service.js";
+import { sampleCanvasService } from "../services/sample-canvas-service.js";
 import "./neuro-header.js";
 import "./neuro-hamburger.js";
 import "./neuro-note-card.js";
 import "./template-wizard.js";
+import "./chat-interface.js";
+import "../nodes/analysis-scratch-node.js";
 
 /**
  * NeuroApp Component
@@ -36,8 +40,18 @@ export class NeuroApp extends BaseComponent {
     // Initial render of notes
     this.renderNotes();
 
-    // Load last canvas or create sample notes
+    // Load last canvas or show first-time experience
     this.loadLastCanvas();
+
+    // Show first-time user experience if needed
+    setTimeout(() => {
+      sampleCanvasService.showFirstTimeExperience();
+    }, 1000);
+
+    // Initialize theme icon
+    setTimeout(() => {
+      this.updateThemeIcon();
+    }, 100);
   }
 
   render() {
@@ -62,12 +76,11 @@ export class NeuroApp extends BaseComponent {
           flex: 1;
           position: relative;
           overflow: hidden;
-          background: linear-gradient(45deg, #f0f0f0 25%, transparent 25%),
-                      linear-gradient(-45deg, #f0f0f0 25%, transparent 25%),
-                      linear-gradient(45deg, transparent 75%, #f0f0f0 75%),
-                      linear-gradient(-45deg, transparent 75%, #f0f0f0 75%);
+          background: var(--bg-primary);
+          cursor: grab;
+          background-image: 
+            radial-gradient(circle, var(--canvas-grid) 1px, transparent 1px);
           background-size: 20px 20px;
-          background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
         }
 
         #noteCanvas {
@@ -94,8 +107,8 @@ export class NeuroApp extends BaseComponent {
           top: 0;
           width: 320px;
           height: 100vh;
-          background: white;
-          box-shadow: 0 0 20px rgba(0,0,0,0.2);
+          background: var(--drawer-bg);
+          box-shadow: var(--shadow-lg);
           z-index: 2000;
           transition: transform 0.3s ease;
           display: flex;
@@ -246,6 +259,58 @@ export class NeuroApp extends BaseComponent {
         .drawer-overlay.show {
           display: block;
         }
+
+        @keyframes spin {
+          from { transform: rotate(0deg); }
+          to { transform: rotate(360deg); }
+        }
+
+        /* Floating Action Buttons */
+        .fab-container {
+          position: fixed;
+          bottom: 24px;
+          right: 24px;
+          display: flex;
+          flex-direction: column;
+          gap: 12px;
+          z-index: 2000;
+        }
+
+        .fab {
+          width: 56px;
+          height: 56px;
+          border-radius: 50%;
+          border: none;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          cursor: pointer;
+          box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+          transition: all 0.3s ease;
+          font-size: 24px;
+          color: white;
+        }
+
+        .fab:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 6px 16px rgba(0,0,0,0.2);
+        }
+
+        .fab.primary {
+          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .fab.secondary {
+          background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+
+        .fab.theme {
+          background: linear-gradient(135deg, #ffd700 0%, #ff8c00 100%);
+        }
+
+        .fab:active {
+          transform: scale(0.95);
+        }
       </style>
 
       <div class="app-container">
@@ -311,7 +376,13 @@ export class NeuroApp extends BaseComponent {
                 <option value="ollama">Ollama (Local)</option>
               </select>
 
-              <label>Model</label>
+              <label style="display: flex; justify-content: space-between; align-items: center;">
+                <span>Model</span>
+                <button id="refreshModelsBtn" style="background: none; border: none; color: #667eea; cursor: pointer; padding: 4px; display: flex; align-items: center; gap: 4px;" title="Refresh models from provider">
+                  <span class="material-icons" style="font-size: 18px;">refresh</span>
+                  <span style="font-size: 0.85rem;">Refresh</span>
+                </button>
+              </label>
               <select id="llmModel">
                 <option value="">Select a model...</option>
               </select>
@@ -352,6 +423,25 @@ export class NeuroApp extends BaseComponent {
 
         <!-- Template Wizard -->
         <template-wizard id="templateWizard"></template-wizard>
+
+        <!-- Chat Interface -->
+        <chat-interface id="chatInterface"></chat-interface>
+
+        <!-- Floating Action Buttons -->
+        <div class="fab-container">
+          <button class="fab theme" id="themeFab" title="Toggle Theme">
+            <span class="material-icons">light_mode</span>
+          </button>
+          <button class="fab secondary" id="analysisFab" title="Start Analysis">
+            <span class="material-icons">analytics</span>
+          </button>
+          <button class="fab secondary" id="beautifyFab" title="Beautify Layout">
+            <span class="material-icons">auto_fix_high</span>
+          </button>
+          <button class="fab primary" id="chatFab" title="Open Chat">
+            <span class="material-icons">chat</span>
+          </button>
+        </div>
       </div>
     `;
 
@@ -364,7 +454,7 @@ export class NeuroApp extends BaseComponent {
     const header = this.$("#header");
     header?.addEventListener("new-note-clicked", () => this.createNewNote());
     header?.addEventListener("analyze-clicked", () =>
-      this.analyzeNotesWithLLM()
+      this.createAnalysisScratchNode()
     );
     header?.addEventListener("beautify-clicked", () => this.beautifyLayout());
     header?.addEventListener("export-clicked", () => this.showExportMenu());
@@ -381,8 +471,36 @@ export class NeuroApp extends BaseComponent {
       this.toggleRightDrawer();
     });
 
+    // Floating Action Button events
+    this.$("#chatFab")?.addEventListener("click", () => {
+      this.toggleChatInterface();
+    });
+
+    this.$("#analysisFab")?.addEventListener("click", () => {
+      this.createAnalysisScratchNode();
+    });
+
+    this.$("#beautifyFab")?.addEventListener("click", () => {
+      this.beautifyLayout();
+    });
+
+    this.$("#themeFab")?.addEventListener("click", () => {
+      this.toggleTheme();
+    });
+
     // Canvas pan/zoom
     this.setupCanvasInteraction();
+
+    // Global event listeners
+    document.addEventListener("open-settings", () => {
+      this.toggleRightDrawer();
+    });
+
+    // Listen for semantic analysis results
+    document.addEventListener("connections-updated", (event) => {
+      console.log("🧠 Received semantic analysis results:", event.detail);
+      this.renderConnections();
+    });
   }
 
   setupCanvasInteraction() {
@@ -399,13 +517,20 @@ export class NeuroApp extends BaseComponent {
 
     // Pan
     container.addEventListener("mousedown", (e) => {
-      if (e.target === container) {
+      // Allow panning on container or canvas background, but not on notes or UI elements
+      if (
+        e.target === container ||
+        e.target.id === "noteCanvas" ||
+        e.target.classList.contains("canvas-background")
+      ) {
+        e.preventDefault();
         isPanning = true;
         startX = e.clientX;
         startY = e.clientY;
         startPanX = this.state.pan.x;
         startPanY = this.state.pan.y;
         container.style.cursor = "grabbing";
+        document.body.style.userSelect = "none"; // Prevent text selection while panning
       }
     });
 
@@ -426,7 +551,17 @@ export class NeuroApp extends BaseComponent {
     document.addEventListener("mouseup", () => {
       if (isPanning) {
         isPanning = false;
-        container.style.cursor = "";
+        container.style.cursor = "grab";
+        document.body.style.userSelect = "";
+      }
+    });
+
+    // Add mouseleave to handle when mouse leaves window while panning
+    document.addEventListener("mouseleave", () => {
+      if (isPanning) {
+        isPanning = false;
+        container.style.cursor = "grab";
+        document.body.style.userSelect = "";
       }
     });
 
@@ -459,6 +594,124 @@ export class NeuroApp extends BaseComponent {
     if (overlay) {
       overlay.style.transform = `translate(${pan.x}px, ${pan.y}px) scale(${zoom})`;
     }
+  }
+
+  /**
+   * Force-directed layout algorithm for auto-beautification
+   */
+  beautifyLayout(iterations = 120) {
+    const notes = this.state.notes;
+    const connections = this.state.connections || [];
+
+    if (notes.length === 0) {
+      console.log("⚠️ No notes to beautify");
+      return;
+    }
+
+    console.log(
+      `🎨 Beautifying layout with ${notes.length} notes and ${connections.length} connections`
+    );
+
+    // Parameters
+    const repulsionStrength = 8000;
+    const attractionStrength = 0.01;
+    const springLength = 300;
+    const damping = 0.85;
+    const centerStrength = 0.001;
+    const minDistance = 250;
+
+    // Initialize velocities
+    notes.forEach((n) => {
+      n.vx = n.vx || 0;
+      n.vy = n.vy || 0;
+    });
+
+    // Calculate center of mass
+    const centerX = 600;
+    const centerY = 400;
+
+    // Simulation loop
+    for (let iter = 0; iter < iterations; iter++) {
+      // Reset forces
+      notes.forEach((n) => {
+        n.fx = 0;
+        n.fy = 0;
+      });
+
+      // Repulsion between all notes (prevent overlap)
+      for (let i = 0; i < notes.length; i++) {
+        for (let j = i + 1; j < notes.length; j++) {
+          const a = notes[i];
+          const b = notes[j];
+          const dx = b.x - a.x;
+          const dy = b.y - a.y;
+          const dist = Math.sqrt(dx * dx + dy * dy) || 1;
+
+          if (dist < minDistance) {
+            const force = repulsionStrength / (dist * dist);
+            const fx = (dx / dist) * force;
+            const fy = (dy / dist) * force;
+            a.fx -= fx;
+            a.fy -= fy;
+            b.fx += fx;
+            b.fy += fy;
+          }
+        }
+      }
+
+      // Attraction along connections (spring force)
+      connections.forEach((conn) => {
+        const sourceId = conn.from || conn.sourceId;
+        const targetId = conn.to || conn.targetId;
+        const source = notes.find((n) => n.id === sourceId);
+        const target = notes.find((n) => n.id === targetId);
+        if (!source || !target) return;
+
+        const dx = target.x - source.x;
+        const dy = target.y - source.y;
+        const dist = Math.sqrt(dx * dx + dy * dy) || 1;
+        const force = attractionStrength * (dist - springLength);
+        const fx = (dx / dist) * force;
+        const fy = (dy / dist) * force;
+
+        source.fx += fx;
+        source.fy += fy;
+        target.fx -= fx;
+        target.fy -= fy;
+      });
+
+      // Gentle pull toward center
+      notes.forEach((n) => {
+        const dx = centerX - n.x;
+        const dy = centerY - n.y;
+        n.fx += dx * centerStrength;
+        n.fy += dy * centerStrength;
+      });
+
+      // Update positions
+      notes.forEach((n) => {
+        n.vx = (n.vx + n.fx) * damping;
+        n.vy = (n.vy + n.fy) * damping;
+        n.x += n.vx;
+        n.y += n.vy;
+
+        // Keep within bounds
+        n.x = Math.max(50, Math.min(1800, n.x));
+        n.y = Math.max(50, Math.min(1200, n.y));
+      });
+    }
+
+    // Clean up velocity properties
+    notes.forEach((n) => {
+      delete n.vx;
+      delete n.vy;
+      delete n.fx;
+      delete n.fy;
+    });
+
+    // Update state and re-render
+    stateManager.setState({ notes });
+    console.log("✨ Layout beautification complete");
   }
 
   renderNotes() {
@@ -553,15 +806,19 @@ export class NeuroApp extends BaseComponent {
     console.log("🔗 Rendering", connections.length, "connections");
 
     connections.forEach((conn) => {
-      const sourceNote = this.$(`.note-card[data-id="${conn.sourceId}"]`);
-      const targetNote = this.$(`.note-card[data-id="${conn.targetId}"]`);
+      // Handle both old format (from/to) and new format (sourceId/targetId)
+      const sourceId = conn.from || conn.sourceId;
+      const targetId = conn.to || conn.targetId;
+
+      const sourceNote = this.$(`.note-card[data-id="${sourceId}"]`);
+      const targetNote = this.$(`.note-card[data-id="${targetId}"]`);
 
       if (!sourceNote || !targetNote) return;
 
       // Get center points of notes
       const sourceRect = sourceNote.getBoundingClientRect();
       const targetRect = targetNote.getBoundingClientRect();
-      const canvasRect = this.$("#canvas-container").getBoundingClientRect();
+      const canvasRect = this.$("#canvasContainer").getBoundingClientRect();
 
       const x1 = sourceRect.left - canvasRect.left + sourceRect.width / 2;
       const y1 = sourceRect.top - canvasRect.top + sourceRect.height / 2;
@@ -584,8 +841,50 @@ export class NeuroApp extends BaseComponent {
         "http://www.w3.org/2000/svg",
         "title"
       );
-      title.textContent = `${conn.type}: ${conn.reason || "No reason"}`;
+      const confidence = conn.confidence
+        ? ` (${Math.round(conn.confidence * 100)}%)`
+        : "";
+      title.textContent = `${conn.type}: ${
+        conn.reason || "No reason"
+      }${confidence}`;
       line.appendChild(title);
+
+      // Add connection label if it's a semantic connection
+      if (conn.reason && conn.type !== "parent-child") {
+        const midX = (x1 + x2) / 2;
+        const midY = (y1 + y2) / 2;
+
+        const label = document.createElementNS(
+          "http://www.w3.org/2000/svg",
+          "text"
+        );
+        label.setAttribute("x", midX);
+        label.setAttribute("y", midY - 5);
+        label.setAttribute("text-anchor", "middle");
+        label.setAttribute("font-size", "10px");
+        label.setAttribute("font-weight", "600");
+        label.setAttribute("fill", style.stroke);
+        label.setAttribute("opacity", "0.8");
+        label.textContent = conn.type;
+
+        // Add background for label
+        const labelBg = document.createElementNS(
+          "http://www.w3.org/2000/svg",
+          "rect"
+        );
+        labelBg.setAttribute("x", midX - 20);
+        labelBg.setAttribute("y", midY - 15);
+        labelBg.setAttribute("width", "40");
+        labelBg.setAttribute("height", "12");
+        labelBg.setAttribute("fill", "rgba(255,255,255,0.9)");
+        labelBg.setAttribute("stroke", style.stroke);
+        labelBg.setAttribute("stroke-width", "0.5");
+        labelBg.setAttribute("rx", "3");
+        labelBg.setAttribute("opacity", "0.8");
+
+        svg.appendChild(labelBg);
+        svg.appendChild(label);
+      }
 
       svg.appendChild(line);
     });
@@ -638,7 +937,12 @@ export class NeuroApp extends BaseComponent {
     line.setAttribute("stroke", style.stroke);
     line.setAttribute("stroke-width", style.width);
     line.setAttribute("fill", "none");
-    line.setAttribute("opacity", style.opacity);
+
+    // Use confidence to adjust opacity if available
+    const opacity = conn.confidence
+      ? Math.max(0.3, Math.min(0.9, conn.confidence * style.opacity))
+      : style.opacity;
+    line.setAttribute("opacity", opacity);
 
     if (style.dash !== "none") {
       line.setAttribute("stroke-dasharray", style.dash);
@@ -818,6 +1122,94 @@ Each sub-concept should be specific, actionable, and add new information.`;
     }
   }
 
+  toggleChatInterface() {
+    const chatInterface = this.$("#chatInterface");
+    if (chatInterface) {
+      chatInterface.toggle();
+    }
+  }
+
+  createAnalysisScratchNode() {
+    const canvasContainer = this.$("#noteCanvas");
+    if (!canvasContainer) return;
+
+    // Create the analysis scratch node
+    const analysisScratchNode = document.createElement("analysis-scratch-node");
+
+    // Position it in a good location (avoid overlapping with existing notes)
+    const position = this.findGoodScratchNodePosition();
+    analysisScratchNode.setPosition(position.x, position.y);
+
+    // Add to canvas
+    canvasContainer.appendChild(analysisScratchNode);
+
+    console.log("🧠 Analysis scratch node created at", position);
+  }
+
+  findGoodScratchNodePosition() {
+    const notes = this.state.notes;
+    const canvasContainer = this.$("#noteCanvas");
+
+    if (!canvasContainer || notes.length === 0) {
+      // Default position if no notes
+      return { x: 100, y: 100 };
+    }
+
+    // Find a position that doesn't overlap with existing notes
+    const containerRect = canvasContainer.getBoundingClientRect();
+    const notePositions = notes.map((note) => ({ x: note.x, y: note.y }));
+
+    // Try positions in a grid pattern
+    for (let y = 50; y < containerRect.height - 250; y += 150) {
+      for (let x = 50; x < containerRect.width - 350; x += 200) {
+        const position = { x, y };
+
+        // Check if this position overlaps with any note (assuming 200x150 note size)
+        const overlaps = notePositions.some((notePos) => {
+          return (
+            Math.abs(position.x - notePos.x) < 250 &&
+            Math.abs(position.y - notePos.y) < 200
+          );
+        });
+
+        if (!overlaps) {
+          return position;
+        }
+      }
+    }
+
+    // Fallback: place at a random position
+    return {
+      x: Math.random() * (containerRect.width - 350),
+      y: Math.random() * (containerRect.height - 250),
+    };
+  }
+
+  toggleTheme() {
+    themeService.toggleTheme();
+    this.updateThemeIcon();
+  }
+
+  updateThemeIcon() {
+    const themeFab = this.$("#themeFab");
+    if (themeFab) {
+      const icon = themeFab.querySelector(".material-icons");
+      if (icon) {
+        const currentTheme = themeService.getCurrentTheme();
+        icon.textContent = currentTheme === "dark" ? "dark_mode" : "light_mode";
+        themeFab.title = `Switch to ${
+          currentTheme === "dark" ? "Light" : "Dark"
+        } Theme`;
+      }
+    }
+  }
+
+  onThemeChange(theme) {
+    // Just update the theme icon - CSS variables are inherited from document
+    this.updateThemeIcon();
+    console.log("🎨 NeuroApp theme changed to:", theme);
+  }
+
   toggleLeftDrawer() {
     const drawer = this.$("#leftDrawer");
     const overlay = this.$("#drawerOverlay");
@@ -891,9 +1283,31 @@ Each sub-concept should be specific, actionable, and add new information.`;
     });
 
     // Provider selection change
-    this.$("#llmProvider")?.addEventListener("change", (e) => {
+    this.$("#llmProvider")?.addEventListener("change", async (e) => {
       const provider = e.target.value;
-      this.updateProviderUI(provider);
+      await this.updateProviderUI(provider);
+    });
+
+    // Refresh Models button
+    this.$("#refreshModelsBtn")?.addEventListener("click", async () => {
+      const provider = this.$("#llmProvider").value;
+      const btn = this.$("#refreshModelsBtn");
+      const icon = btn.querySelector(".material-icons");
+
+      // Show loading animation
+      icon.style.animation = "spin 1s linear infinite";
+      btn.disabled = true;
+
+      try {
+        await this.updateProviderUI(provider);
+        console.log(`🔄 Refreshed models for ${provider}`);
+      } catch (error) {
+        console.error("Failed to refresh models:", error);
+        alert("Failed to refresh models. Check console for details.");
+      } finally {
+        icon.style.animation = "";
+        btn.disabled = false;
+      }
     });
 
     // Load WebLLM Model button
@@ -981,9 +1395,9 @@ Each sub-concept should be specific, actionable, and add new information.`;
     });
 
     // Initialize provider UI on load
-    setTimeout(() => {
+    setTimeout(async () => {
       const provider = this.$("#llmProvider").value;
-      this.updateProviderUI(provider);
+      await this.updateProviderUI(provider);
 
       // Load saved config
       const config = llmService.config;
@@ -1007,7 +1421,7 @@ Each sub-concept should be specific, actionable, and add new information.`;
     }, 100);
   }
 
-  updateProviderUI(provider) {
+  async updateProviderUI(provider) {
     const apiKeyLabel = this.$("#apiKeyLabel");
     const endpointLabel = this.$("#endpointLabel");
     const apiKeyInput = this.$("#llmApiKey");
@@ -1020,15 +1434,28 @@ Each sub-concept should be specific, actionable, and add new information.`;
     apiKeyInput.style.display = "block";
     endpointInput.style.display = "block";
 
-    // Get models for this provider dynamically
-    const models = llmService.getProviderModels(provider);
-    
+    // Show loading state
+    modelSelect.innerHTML = '<option value="">Loading models...</option>';
+    modelSelect.disabled = true;
+
+    // Fetch models dynamically from provider API with fallback
+    const models = await llmService.fetchProviderModels(provider);
+
+    // Re-enable dropdown
+    modelSelect.disabled = false;
+
     // Populate model dropdown
     modelSelect.innerHTML = '<option value="">Select a model...</option>';
-    models.forEach(model => {
-      const option = document.createElement('option');
-      option.value = model;
-      option.textContent = model;
+    models.forEach((model) => {
+      const option = document.createElement("option");
+      // Handle both object {id, name} and string formats
+      if (typeof model === "object") {
+        option.value = model.id;
+        option.textContent = model.name;
+      } else {
+        option.value = model;
+        option.textContent = model;
+      }
       modelSelect.appendChild(option);
     });
 
@@ -1039,39 +1466,65 @@ Each sub-concept should be specific, actionable, and add new information.`;
       endpointLabel.textContent = "(not needed for WebLLM)";
       endpointInput.style.display = "none";
       webllmControls.style.display = "block";
-      
+
       // Set default model if available
       if (models.length > 0) {
-        modelSelect.value = models[0];
+        const firstModel = models[0];
+        modelSelect.value =
+          typeof firstModel === "object" ? firstModel.id : firstModel;
       }
     } else if (provider === "openai") {
       apiKeyLabel.textContent = "(required for OpenAI)";
       apiKeyInput.style.display = "block";
       endpointLabel.textContent = "(optional, defaults to OpenAI API)";
       endpointInput.style.display = "block";
-      
+
       // Default to gpt-4o-mini if available
-      const defaultModel = models.find(m => m === 'gpt-4o-mini') || models[0];
-      if (defaultModel) modelSelect.value = defaultModel;
+      const defaultModel =
+        models.find((m) => {
+          const modelId = typeof m === "object" ? m.id : m;
+          return modelId === "gpt-4o-mini";
+        }) || models[0];
+
+      if (defaultModel) {
+        modelSelect.value =
+          typeof defaultModel === "object" ? defaultModel.id : defaultModel;
+      }
     } else if (provider === "anthropic") {
       apiKeyLabel.textContent = "(required for Claude)";
       apiKeyInput.style.display = "block";
       endpointLabel.textContent = "(optional)";
       endpointInput.style.display = "none";
-      
+
       // Default to latest sonnet if available
-      const defaultModel = models.find(m => m.includes('sonnet')) || models[0];
-      if (defaultModel) modelSelect.value = defaultModel;
+      const defaultModel =
+        models.find((m) => {
+          const modelId = typeof m === "object" ? m.id : m;
+          return modelId.includes("sonnet");
+        }) || models[0];
+
+      if (defaultModel) {
+        modelSelect.value =
+          typeof defaultModel === "object" ? defaultModel.id : defaultModel;
+      }
     } else if (provider === "ollama") {
       apiKeyLabel.textContent = "(not needed for Ollama)";
       apiKeyInput.style.display = "none";
       endpointLabel.textContent = "(required for Ollama)";
       endpointInput.style.display = "block";
       endpointInput.value = "http://localhost:11434";
-      
+
       // Default to llama3.2 if available
-      const defaultModel = models.find(m => m.includes('llama3.2')) || models[0];
-      if (defaultModel) modelSelect.value = defaultModel;
+      const defaultModel =
+        models.find((m) => {
+          const modelId = typeof m === "object" ? m.id : m;
+          return modelId.includes("llama3.2");
+        }) || models[0];
+
+      if (defaultModel) {
+        modelSelect.value =
+          typeof defaultModel === "object" ? defaultModel.id : defaultModel;
+      }
     }
 
     console.log(`📋 Loaded ${models.length} models for ${provider}:`, models);
@@ -1089,59 +1542,220 @@ Each sub-concept should be specific, actionable, and add new information.`;
     console.log("Loading last canvas...");
 
     try {
-      // Try to load from localStorage
-      const saved = localStorage.getItem("neuronotes_current_canvas");
+      // Check if we have any canvases in IndexedDB
+      const canvases = await indexedDBService.loadCanvases();
 
-      if (saved) {
-        const canvas = JSON.parse(saved);
+      if (canvases.length === 0) {
+        // No canvases exist - create an Examples canvas
+        console.log("No canvases found, creating Examples canvas...");
+        await this.createExamplesCanvas();
+        return;
+      }
+
+      // Try to load the most recent canvas
+      const lastCanvas = canvases.sort(
+        (a, b) => (b.timestamp || 0) - (a.timestamp || 0)
+      )[0];
+
+      if (lastCanvas) {
         stateManager.setState({
-          notes: canvas.notes || [],
-          connections: canvas.connections || [],
-          noteHierarchy: canvas.noteHierarchy || {},
-          collapsedNotes: new Set(canvas.collapsedNotes || []),
-          pan: canvas.pan || { x: 0, y: 0 },
-          zoom: canvas.zoom || 1,
-          currentCanvasId: canvas.id,
-          currentCanvasName: canvas.name || "Untitled Canvas",
+          notes: lastCanvas.notes || [],
+          connections: lastCanvas.connections || [],
+          noteHierarchy: lastCanvas.noteHierarchy || {},
+          collapsedNotes: new Set(lastCanvas.collapsedNotes || []),
+          pan: lastCanvas.pan || { x: 0, y: 0 },
+          zoom: lastCanvas.zoom || 1,
+          currentCanvasId: lastCanvas.id,
+          currentCanvasName: lastCanvas.name || "Untitled Canvas",
         });
-        console.log("✅ Loaded canvas from storage:", canvas.name);
+        console.log("✅ Loaded last canvas:", lastCanvas.name);
         return;
       }
     } catch (e) {
-      console.error("Failed to load canvas:", e);
+      console.error("Failed to load from IndexedDB:", e);
     }
 
-    // Create sample notes if none exist
-    if (this.state.notes.length === 0) {
-      const sampleNotes = [
-        {
-          id: "note_welcome",
-          title: "Welcome to NeuroNotes! 🎉",
-          text: 'This is a modular web components version. Try dragging me around, editing text, or clicking "New Note" to add more!',
-          x: 100,
-          y: 100,
-          color: "#FFE4B5",
-        },
-        {
-          id: "note_features",
-          title: "Features ✨",
-          text: "✅ Drag notes to move\n✅ Edit title and content\n✅ Resize notes\n✅ Add child notes\n✅ Delete notes\n🚧 Deep dive (coming soon)\n🚧 LLM integration",
-          x: 450,
-          y: 100,
-          color: "#E6F3FF",
-        },
-        {
-          id: "note_architecture",
-          title: "Architecture 🏗️",
-          text: "Built with:\n• Native Web Components\n• Shadow DOM\n• ES6 Modules\n• State Management\n• Event Bus\n• Auto-save",
-          x: 100,
-          y: 350,
-          color: "#E6FFE6",
-        },
-      ];
+    // Fallback: create examples if nothing worked
+    await this.createExamplesCanvas();
+  }
 
+  /**
+   * Create an Examples canvas with rich sample content
+   */
+  async createExamplesCanvas() {
+    const sampleNotes = [
+      // Main concept and core ideas
+      {
+        id: "note_big_idea",
+        title: "Big Idea 💡",
+        text: "Semantic sticky notes with LLM integration for intelligent knowledge organization and idea exploration",
+        x: 120,
+        y: 120,
+        color: "#FFE4B5", // yellow
+      },
+      {
+        id: "note_exploration",
+        title: "Exploration 🔍",
+        text: "Cluster notes by semantic themes and discover hidden relationships between ideas using AI analysis",
+        x: 400,
+        y: 160,
+        color: "#FFB6C1", // pink
+      },
+      {
+        id: "note_dataset",
+        title: "Dataset 📊",
+        text: "Transform your personal notes into a searchable knowledge base with semantic understanding and contextual connections",
+        x: 720,
+        y: 200,
+        color: "#FFE4B5", // yellow
+      },
+
+      // Technical aspects
+      {
+        id: "note_privacy",
+        title: "Privacy 🔒",
+        text: "Local WebLLM models reduce data exposure while maintaining powerful AI capabilities entirely in your browser",
+        x: 220,
+        y: 360,
+        color: "#B0E0E6", // teal
+      },
+      {
+        id: "note_timeline",
+        title: "Timeline ⏰",
+        text: "Track the evolution of your ideas over time and see how concepts develop and interconnect",
+        x: 860,
+        y: 380,
+        color: "#B0E0E6", // teal
+      },
+
+      // Workflow and automation
+      {
+        id: "note_workflow",
+        title: "Workflow 🔄",
+        text: "Automatically generate tasks and action items from note clusters using intelligent pattern recognition",
+        x: 520,
+        y: 420,
+        color: "#DDA0DD", // purple
+      },
+      {
+        id: "note_ux",
+        title: "UX Design 🎨",
+        text: "Interactive mind-map interface with curved connections, drag-and-drop, and visual clustering for intuitive navigation",
+        x: 160,
+        y: 520,
+        color: "#DDA0DD", // purple
+      },
+
+      // Analysis and insights
+      {
+        id: "note_contradictions",
+        title: "Contradictions ⚡",
+        text: "Automatically detect conflicting ideas and highlight areas where your thinking might need reconciliation",
+        x: 320,
+        y: 520,
+        color: "#FFB6C1", // pink
+      },
+      {
+        id: "note_evaluation",
+        title: "Evaluation 📈",
+        text: "Assign confidence scores and weights to connections, allowing for nuanced understanding of relationship strength",
+        x: 640,
+        y: 520,
+        color: "#FFE4B5", // yellow
+      },
+
+      // Getting started guide
+      {
+        id: "note_welcome",
+        title: "Welcome to NeuroNotes! �",
+        text: "🚀 Try these features:\n• Drag notes around\n• Edit titles and content\n• Click 'Analyze' to find connections\n• Use 'Deep Dive' to expand ideas\n• Try 'Templates' for document generation\n• 'Beautify' to auto-arrange notes",
+        x: 50,
+        y: 50,
+        color: "#98FB98", // light green
+      },
+    ];
+
+    sampleNotes.forEach((note) => stateManager.addNote(note));
+
+    // Add some sample connections to show relationships
+    const sampleConnections = [
+      {
+        id: "conn_1",
+        sourceId: "note_big_idea",
+        targetId: "note_exploration",
+        type: "related",
+        reason: "Both focus on semantic understanding of ideas",
+        weight: 0.8,
+        directed: false,
+      },
+      {
+        id: "conn_2",
+        sourceId: "note_exploration",
+        targetId: "note_dataset",
+        type: "supports",
+        reason: "Exploration creates the dataset for knowledge organization",
+        weight: 0.9,
+        directed: true,
+      },
+      {
+        id: "conn_3",
+        sourceId: "note_privacy",
+        targetId: "note_big_idea",
+        type: "supports",
+        reason: "Privacy concerns support the local LLM approach",
+        weight: 0.7,
+        directed: true,
+      },
+      {
+        id: "conn_4",
+        sourceId: "note_workflow",
+        targetId: "note_contradictions",
+        type: "related",
+        reason: "Both involve automated analysis of note content",
+        weight: 0.6,
+        directed: false,
+      },
+    ];
+
+    // Create the Examples canvas
+    const examplesCanvas = {
+      id: Date.now(),
+      name: "🎨 Examples & Getting Started",
+      notes: sampleNotes,
+      connections: sampleConnections,
+      noteHierarchy: {},
+      collapsedNotes: [],
+      pan: { x: 0, y: 0 },
+      zoom: 1,
+      timestamp: Date.now(),
+    };
+
+    try {
+      // Save Examples canvas to IndexedDB
+      const canvasId = await indexedDBService.saveCanvas(examplesCanvas);
+
+      // Load the Examples canvas
+      stateManager.setState({
+        currentCanvasId: canvasId,
+        currentCanvasName: examplesCanvas.name,
+        notes: sampleNotes,
+        connections: sampleConnections,
+        noteHierarchy: {},
+        collapsedNotes: new Set(),
+        pan: { x: 0, y: 0 },
+        zoom: 1,
+      });
+
+      console.log("✅ Created and loaded Examples canvas");
+
+      // Refresh the canvas list so it appears in the left drawer
+      this.refreshCanvasList();
+    } catch (error) {
+      console.error("Failed to create Examples canvas:", error);
+
+      // Fallback: just add notes to current state without saving
       sampleNotes.forEach((note) => stateManager.addNote(note));
-      this.saveToStorage();
+      sampleConnections.forEach((conn) => stateManager.addConnection(conn));
     }
   }
 

@@ -240,8 +240,29 @@ export class TemplateWizard extends BaseComponent {
   }
 
   async selectTemplate(id, template) {
-    const content = this.$('#content');
+    const content = this.$("#content");
     if (!content) return;
+
+    // Get notes from parent app state
+    const notes = window.stateManager.getState().notes;
+
+    if (notes.length === 0) {
+      alert(
+        "No notes to generate document from. Please create some notes first."
+      );
+      this.close();
+      return;
+    }
+
+    // Check if LLM is configured
+    const llmConfig = llmService.config;
+    const isLLMConfigured = this.checkLLMConfiguration(llmConfig);
+
+    if (!isLLMConfigured) {
+      // Show configuration prompt
+      this.showLLMConfigPrompt(template);
+      return;
+    }
 
     // Show loading state
     content.innerHTML = `
@@ -252,42 +273,61 @@ export class TemplateWizard extends BaseComponent {
     `;
 
     try {
-      // Get notes from parent app state
-      const notes = window.stateManager.getState().notes;
-      
-      if (notes.length === 0) {
-        alert('No notes to generate document from. Please create some notes first.');
-        this.close();
-        return;
-      }
-
       // Format notes for LLM
-      const notesText = notes.map(n => {
-        const title = n.title ? `**${n.title}**` : '';
-        return `${title}\n${n.text}`;
-      }).join('\n\n');
+      const notesText = notes
+        .map((n) => {
+          const title = n.title ? `**${n.title}**` : "";
+          return `${title}\n${n.text}`;
+        })
+        .join("\n\n");
 
       // Create prompt based on template
       const prompt = this.createPrompt(template, notesText);
 
-      // Generate document
-      let document = '';
-      for await (const chunk of llmService.generateStream(prompt, { temperature: 0.7, maxTokens: 2048 })) {
-        document += chunk;
-        // Update progress
-        const progressText = content.querySelector('.progress-text');
-        if (progressText) {
-          progressText.textContent = `Generated ${document.length} characters...`;
+      // Generate document with timeout
+      let document = "";
+      let generationTimeout = setTimeout(() => {
+        throw new Error(
+          "Generation timeout - please check your LLM configuration"
+        );
+      }, 60000); // 60 second timeout
+
+      try {
+        for await (const chunk of llmService.generateStream(prompt, {
+          temperature: 0.7,
+          maxTokens: 2048,
+        })) {
+          document += chunk;
+          // Update progress
+          const progressText = content.querySelector(".progress-text");
+          if (progressText) {
+            progressText.textContent = `Generated ${document.length} characters...`;
+          }
         }
+        clearTimeout(generationTimeout);
+      } catch (streamError) {
+        clearTimeout(generationTimeout);
+        throw streamError;
       }
 
       // Show result
       this.showResult(template.name, document);
-
     } catch (error) {
-      console.error('Generation error:', error);
-      alert(`Failed to generate document: ${error.message}\n\nPlease configure an LLM provider in Settings.`);
-      this.close();
+      console.error("Generation error:", error);
+
+      // Show helpful error message based on error type
+      let errorMessage = "Failed to generate document.";
+      if (error.message.includes("not initialized")) {
+        errorMessage +=
+          "\n\n🔧 Please configure an LLM provider:\n1. Click Settings (⚙️) in top right\n2. Select a provider (WebLLM, OpenAI, etc.)\n3. Configure API key or load model\n4. Try templates again";
+      } else if (error.message.includes("timeout")) {
+        errorMessage +=
+          "\n\n⏰ Generation took too long. Try:\n1. Using a smaller/faster model\n2. Reducing the number of notes\n3. Checking your internet connection";
+      } else {
+        errorMessage += `\n\n❌ Error: ${error.message}\n\nPlease check your LLM configuration in Settings.`;
+      }
+
+      this.showError(errorMessage);
     }
   }
 
@@ -351,6 +391,97 @@ Make it comprehensive, well-structured, and professional. Use markdown formattin
   close() {
     this.classList.remove('show');
     this.isOpen = false;
+  }
+
+  checkLLMConfiguration(config) {
+    if (!config || !config.provider) {
+      return false;
+    }
+
+    switch (config.provider) {
+      case 'webllm':
+        return config.isLoaded === true;
+      case 'openai':
+      case 'anthropic':
+      case 'groq':
+        return config.apiKey && config.apiKey.length > 0;
+      case 'ollama':
+        return config.endpoint && config.model;
+      default:
+        return false;
+    }
+  }
+
+  showLLMConfigPrompt(template) {
+    const content = this.$('#content');
+    if (!content) return;
+
+    content.innerHTML = `
+      <div style="text-align: center; padding: 40px;">
+        <div style="font-size: 3rem; margin-bottom: 16px;">🤖</div>
+        <h3 style="margin: 0 0 16px 0; color: #333;">LLM Not Configured</h3>
+        <p style="color: #666; margin-bottom: 24px; line-height: 1.5;">
+          To generate a <strong>${template.name}</strong>, you need to configure an AI language model first.
+        </p>
+        <div style="background: #f8f9ff; border-radius: 8px; padding: 20px; margin-bottom: 24px; text-align: left;">
+          <h4 style="margin: 0 0 12px 0; color: #667eea;">Quick Setup Options:</h4>
+          <div style="margin-bottom: 12px;">🌐 <strong>WebLLM</strong> - Free, runs in browser (no API key needed)</div>
+          <div style="margin-bottom: 12px;">🚀 <strong>OpenAI</strong> - Fast, requires API key</div>
+          <div style="margin-bottom: 12px;">🏠 <strong>Ollama</strong> - Local server, privacy-focused</div>
+          <div>🔥 <strong>Groq</strong> - Ultra-fast inference</div>
+        </div>
+        <div style="display: flex; gap: 12px; justify-content: center;">
+          <button id="openSettingsBtn" style="padding: 12px 24px; background: #667eea; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 1rem;">
+            ⚙️ Open Settings
+          </button>
+          <button id="backBtn" style="padding: 12px 24px; background: #f5f5f5; color: #333; border: none; border-radius: 6px; cursor: pointer; font-size: 1rem;">
+            ← Back to Templates
+          </button>
+        </div>
+      </div>
+    `;
+
+    this.$('#openSettingsBtn')?.addEventListener('click', () => {
+      this.close();
+      // Trigger settings opening
+      const event = new CustomEvent('open-settings');
+      document.dispatchEvent(event);
+    });
+
+    this.$('#backBtn')?.addEventListener('click', () => {
+      this.renderTemplates();
+    });
+  }
+
+  showError(message) {
+    const content = this.$('#content');
+    if (!content) return;
+
+    content.innerHTML = `
+      <div style="text-align: center; padding: 40px;">
+        <div style="font-size: 3rem; margin-bottom: 16px;">❌</div>
+        <h3 style="margin: 0 0 16px 0; color: #d32f2f;">Generation Failed</h3>
+        <div style="background: #fff3f3; border: 1px solid #ffcdd2; border-radius: 8px; padding: 20px; margin-bottom: 24px; text-align: left; white-space: pre-line; color: #333;">
+          ${message}
+        </div>
+        <div style="display: flex; gap: 12px; justify-content: center;">
+          <button id="tryAgainBtn" style="padding: 12px 24px; background: #667eea; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 1rem;">
+            🔄 Try Again
+          </button>
+          <button id="backBtn" style="padding: 12px 24px; background: #f5f5f5; color: #333; border: none; border-radius: 6px; cursor: pointer; font-size: 1rem;">
+            ← Back to Templates
+          </button>
+        </div>
+      </div>
+    `;
+
+    this.$('#tryAgainBtn')?.addEventListener('click', () => {
+      this.renderTemplates();
+    });
+
+    this.$('#backBtn')?.addEventListener('click', () => {
+      this.renderTemplates();
+    });
   }
 }
 

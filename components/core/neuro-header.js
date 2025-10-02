@@ -39,9 +39,9 @@ export class NeuroHeader extends BaseComponent {
         }
 
         .header {
-          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+          background: var(--header-bg);
           padding: 16px 20px;
-          box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+          box-shadow: var(--shadow-md);
           display: flex;
           align-items: center;
           justify-content: space-between;
@@ -50,7 +50,7 @@ export class NeuroHeader extends BaseComponent {
         .logo {
           font-size: 1.5rem;
           font-weight: 700;
-          color: white;
+          color: var(--header-text);
           display: flex;
           align-items: center;
           gap: 8px;
@@ -75,9 +75,9 @@ export class NeuroHeader extends BaseComponent {
         }
 
         .btn {
-          background: rgba(255,255,255,0.2);
-          border: 1px solid rgba(255,255,255,0.3);
-          color: white;
+          background: var(--header-btn-bg);
+          border: 1px solid var(--header-btn-border);
+          color: var(--header-text);
           padding: 8px 16px;
           border-radius: 6px;
           cursor: pointer;
@@ -89,7 +89,7 @@ export class NeuroHeader extends BaseComponent {
         }
 
         .btn:hover {
-          background: rgba(255,255,255,0.3);
+          background: var(--header-btn-hover);
         }
 
         .btn .material-icons {
@@ -101,7 +101,9 @@ export class NeuroHeader extends BaseComponent {
         <div class="logo">
           <span class="material-icons">psychology</span>
           Neuro<span>Notes</span>
-          <span class="canvas-title" id="canvasTitle">— ${this._canvasName}${this._isDirty ? ' *' : ''}</span>
+          <span class="canvas-title" id="canvasTitle">— ${this._canvasName}${
+      this._isDirty ? " *" : ""
+    }</span>
         </div>
         <div class="actions">
           <button class="btn" id="newNoteBtn">

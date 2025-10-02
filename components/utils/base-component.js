@@ -1,3 +1,5 @@
+import { themeService } from "../../services/theme-service.js";
+
 /**
  * Base Component Class
  * All web components extend this class for shared functionality
@@ -5,9 +7,10 @@
 export class BaseComponent extends HTMLElement {
   constructor() {
     super();
-    this.attachShadow({ mode: 'open' });
+    this.attachShadow({ mode: "open" });
     this._state = {};
     this._subscriptions = [];
+    this._themeUnsubscribe = null;
   }
 
   /**
@@ -16,6 +19,38 @@ export class BaseComponent extends HTMLElement {
   connectedCallback() {
     this.render();
     this.attachEventListeners();
+    this.setupThemeSubscription();
+  }
+
+  /**
+   * Lifecycle: called when element is removed from DOM
+   */
+  disconnectedCallback() {
+    this.cleanup();
+    if (this._themeUnsubscribe) {
+      this._themeUnsubscribe();
+    }
+  }
+
+  /**
+   * Setup theme change subscription
+   */
+  setupThemeSubscription() {
+    this._themeUnsubscribe = themeService.subscribe((theme) => {
+      this.onThemeChange(theme);
+    });
+  }
+
+  /**
+   * Handle theme changes - can be overridden by components
+   */
+  onThemeChange(theme) {
+    // Theme is handled at document level via CSS custom properties
+    // Components automatically inherit the variables
+    console.log(
+      `🎨 Component ${this.constructor.name} received theme change:`,
+      theme
+    );
   }
 
   /**
@@ -24,7 +59,7 @@ export class BaseComponent extends HTMLElement {
   disconnectedCallback() {
     this.cleanup();
     // Unsubscribe from all events
-    this._subscriptions.forEach(unsubscribe => unsubscribe());
+    this._subscriptions.forEach((unsubscribe) => unsubscribe());
     this._subscriptions = [];
   }
 
@@ -48,7 +83,7 @@ export class BaseComponent extends HTMLElement {
    * Render the component (override in child classes)
    */
   render() {
-    throw new Error('render() must be implemented by child class');
+    throw new Error("render() must be implemented by child class");
   }
 
   /**
@@ -91,7 +126,7 @@ export class BaseComponent extends HTMLElement {
    * Create element from HTML string
    */
   createElementFromHTML(html) {
-    const template = document.createElement('template');
+    const template = document.createElement("template");
     template.innerHTML = html.trim();
     return template.content.firstChild;
   }
@@ -114,11 +149,13 @@ export class BaseComponent extends HTMLElement {
    * Emit custom event
    */
   emit(eventName, detail = {}) {
-    this.dispatchEvent(new CustomEvent(eventName, {
-      detail,
-      bubbles: true,
-      composed: true
-    }));
+    this.dispatchEvent(
+      new CustomEvent(eventName, {
+        detail,
+        bubbles: true,
+        composed: true,
+      })
+    );
   }
 
   /**
@@ -169,6 +206,13 @@ export class BaseComponent extends HTMLElement {
           text-rendering: optimizeLegibility;
           -moz-osx-font-smoothing: grayscale;
           font-feature-settings: 'liga';
+        }
+
+        ${themeService.getComponentStyles()}
+        
+        /* Theme transition for smooth changes */
+        * {
+          transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
         }
       </style>
     `;
